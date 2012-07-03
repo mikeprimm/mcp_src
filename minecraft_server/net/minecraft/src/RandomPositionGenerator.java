@@ -4,34 +4,34 @@ import java.util.Random;
 
 public class RandomPositionGenerator
 {
-    private static Vec3D field_48397_a = Vec3D.createVectorHelper(0.0D, 0.0D, 0.0D);
+    private static Vec3 field_48397_a = Vec3.createVectorHelper(0.0D, 0.0D, 0.0D);
 
     public RandomPositionGenerator()
     {
     }
 
-    public static Vec3D func_48396_a(EntityCreature par0EntityCreature, int par1, int par2)
+    public static Vec3 func_48396_a(EntityCreature par0EntityCreature, int par1, int par2)
     {
         return func_48393_c(par0EntityCreature, par1, par2, null);
     }
 
-    public static Vec3D func_48395_a(EntityCreature par0EntityCreature, int par1, int par2, Vec3D par3Vec3D)
+    public static Vec3 func_48395_a(EntityCreature par0EntityCreature, int par1, int par2, Vec3 par3Vec3)
     {
-        field_48397_a.xCoord = par3Vec3D.xCoord - par0EntityCreature.posX;
-        field_48397_a.yCoord = par3Vec3D.yCoord - par0EntityCreature.posY;
-        field_48397_a.zCoord = par3Vec3D.zCoord - par0EntityCreature.posZ;
+        field_48397_a.xCoord = par3Vec3.xCoord - par0EntityCreature.posX;
+        field_48397_a.yCoord = par3Vec3.yCoord - par0EntityCreature.posY;
+        field_48397_a.zCoord = par3Vec3.zCoord - par0EntityCreature.posZ;
         return func_48393_c(par0EntityCreature, par1, par2, field_48397_a);
     }
 
-    public static Vec3D func_48394_b(EntityCreature par0EntityCreature, int par1, int par2, Vec3D par3Vec3D)
+    public static Vec3 func_48394_b(EntityCreature par0EntityCreature, int par1, int par2, Vec3 par3Vec3)
     {
-        field_48397_a.xCoord = par0EntityCreature.posX - par3Vec3D.xCoord;
-        field_48397_a.yCoord = par0EntityCreature.posY - par3Vec3D.yCoord;
-        field_48397_a.zCoord = par0EntityCreature.posZ - par3Vec3D.zCoord;
+        field_48397_a.xCoord = par0EntityCreature.posX - par3Vec3.xCoord;
+        field_48397_a.yCoord = par0EntityCreature.posY - par3Vec3.yCoord;
+        field_48397_a.zCoord = par0EntityCreature.posZ - par3Vec3.zCoord;
         return func_48393_c(par0EntityCreature, par1, par2, field_48397_a);
     }
 
-    private static Vec3D func_48393_c(EntityCreature par0EntityCreature, int par1, int par2, Vec3D par3Vec3D)
+    private static Vec3 func_48393_c(EntityCreature par0EntityCreature, int par1, int par2, Vec3 par3Vec3)
     {
         Random random = par0EntityCreature.getRNG();
         boolean flag = false;
@@ -57,7 +57,7 @@ public class RandomPositionGenerator
             int j1 = random.nextInt(2 * par2) - par2;
             int k1 = random.nextInt(2 * par1) - par1;
 
-            if (par3Vec3D != null && (double)i1 * par3Vec3D.xCoord + (double)k1 * par3Vec3D.zCoord < 0.0D)
+            if (par3Vec3 != null && (double)i1 * par3Vec3.xCoord + (double)k1 * par3Vec3.zCoord < 0.0D)
             {
                 continue;
             }
@@ -85,7 +85,7 @@ public class RandomPositionGenerator
 
         if (flag)
         {
-            return Vec3D.createVector(i, j, k);
+            return Vec3.func_58052_a().func_58076_a(i, j, k);
         }
         else
         {

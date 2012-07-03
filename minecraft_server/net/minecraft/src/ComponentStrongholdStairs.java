@@ -38,7 +38,7 @@ public class ComponentStrongholdStairs extends ComponentStronghold
     }
 
     /**
-     * 'Initiates construction of the Structure Component picked, at the current Location of StructGen'
+     * Initiates construction of the Structure Component picked, at the current Location of StructGen
      */
     public void buildComponent(StructureComponent par1StructureComponent, List par2List, Random par3Random)
     {
@@ -51,7 +51,7 @@ public class ComponentStrongholdStairs extends ComponentStronghold
     }
 
     /**
-     * 'performs some checks, then gives out a fresh Stairs component'
+     * performs some checks, then gives out a fresh Stairs component
      */
     public static ComponentStrongholdStairs getStrongholdStairsComponent(List par0List, Random par1Random, int par2, int par3, int par4, int par5, int par6)
     {
@@ -68,8 +68,8 @@ public class ComponentStrongholdStairs extends ComponentStronghold
     }
 
     /**
-     * 'second Part of Structure generating, this for example places Spiderwebs, Mob Spawners, it closes Mineshafts at
-     * the end, it adds Fences...'
+     * second Part of Structure generating, this for example places Spiderwebs, Mob Spawners, it closes Mineshafts at
+     * the end, it adds Fences...
      */
     public boolean addComponentParts(World par1World, Random par2Random, StructureBoundingBox par3StructureBoundingBox)
     {
@@ -79,28 +79,26 @@ public class ComponentStrongholdStairs extends ComponentStronghold
         }
         else
         {
-            if (!field_35327_a);
-
             fillWithRandomizedBlocks(par1World, par3StructureBoundingBox, 0, 0, 0, 4, 10, 4, true, par2Random, StructureStrongholdPieces.getStrongholdStones());
             placeDoor(par1World, par2Random, par3StructureBoundingBox, doorType, 1, 7, 0);
             placeDoor(par1World, par2Random, par3StructureBoundingBox, EnumDoor.OPENING, 1, 1, 4);
             placeBlockAtCurrentPosition(par1World, Block.stoneBrick.blockID, 0, 2, 6, 1, par3StructureBoundingBox);
             placeBlockAtCurrentPosition(par1World, Block.stoneBrick.blockID, 0, 1, 5, 1, par3StructureBoundingBox);
-            placeBlockAtCurrentPosition(par1World, Block.stairSingle.blockID, 0, 1, 6, 1, par3StructureBoundingBox);
+            placeBlockAtCurrentPosition(par1World, Block.field_55133_ak.blockID, 0, 1, 6, 1, par3StructureBoundingBox);
             placeBlockAtCurrentPosition(par1World, Block.stoneBrick.blockID, 0, 1, 5, 2, par3StructureBoundingBox);
             placeBlockAtCurrentPosition(par1World, Block.stoneBrick.blockID, 0, 1, 4, 3, par3StructureBoundingBox);
-            placeBlockAtCurrentPosition(par1World, Block.stairSingle.blockID, 0, 1, 5, 3, par3StructureBoundingBox);
+            placeBlockAtCurrentPosition(par1World, Block.field_55133_ak.blockID, 0, 1, 5, 3, par3StructureBoundingBox);
             placeBlockAtCurrentPosition(par1World, Block.stoneBrick.blockID, 0, 2, 4, 3, par3StructureBoundingBox);
             placeBlockAtCurrentPosition(par1World, Block.stoneBrick.blockID, 0, 3, 3, 3, par3StructureBoundingBox);
-            placeBlockAtCurrentPosition(par1World, Block.stairSingle.blockID, 0, 3, 4, 3, par3StructureBoundingBox);
+            placeBlockAtCurrentPosition(par1World, Block.field_55133_ak.blockID, 0, 3, 4, 3, par3StructureBoundingBox);
             placeBlockAtCurrentPosition(par1World, Block.stoneBrick.blockID, 0, 3, 3, 2, par3StructureBoundingBox);
             placeBlockAtCurrentPosition(par1World, Block.stoneBrick.blockID, 0, 3, 2, 1, par3StructureBoundingBox);
-            placeBlockAtCurrentPosition(par1World, Block.stairSingle.blockID, 0, 3, 3, 1, par3StructureBoundingBox);
+            placeBlockAtCurrentPosition(par1World, Block.field_55133_ak.blockID, 0, 3, 3, 1, par3StructureBoundingBox);
             placeBlockAtCurrentPosition(par1World, Block.stoneBrick.blockID, 0, 2, 2, 1, par3StructureBoundingBox);
             placeBlockAtCurrentPosition(par1World, Block.stoneBrick.blockID, 0, 1, 1, 1, par3StructureBoundingBox);
-            placeBlockAtCurrentPosition(par1World, Block.stairSingle.blockID, 0, 1, 2, 1, par3StructureBoundingBox);
+            placeBlockAtCurrentPosition(par1World, Block.field_55133_ak.blockID, 0, 1, 2, 1, par3StructureBoundingBox);
             placeBlockAtCurrentPosition(par1World, Block.stoneBrick.blockID, 0, 1, 1, 2, par3StructureBoundingBox);
-            placeBlockAtCurrentPosition(par1World, Block.stairSingle.blockID, 0, 1, 1, 3, par3StructureBoundingBox);
+            placeBlockAtCurrentPosition(par1World, Block.field_55133_ak.blockID, 0, 1, 1, 3, par3StructureBoundingBox);
             return true;
         }
     }

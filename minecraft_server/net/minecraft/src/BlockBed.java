@@ -23,11 +23,7 @@ public class BlockBed extends BlockDirectional
         setBounds();
     }
 
-    /**
-     * Called upon block activation (left or right click on the block.). The three integers represent x,y,z of the
-     * block.
-     */
-    public boolean blockActivated(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer)
+    public boolean func_56323_a(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer, int par6, float par7, float par8, float par9)
     {
         if (par1World.isRemote)
         {
@@ -311,7 +307,7 @@ public class BlockBed extends BlockDirectional
             {
                 for (int i2 = i1; i2 <= k1; i2++)
                 {
-                    if (!par0World.isBlockNormalCube(l1, par2 - 1, i2) || !par0World.isAirBlock(l1, par2, i2) || !par0World.isAirBlock(l1, par2 + 1, i2))
+                    if (!par0World.func_58038_s(l1, par2 - 1, i2) || !par0World.isAirBlock(l1, par2, i2) || !par0World.isAirBlock(l1, par2 + 1, i2))
                     {
                         continue;
                     }

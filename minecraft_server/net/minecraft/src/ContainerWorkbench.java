@@ -4,7 +4,7 @@ import java.util.List;
 
 public class ContainerWorkbench extends Container
 {
-    /** The crafting matrix inventory. */
+    /** The crafting matrix inventory (3x3). */
     public InventoryCrafting craftMatrix;
     public IInventory craftResult;
     private World worldObj;
@@ -20,13 +20,13 @@ public class ContainerWorkbench extends Container
         posX = par3;
         posY = par4;
         posZ = par5;
-        addSlot(new SlotCrafting(par1InventoryPlayer.player, craftMatrix, craftResult, 0, 124, 35));
+        func_55143_a(new SlotCrafting(par1InventoryPlayer.player, craftMatrix, craftResult, 0, 124, 35));
 
         for (int i = 0; i < 3; i++)
         {
             for (int l = 0; l < 3; l++)
             {
-                addSlot(new Slot(craftMatrix, l + i * 3, 30 + l * 18, 17 + i * 18));
+                func_55143_a(new Slot(craftMatrix, l + i * 3, 30 + l * 18, 17 + i * 18));
             }
         }
 
@@ -34,13 +34,13 @@ public class ContainerWorkbench extends Container
         {
             for (int i1 = 0; i1 < 9; i1++)
             {
-                addSlot(new Slot(par1InventoryPlayer, i1 + j * 9 + 9, 8 + i1 * 18, 84 + j * 18));
+                func_55143_a(new Slot(par1InventoryPlayer, i1 + j * 9 + 9, 8 + i1 * 18, 84 + j * 18));
             }
         }
 
         for (int k = 0; k < 9; k++)
         {
-            addSlot(new Slot(par1InventoryPlayer, k, 8 + k * 18, 142));
+            func_55143_a(new Slot(par1InventoryPlayer, k, 8 + k * 18, 142));
         }
 
         onCraftMatrixChanged(craftMatrix);
@@ -137,14 +137,12 @@ public class ContainerWorkbench extends Container
                 slot.onSlotChanged();
             }
 
-            if (itemstack1.stackSize != itemstack.stackSize)
-            {
-                slot.onPickupFromSlot(itemstack1);
-            }
-            else
+            if (itemstack1.stackSize == itemstack.stackSize)
             {
                 return null;
             }
+
+            slot.onPickupFromSlot(itemstack1);
         }
 
         return itemstack;

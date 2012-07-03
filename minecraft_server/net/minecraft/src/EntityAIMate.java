@@ -74,8 +74,7 @@ public class EntityAIMate extends EntityAIBase
 
         for (Iterator iterator = list.iterator(); iterator.hasNext();)
         {
-            Entity entity = (Entity)iterator.next();
-            EntityAnimal entityanimal = (EntityAnimal)entity;
+            EntityAnimal entityanimal = (EntityAnimal)iterator.next();
 
             if (theAnimal.func_48362_b(entityanimal))
             {

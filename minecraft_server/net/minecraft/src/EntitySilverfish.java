@@ -71,7 +71,7 @@ public class EntitySilverfish extends EntityMob
      */
     public boolean attackEntityFrom(DamageSource par1DamageSource, int par2)
     {
-        if (allySummonCooldown <= 0 && (par1DamageSource instanceof EntityDamageSource))
+        if (allySummonCooldown <= 0 && ((par1DamageSource instanceof EntityDamageSource) || par1DamageSource == DamageSource.magic))
         {
             allySummonCooldown = 20;
         }
@@ -97,22 +97,6 @@ public class EntitySilverfish extends EntityMob
     protected void playStepSound(int par1, int par2, int par3, int par4)
     {
         worldObj.playSoundAtEntity(this, "mob.silverfish.step", 1.0F, 1.0F);
-    }
-
-    /**
-     * (abstract) Protected helper method to write subclass entity data to NBT.
-     */
-    public void writeEntityToNBT(NBTTagCompound par1NBTTagCompound)
-    {
-        super.writeEntityToNBT(par1NBTTagCompound);
-    }
-
-    /**
-     * (abstract) Protected helper method to read subclass entity data from NBT.
-     */
-    public void readEntityFromNBT(NBTTagCompound par1NBTTagCompound)
-    {
-        super.readEntityFromNBT(par1NBTTagCompound);
     }
 
     /**

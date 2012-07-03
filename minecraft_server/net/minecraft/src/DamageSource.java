@@ -13,6 +13,7 @@ public class DamageSource
     public static DamageSource outOfWorld = (new DamageSource("outOfWorld")).setDamageBypassesArmor().setDamageAllowedInCreativeMode();
     public static DamageSource generic = (new DamageSource("generic")).setDamageBypassesArmor();
     public static DamageSource explosion = new DamageSource("explosion");
+    public static DamageSource field_58044_m = new DamageSource("explosion");
     public static DamageSource magic = (new DamageSource("magic")).setDamageBypassesArmor();
 
     /** This kind of damage can be blocked or not. */
@@ -53,7 +54,14 @@ public class DamageSource
      */
     public static DamageSource causeFireballDamage(EntityFireball par0EntityFireball, Entity par1Entity)
     {
-        return (new EntityDamageSourceIndirect("fireball", par0EntityFireball, par1Entity)).setFireDamage().setProjectile();
+        if (par1Entity == null)
+        {
+            return (new EntityDamageSourceIndirect("onFire", par0EntityFireball, par0EntityFireball)).setFireDamage().setProjectile();
+        }
+        else
+        {
+            return (new EntityDamageSourceIndirect("fireball", par0EntityFireball, par1Entity)).setFireDamage().setProjectile();
+        }
     }
 
     public static DamageSource causeThrownDamage(Entity par0Entity, Entity par1Entity)

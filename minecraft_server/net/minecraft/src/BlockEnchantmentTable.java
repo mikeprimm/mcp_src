@@ -7,6 +7,7 @@ public class BlockEnchantmentTable extends BlockContainer
         super(par1, 166, Material.rock);
         setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 0.75F, 1.0F);
         setLightOpacity(0);
+        func_56326_a(CreativeTabs.field_56388_c);
     }
 
     /**
@@ -54,19 +55,12 @@ public class BlockEnchantmentTable extends BlockContainer
         }
     }
 
-    /**
-     * Returns the TileEntity used by this block.
-     */
-    public TileEntity getBlockEntity()
+    public TileEntity func_56351_a(World par1World)
     {
         return new TileEntityEnchantmentTable();
     }
 
-    /**
-     * Called upon block activation (left or right click on the block.). The three integers represent x,y,z of the
-     * block.
-     */
-    public boolean blockActivated(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer)
+    public boolean func_56323_a(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer, int par6, float par7, float par8, float par9)
     {
         if (par1World.isRemote)
         {

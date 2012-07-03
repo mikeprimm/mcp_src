@@ -43,9 +43,4 @@ public class NBTTagEnd extends NBTBase
     {
         return new NBTTagEnd();
     }
-
-    public boolean equals(Object par1Obj)
-    {
-        return super.equals(par1Obj);
-    }
 }

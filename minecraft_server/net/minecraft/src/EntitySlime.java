@@ -92,7 +92,7 @@ public class EntitySlime extends EntityLiving implements IMob
             isDead = true;
         }
 
-        field_401_a = field_401_a + (field_40122_a - field_401_a) * 0.5F;
+        field_401_a += (field_40122_a - field_401_a) * 0.5F;
         field_400_b = field_401_a;
         boolean flag = onGround;
         super.onUpdate();
@@ -116,6 +116,10 @@ public class EntitySlime extends EntityLiving implements IMob
             }
 
             field_40122_a = -0.5F;
+        }
+        else if (!onGround && flag)
+        {
+            field_40122_a = 1.0F;
         }
 
         func_40116_B();
@@ -147,7 +151,6 @@ public class EntitySlime extends EntityLiving implements IMob
                 worldObj.playSoundAtEntity(this, func_40118_E(), getSoundVolume(), ((rand.nextFloat() - rand.nextFloat()) * 0.2F + 1.0F) * 0.8F);
             }
 
-            field_40122_a = 1.0F;
             moveStrafing = 1.0F - rand.nextFloat() * 2.0F;
             moveForward = 1 * getSlimeSize();
         }
@@ -164,7 +167,7 @@ public class EntitySlime extends EntityLiving implements IMob
 
     protected void func_40116_B()
     {
-        field_40122_a = field_40122_a * 0.6F;
+        field_40122_a *= 0.6F;
     }
 
     protected int func_40115_A()
@@ -265,6 +268,11 @@ public class EntitySlime extends EntityLiving implements IMob
     public boolean getCanSpawnHere()
     {
         Chunk chunk = worldObj.getChunkFromBlockCoords(MathHelper.floor_double(posX), MathHelper.floor_double(posZ));
+
+        if (worldObj.getWorldInfo().getTerrainType() == WorldType.FLAT && rand.nextInt(4) != 1)
+        {
+            return false;
+        }
 
         if ((getSlimeSize() == 1 || worldObj.difficultySetting > 0) && rand.nextInt(10) == 0 && chunk.getRandomWithSeed(0x3ad8025fL).nextInt(10) == 0 && posY < 40D)
         {

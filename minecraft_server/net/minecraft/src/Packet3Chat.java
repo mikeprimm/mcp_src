@@ -8,19 +8,29 @@ public class Packet3Chat extends Packet
 
     /** The message being sent. */
     public String message;
+    private boolean field_55126_c;
 
     public Packet3Chat()
     {
+        field_55126_c = true;
     }
 
     public Packet3Chat(String par1Str)
     {
+        this(par1Str, true);
+    }
+
+    public Packet3Chat(String par1Str, boolean par2)
+    {
+        field_55126_c = true;
+
         if (par1Str.length() > field_52004_b)
         {
             par1Str = par1Str.substring(0, field_52004_b);
         }
 
         message = par1Str;
+        field_55126_c = par2;
     }
 
     /**
@@ -53,5 +63,10 @@ public class Packet3Chat extends Packet
     public int getPacketSize()
     {
         return 2 + message.length() * 2;
+    }
+
+    public boolean func_55125_b()
+    {
+        return field_55126_c;
     }
 }

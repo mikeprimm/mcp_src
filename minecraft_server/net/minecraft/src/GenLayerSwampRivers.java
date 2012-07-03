@@ -24,13 +24,7 @@ public class GenLayerSwampRivers extends GenLayer
                 initChunkSeed(j + par1, i + par2);
                 int k = ai[j + 1 + (i + 1) * (par3 + 2)];
 
-                if (k == BiomeGenBase.swampland.biomeID && nextInt(6) == 0)
-                {
-                    ai1[j + i * par3] = BiomeGenBase.river.biomeID;
-                    continue;
-                }
-
-                if ((k == BiomeGenBase.jungle.biomeID || k == BiomeGenBase.jungleHills.biomeID) && nextInt(8) == 0)
+                if (k == BiomeGenBase.swampland.biomeID && nextInt(6) == 0 || (k == BiomeGenBase.jungle.biomeID || k == BiomeGenBase.jungleHills.biomeID) && nextInt(8) == 0)
                 {
                     ai1[j + i * par3] = BiomeGenBase.river.biomeID;
                 }

@@ -1,6 +1,6 @@
 package net.minecraft.src;
 
-public class MinecraftException extends RuntimeException
+public class MinecraftException extends Exception
 {
     public MinecraftException(String par1Str)
     {

@@ -4,16 +4,11 @@ import java.util.*;
 
 public abstract class MapGenStructure extends MapGenBase
 {
-    protected HashMap coordMap;
+    protected Map field_55229_e;
 
     public MapGenStructure()
     {
-        coordMap = new HashMap();
-    }
-
-    public void generate(IChunkProvider par1IChunkProvider, World par2World, int par3, int par4, byte par5ArrayOfByte[])
-    {
-        super.generate(par1IChunkProvider, par2World, par3, par4, par5ArrayOfByte);
+        field_55229_e = new HashMap();
     }
 
     /**
@@ -21,7 +16,7 @@ public abstract class MapGenStructure extends MapGenBase
      */
     protected void recursiveGenerate(World par1World, int par2, int par3, int par4, int par5, byte par6ArrayOfByte[])
     {
-        if (coordMap.containsKey(Long.valueOf(ChunkCoordIntPair.chunkXZ2Int(par2, par3))))
+        if (field_55229_e.containsKey(Long.valueOf(ChunkCoordIntPair.chunkXZ2Int(par2, par3))))
         {
             return;
         }
@@ -31,7 +26,7 @@ public abstract class MapGenStructure extends MapGenBase
         if (canSpawnStructureAtCoords(par2, par3))
         {
             StructureStart structurestart = getStructureStart(par2, par3);
-            coordMap.put(Long.valueOf(ChunkCoordIntPair.chunkXZ2Int(par2, par3)), structurestart);
+            field_55229_e.put(Long.valueOf(ChunkCoordIntPair.chunkXZ2Int(par2, par3)), structurestart);
         }
     }
 
@@ -43,7 +38,7 @@ public abstract class MapGenStructure extends MapGenBase
         int i = (par3 << 4) + 8;
         int j = (par4 << 4) + 8;
         boolean flag = false;
-        Iterator iterator = coordMap.values().iterator();
+        Iterator iterator = field_55229_e.values().iterator();
 
         do
         {
@@ -67,7 +62,7 @@ public abstract class MapGenStructure extends MapGenBase
 
     public boolean func_40204_a(int par1, int par2, int par3)
     {
-        Iterator iterator = coordMap.values().iterator();
+        Iterator iterator = field_55229_e.values().iterator();
         label0:
 
         do
@@ -119,7 +114,7 @@ public abstract class MapGenStructure extends MapGenBase
         recursiveGenerate(par1World, par2 >> 4, par4 >> 4, 0, 0, null);
         double d = Double.MAX_VALUE;
         ChunkPosition chunkposition = null;
-        Object obj = coordMap.values().iterator();
+        Object obj = field_55229_e.values().iterator();
 
         do
         {

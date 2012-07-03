@@ -5,6 +5,7 @@ public class BlockCloth extends Block
     public BlockCloth()
     {
         super(35, 64, Material.cloth);
+        func_56326_a(CreativeTabs.field_56387_b);
     }
 
     /**

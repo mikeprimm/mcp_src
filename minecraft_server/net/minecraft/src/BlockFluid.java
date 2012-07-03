@@ -28,8 +28,7 @@ public abstract class BlockFluid extends Block
             par0 = 0;
         }
 
-        float f = (float)(par0 + 1) / 9F;
-        return f;
+        return (float)(par0 + 1) / 9F;
     }
 
     /**
@@ -53,13 +52,13 @@ public abstract class BlockFluid extends Block
      */
     protected int getFlowDecay(World par1World, int par2, int par3, int par4)
     {
-        if (par1World.getBlockMaterial(par2, par3, par4) != blockMaterial)
+        if (par1World.getBlockMaterial(par2, par3, par4) == blockMaterial)
         {
-            return -1;
+            return par1World.getBlockMetadata(par2, par3, par4);
         }
         else
         {
-            return par1World.getBlockMetadata(par2, par3, par4);
+            return -1;
         }
     }
 
@@ -173,9 +172,9 @@ public abstract class BlockFluid extends Block
     /**
      * Returns a vector indicating the direction and intensity of fluid flow.
      */
-    private Vec3D getFlowVector(IBlockAccess par1IBlockAccess, int par2, int par3, int par4)
+    private Vec3 getFlowVector(IBlockAccess par1IBlockAccess, int par2, int par3, int par4)
     {
-        Vec3D vec3d = Vec3D.createVector(0.0D, 0.0D, 0.0D);
+        Vec3 vec3 = Vec3.func_58052_a().func_58076_a(0.0D, 0.0D, 0.0D);
         int i = getEffectiveFlowDecay(par1IBlockAccess, par2, par3, par4);
 
         for (int j = 0; j < 4; j++)
@@ -218,7 +217,7 @@ public abstract class BlockFluid extends Block
                 if (j1 >= 0)
                 {
                     int k1 = j1 - (i - 8);
-                    vec3d = vec3d.addVector((k - par2) * k1, (l - par3) * k1, (i1 - par4) * k1);
+                    vec3 = vec3.addVector((k - par2) * k1, (l - par3) * k1, (i1 - par4) * k1);
                 }
 
                 continue;
@@ -227,7 +226,7 @@ public abstract class BlockFluid extends Block
             if (j1 >= 0)
             {
                 int l1 = j1 - i;
-                vec3d = vec3d.addVector((k - par2) * l1, (l - par3) * l1, (i1 - par4) * l1);
+                vec3 = vec3.addVector((k - par2) * l1, (l - par3) * l1, (i1 - par4) * l1);
             }
         }
 
@@ -277,23 +276,23 @@ public abstract class BlockFluid extends Block
 
             if (flag)
             {
-                vec3d = vec3d.normalize().addVector(0.0D, -6D, 0.0D);
+                vec3 = vec3.normalize().addVector(0.0D, -6D, 0.0D);
             }
         }
 
-        vec3d = vec3d.normalize();
-        return vec3d;
+        vec3 = vec3.normalize();
+        return vec3;
     }
 
     /**
      * Can add to the passed in vector for a movement vector to be applied to the entity. Args: x, y, z, entity, vec3d
      */
-    public void velocityToAddToEntity(World par1World, int par2, int par3, int par4, Entity par5Entity, Vec3D par6Vec3D)
+    public void velocityToAddToEntity(World par1World, int par2, int par3, int par4, Entity par5Entity, Vec3 par6Vec3)
     {
-        Vec3D vec3d = getFlowVector(par1World, par2, par3, par4);
-        par6Vec3D.xCoord += vec3d.xCoord;
-        par6Vec3D.yCoord += vec3d.yCoord;
-        par6Vec3D.zCoord += vec3d.zCoord;
+        Vec3 vec3 = getFlowVector(par1World, par2, par3, par4);
+        par6Vec3.xCoord += vec3.xCoord;
+        par6Vec3.yCoord += vec3.yCoord;
+        par6Vec3.zCoord += vec3.zCoord;
     }
 
     /**
@@ -307,14 +306,6 @@ public abstract class BlockFluid extends Block
         }
 
         return blockMaterial != Material.lava ? 0 : 30;
-    }
-
-    /**
-     * Ticks the block if it's been scheduled
-     */
-    public void updateTick(World par1World, int par2, int par3, int par4, Random par5Random)
-    {
-        super.updateTick(par1World, par2, par3, par4, par5Random);
     }
 
     /**

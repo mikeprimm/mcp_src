@@ -5,6 +5,8 @@ import net.minecraft.server.MinecraftServer;
 
 public class EntityTracker
 {
+    private final WorldServer field_55231_a;
+
     /**
      * List of tracked entities, used for iteration operations on tracked entities.
      */
@@ -12,19 +14,14 @@ public class EntityTracker
 
     /** Used for identity lookup of tracked entities. */
     private IntHashMap trackedEntityHashTable;
-
-    /** Reference to the MinecraftServer object. */
-    private MinecraftServer mcServer;
     private int maxTrackingDistanceThreshold;
-    private int field_28113_e;
 
-    public EntityTracker(MinecraftServer par1MinecraftServer, int par2)
+    public EntityTracker(WorldServer par1WorldServer)
     {
         trackedEntitySet = new HashSet();
         trackedEntityHashTable = new IntHashMap();
-        mcServer = par1MinecraftServer;
-        field_28113_e = par2;
-        maxTrackingDistanceThreshold = par1MinecraftServer.configManager.getMaxTrackingDistance();
+        field_55231_a = par1WorldServer;
+        maxTrackingDistanceThreshold = par1WorldServer.func_55202_B().func_56173_Y().func_56424_a();
     }
 
     public void trackEntity(Entity par1Entity)
@@ -77,7 +74,7 @@ public class EntityTracker
         }
         else if (par1Entity instanceof EntityEnderEye)
         {
-            trackEntity(par1Entity, 64, 10, true);
+            trackEntity(par1Entity, 64, 4, true);
         }
         else if (par1Entity instanceof EntityEgg)
         {
@@ -158,7 +155,7 @@ public class EntityTracker
             EntityTrackerEntry entitytrackerentry = new EntityTrackerEntry(par1Entity, par2, par3, par4);
             trackedEntitySet.add(entitytrackerentry);
             trackedEntityHashTable.addKey(par1Entity.entityId, entitytrackerentry);
-            entitytrackerentry.updatePlayerEntities(mcServer.getWorldManager(field_28113_e).playerEntities);
+            entitytrackerentry.updatePlayerEntities(field_55231_a.playerEntities);
             return;
         }
     }
@@ -198,7 +195,7 @@ public class EntityTracker
             }
 
             EntityTrackerEntry entitytrackerentry = (EntityTrackerEntry)iterator.next();
-            entitytrackerentry.updatePlayerList(mcServer.getWorldManager(field_28113_e).playerEntities);
+            entitytrackerentry.updatePlayerList(field_55231_a.playerEntities);
 
             if (entitytrackerentry.playerEntitiesUpdated && (entitytrackerentry.trackedEntity instanceof EntityPlayerMP))
             {
@@ -207,28 +204,21 @@ public class EntityTracker
         }
         while (true);
 
-        label0:
-
-        for (int i = 0; i < arraylist.size(); i++)
+        for (Iterator iterator1 = arraylist.iterator(); iterator1.hasNext();)
         {
-            EntityPlayerMP entityplayermp = (EntityPlayerMP)arraylist.get(i);
-            Iterator iterator1 = trackedEntitySet.iterator();
+            EntityPlayerMP entityplayermp = (EntityPlayerMP)iterator1.next();
+            EntityPlayerMP entityplayermp1 = entityplayermp;
+            Iterator iterator2 = trackedEntitySet.iterator();
 
-            do
+            while (iterator2.hasNext())
             {
-                if (!iterator1.hasNext())
-                {
-                    continue label0;
-                }
+                EntityTrackerEntry entitytrackerentry1 = (EntityTrackerEntry)iterator2.next();
 
-                EntityTrackerEntry entitytrackerentry1 = (EntityTrackerEntry)iterator1.next();
-
-                if (entitytrackerentry1.trackedEntity != entityplayermp)
+                if (entitytrackerentry1.trackedEntity != entityplayermp1)
                 {
-                    entitytrackerentry1.updatePlayerEntity(entityplayermp);
+                    entitytrackerentry1.updatePlayerEntity(entityplayermp1);
                 }
             }
-            while (true);
         }
     }
 

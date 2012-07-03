@@ -5,42 +5,35 @@ import java.util.Random;
 
 public class ComponentVillageHouse2 extends ComponentVillage
 {
-    private static final StructurePieceTreasure chestLoot[];
+    private static final WeightedRandomChestContent field_55101_a[];
     private int averageGroundLevel;
     private boolean hasMadeChest;
 
-    public ComponentVillageHouse2(int par1, Random par2Random, StructureBoundingBox par3StructureBoundingBox, int par4)
+    public ComponentVillageHouse2(ComponentVillageStartPiece par1ComponentVillageStartPiece, int par2, Random par3Random, StructureBoundingBox par4StructureBoundingBox, int par5)
     {
-        super(par1);
+        super(par1ComponentVillageStartPiece, par2);
         averageGroundLevel = -1;
-        coordBaseMode = par4;
-        boundingBox = par3StructureBoundingBox;
+        coordBaseMode = par5;
+        boundingBox = par4StructureBoundingBox;
     }
 
-    /**
-     * 'Initiates construction of the Structure Component picked, at the current Location of StructGen'
-     */
-    public void buildComponent(StructureComponent structurecomponent, List list, Random random)
+    public static ComponentVillageHouse2 func_56313_a(ComponentVillageStartPiece par0ComponentVillageStartPiece, List par1List, Random par2Random, int par3, int par4, int par5, int par6, int par7)
     {
-    }
+        StructureBoundingBox structureboundingbox = StructureBoundingBox.getComponentToAddBoundingBox(par3, par4, par5, 0, 0, 0, 10, 6, 7, par6);
 
-    public static ComponentVillageHouse2 findValidPlacement(List par0List, Random par1Random, int par2, int par3, int par4, int par5, int par6)
-    {
-        StructureBoundingBox structureboundingbox = StructureBoundingBox.getComponentToAddBoundingBox(par2, par3, par4, 0, 0, 0, 10, 6, 7, par5);
-
-        if (!canVillageGoDeeper(structureboundingbox) || StructureComponent.findIntersecting(par0List, structureboundingbox) != null)
+        if (!canVillageGoDeeper(structureboundingbox) || StructureComponent.findIntersecting(par1List, structureboundingbox) != null)
         {
             return null;
         }
         else
         {
-            return new ComponentVillageHouse2(par6, par1Random, structureboundingbox, par5);
+            return new ComponentVillageHouse2(par0ComponentVillageStartPiece, par7, par2Random, structureboundingbox, par6);
         }
     }
 
     /**
-     * 'second Part of Structure generating, this for example places Spiderwebs, Mob Spawners, it closes Mineshafts at
-     * the end, it adds Fences...'
+     * second Part of Structure generating, this for example places Spiderwebs, Mob Spawners, it closes Mineshafts at
+     * the end, it adds Fences...
      */
     public boolean addComponentParts(World par1World, Random par2Random, StructureBoundingBox par3StructureBoundingBox)
     {
@@ -59,7 +52,7 @@ public class ComponentVillageHouse2 extends ComponentVillage
         fillWithBlocks(par1World, par3StructureBoundingBox, 0, 1, 0, 9, 4, 6, 0, 0, false);
         fillWithBlocks(par1World, par3StructureBoundingBox, 0, 0, 0, 9, 0, 6, Block.cobblestone.blockID, Block.cobblestone.blockID, false);
         fillWithBlocks(par1World, par3StructureBoundingBox, 0, 4, 0, 9, 4, 6, Block.cobblestone.blockID, Block.cobblestone.blockID, false);
-        fillWithBlocks(par1World, par3StructureBoundingBox, 0, 5, 0, 9, 5, 6, Block.stairSingle.blockID, Block.stairSingle.blockID, false);
+        fillWithBlocks(par1World, par3StructureBoundingBox, 0, 5, 0, 9, 5, 6, Block.field_55133_ak.blockID, Block.field_55133_ak.blockID, false);
         fillWithBlocks(par1World, par3StructureBoundingBox, 1, 5, 1, 8, 5, 5, 0, 0, false);
         fillWithBlocks(par1World, par3StructureBoundingBox, 1, 1, 0, 2, 3, 0, Block.planks.blockID, Block.planks.blockID, false);
         fillWithBlocks(par1World, par3StructureBoundingBox, 0, 1, 0, 0, 4, 0, Block.wood.blockID, Block.wood.blockID, false);
@@ -81,7 +74,7 @@ public class ComponentVillageHouse2 extends ComponentVillage
         placeBlockAtCurrentPosition(par1World, Block.cobblestone.blockID, 0, 6, 1, 3, par3StructureBoundingBox);
         placeBlockAtCurrentPosition(par1World, Block.stoneOvenIdle.blockID, 0, 6, 2, 3, par3StructureBoundingBox);
         placeBlockAtCurrentPosition(par1World, Block.stoneOvenIdle.blockID, 0, 6, 3, 3, par3StructureBoundingBox);
-        placeBlockAtCurrentPosition(par1World, Block.stairDouble.blockID, 0, 8, 1, 1, par3StructureBoundingBox);
+        placeBlockAtCurrentPosition(par1World, Block.field_55134_aj.blockID, 0, 8, 1, 1, par3StructureBoundingBox);
         placeBlockAtCurrentPosition(par1World, Block.thinGlass.blockID, 0, 0, 2, 2, par3StructureBoundingBox);
         placeBlockAtCurrentPosition(par1World, Block.thinGlass.blockID, 0, 0, 2, 4, par3StructureBoundingBox);
         placeBlockAtCurrentPosition(par1World, Block.thinGlass.blockID, 0, 2, 2, 6, par3StructureBoundingBox);
@@ -101,7 +94,7 @@ public class ComponentVillageHouse2 extends ComponentVillage
             if (par3StructureBoundingBox.isVecInside(l, i, j1))
             {
                 hasMadeChest = true;
-                createTreasureChestAtCurrentPosition(par1World, par3StructureBoundingBox, par2Random, 5, 1, 5, chestLoot, 3 + par2Random.nextInt(6));
+                func_56289_a(par1World, par3StructureBoundingBox, par2Random, 5, 1, 5, field_55101_a, 3 + par2Random.nextInt(6));
             }
         }
 
@@ -136,10 +129,10 @@ public class ComponentVillageHouse2 extends ComponentVillage
 
     static
     {
-        chestLoot = (new StructurePieceTreasure[]
+        field_55101_a = (new WeightedRandomChestContent[]
                 {
-                    new StructurePieceTreasure(Item.diamond.shiftedIndex, 0, 1, 3, 3), new StructurePieceTreasure(Item.ingotIron.shiftedIndex, 0, 1, 5, 10), new StructurePieceTreasure(Item.ingotGold.shiftedIndex, 0, 1, 3, 5), new StructurePieceTreasure(Item.bread.shiftedIndex, 0, 1, 3, 15), new StructurePieceTreasure(Item.appleRed.shiftedIndex, 0, 1, 3, 15), new StructurePieceTreasure(Item.pickaxeSteel.shiftedIndex, 0, 1, 1, 5), new StructurePieceTreasure(Item.swordSteel.shiftedIndex, 0, 1, 1, 5), new StructurePieceTreasure(Item.plateSteel.shiftedIndex, 0, 1, 1, 5), new StructurePieceTreasure(Item.helmetSteel.shiftedIndex, 0, 1, 1, 5), new StructurePieceTreasure(Item.legsSteel.shiftedIndex, 0, 1, 1, 5),
-                    new StructurePieceTreasure(Item.bootsSteel.shiftedIndex, 0, 1, 1, 5), new StructurePieceTreasure(Block.obsidian.blockID, 0, 3, 7, 5), new StructurePieceTreasure(Block.sapling.blockID, 0, 3, 7, 5)
+                    new WeightedRandomChestContent(Item.field_56457_n.shiftedIndex, 0, 1, 3, 3), new WeightedRandomChestContent(Item.ingotIron.shiftedIndex, 0, 1, 5, 10), new WeightedRandomChestContent(Item.ingotGold.shiftedIndex, 0, 1, 3, 5), new WeightedRandomChestContent(Item.bread.shiftedIndex, 0, 1, 3, 15), new WeightedRandomChestContent(Item.appleRed.shiftedIndex, 0, 1, 3, 15), new WeightedRandomChestContent(Item.pickaxeSteel.shiftedIndex, 0, 1, 1, 5), new WeightedRandomChestContent(Item.swordSteel.shiftedIndex, 0, 1, 1, 5), new WeightedRandomChestContent(Item.plateSteel.shiftedIndex, 0, 1, 1, 5), new WeightedRandomChestContent(Item.helmetSteel.shiftedIndex, 0, 1, 1, 5), new WeightedRandomChestContent(Item.legsSteel.shiftedIndex, 0, 1, 1, 5),
+                    new WeightedRandomChestContent(Item.bootsSteel.shiftedIndex, 0, 1, 1, 5), new WeightedRandomChestContent(Block.obsidian.blockID, 0, 3, 7, 5), new WeightedRandomChestContent(Block.sapling.blockID, 0, 3, 7, 5)
                 });
     }
 }

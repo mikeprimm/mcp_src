@@ -13,7 +13,7 @@ public class EnchantmentUntouching extends Enchantment
      */
     public int getMinEnchantability(int par1)
     {
-        return 25;
+        return 15;
     }
 
     /**

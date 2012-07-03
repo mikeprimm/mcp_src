@@ -9,7 +9,7 @@ public class EntitySnowman extends EntityGolem
         super(par1World);
         texture = "/mob/snowman.png";
         setSize(0.4F, 1.8F);
-        getNavigator().func_48656_a(true);
+        getNavigator().setAvoidsWater(true);
         tasks.addTask(1, new EntityAIArrowAttack(this, 0.25F, 2, 20));
         tasks.addTask(2, new EntityAIWander(this, 0.2F));
         tasks.addTask(3, new EntityAIWatchClosest(this, net.minecraft.src.EntityPlayer.class, 6F));
@@ -62,22 +62,6 @@ public class EntitySnowman extends EntityGolem
                 worldObj.setBlockWithNotify(l, i1, j1, Block.snow.blockID);
             }
         }
-    }
-
-    /**
-     * (abstract) Protected helper method to write subclass entity data to NBT.
-     */
-    public void writeEntityToNBT(NBTTagCompound par1NBTTagCompound)
-    {
-        super.writeEntityToNBT(par1NBTTagCompound);
-    }
-
-    /**
-     * (abstract) Protected helper method to read subclass entity data from NBT.
-     */
-    public void readEntityFromNBT(NBTTagCompound par1NBTTagCompound)
-    {
-        super.readEntityFromNBT(par1NBTTagCompound);
     }
 
     /**

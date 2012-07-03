@@ -10,10 +10,7 @@ public class BlockPistonMoving extends BlockContainer
         setHardness(-1F);
     }
 
-    /**
-     * Returns the TileEntity used by this block.
-     */
-    public TileEntity getBlockEntity()
+    public TileEntity func_56351_a(World par1World)
     {
         return null;
     }
@@ -25,20 +22,17 @@ public class BlockPistonMoving extends BlockContainer
     {
     }
 
-    /**
-     * Called whenever the block is removed.
-     */
-    public void onBlockRemoval(World par1World, int par2, int par3, int par4)
+    public void func_56322_a(World par1World, int par2, int par3, int par4, int par5, int par6)
     {
         TileEntity tileentity = par1World.getBlockTileEntity(par2, par3, par4);
 
-        if (tileentity != null && (tileentity instanceof TileEntityPiston))
+        if (tileentity instanceof TileEntityPiston)
         {
             ((TileEntityPiston)tileentity).clearPistonTileEntity();
         }
         else
         {
-            super.onBlockRemoval(par1World, par2, par3, par4);
+            super.func_56322_a(par1World, par2, par3, par4, par5, par6);
         }
     }
 
@@ -83,11 +77,7 @@ public class BlockPistonMoving extends BlockContainer
         return false;
     }
 
-    /**
-     * Called upon block activation (left or right click on the block.). The three integers represent x,y,z of the
-     * block.
-     */
-    public boolean blockActivated(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer)
+    public boolean func_56323_a(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer, int par6, float par7, float par8, float par9)
     {
         if (!par1World.isRemote && par1World.getBlockTileEntity(par2, par3, par4) == null)
         {
@@ -259,7 +249,7 @@ public class BlockPistonMoving extends BlockContainer
     {
         TileEntity tileentity = par1IBlockAccess.getBlockTileEntity(par2, par3, par4);
 
-        if (tileentity != null && (tileentity instanceof TileEntityPiston))
+        if (tileentity instanceof TileEntityPiston)
         {
             return (TileEntityPiston)tileentity;
         }

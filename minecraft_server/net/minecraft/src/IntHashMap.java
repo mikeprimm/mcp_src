@@ -104,6 +104,7 @@ public class IntHashMap
             if (inthashmapentry.hashEntry == par1)
             {
                 inthashmapentry.valueEntry = par2Obj;
+                return;
             }
         }
 

@@ -30,7 +30,7 @@ public class ChunkProviderServer implements IChunkProvider
     public ChunkProviderServer(WorldServer par1WorldServer, IChunkLoader par2IChunkLoader, IChunkProvider par3IChunkProvider)
     {
         droppedChunksSet = new HashSet();
-        chunkLoadOverride = false;
+        chunkLoadOverride = true;
         id2ChunkMap = new LongHashMap();
         field_727_f = new ArrayList();
         dummyChunk = new EmptyChunk(par1WorldServer, 0, 0);
@@ -107,7 +107,6 @@ public class ChunkProviderServer implements IChunkProvider
 
             if (chunk != null)
             {
-                chunk.func_4053_c();
                 chunk.onChunkLoad();
             }
 
@@ -201,6 +200,10 @@ public class ChunkProviderServer implements IChunkProvider
         {
             ioexception.printStackTrace();
         }
+        catch (MinecraftException minecraftexception)
+        {
+            minecraftexception.printStackTrace();
+        }
     }
 
     /**
@@ -230,26 +233,24 @@ public class ChunkProviderServer implements IChunkProvider
     {
         int i = 0;
 
-        for (int j = 0; j < field_727_f.size(); j++)
+        for (Iterator iterator = field_727_f.iterator(); iterator.hasNext();)
         {
-            Chunk chunk = (Chunk)field_727_f.get(j);
+            Chunk chunk = (Chunk)iterator.next();
 
             if (par1)
             {
                 saveChunkExtraData(chunk);
             }
 
-            if (!chunk.needsSaving(par1))
+            if (chunk.needsSaving(par1))
             {
-                continue;
-            }
+                saveChunkData(chunk);
+                chunk.isModified = false;
 
-            saveChunkData(chunk);
-            chunk.isModified = false;
-
-            if (++i == 24 && !par1)
-            {
-                return false;
+                if (++i == 24 && !par1)
+                {
+                    return false;
+                }
             }
         }
 
@@ -325,5 +326,10 @@ public class ChunkProviderServer implements IChunkProvider
     public ChunkPosition findClosestStructure(World par1World, String par2Str, int par3, int par4, int par5)
     {
         return serverChunkGenerator.findClosestStructure(par1World, par2Str, par3, par4, par5);
+    }
+
+    public int func_56538_d()
+    {
+        return id2ChunkMap.getNumHashElements();
     }
 }

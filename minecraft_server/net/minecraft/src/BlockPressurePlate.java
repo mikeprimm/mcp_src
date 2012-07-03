@@ -12,6 +12,7 @@ public class BlockPressurePlate extends Block
     {
         super(par1, par2, par4Material);
         triggerMobType = par3EnumMobType;
+        func_56326_a(CreativeTabs.field_56385_d);
         setTickRandomly(true);
         float f = 0.0625F;
         setBlockBounds(f, 0.0F, f, 1.0F - f, 0.03125F, 1.0F - f);
@@ -61,14 +62,7 @@ public class BlockPressurePlate extends Block
      */
     public boolean canPlaceBlockAt(World par1World, int par2, int par3, int par4)
     {
-        return par1World.isBlockNormalCube(par2, par3 - 1, par4) || par1World.getBlockId(par2, par3 - 1, par4) == Block.fence.blockID;
-    }
-
-    /**
-     * Called whenever the block is added into the world. Args: world, x, y, z
-     */
-    public void onBlockAdded(World world, int i, int j, int k)
-    {
+        return par1World.func_58038_s(par2, par3 - 1, par4) || BlockFence.func_56355_d(par1World.getBlockId(par2, par3 - 1, par4));
     }
 
     /**
@@ -79,7 +73,7 @@ public class BlockPressurePlate extends Block
     {
         boolean flag = false;
 
-        if (!par1World.isBlockNormalCube(par2, par3 - 1, par4) && par1World.getBlockId(par2, par3 - 1, par4) != Block.fence.blockID)
+        if (!par1World.func_58038_s(par2, par3 - 1, par4) && !BlockFence.func_56355_d(par1World.getBlockId(par2, par3 - 1, par4)))
         {
             flag = true;
         }
@@ -145,20 +139,20 @@ public class BlockPressurePlate extends Block
 
         if (triggerMobType == EnumMobType.everything)
         {
-            list = par1World.getEntitiesWithinAABBExcludingEntity(null, AxisAlignedBB.getBoundingBoxFromPool((float)par2 + f, par3, (float)par4 + f, (float)(par2 + 1) - f, (double)par3 + 0.25D, (float)(par4 + 1) - f));
+            list = par1World.getEntitiesWithinAABBExcludingEntity(null, AxisAlignedBB.func_58089_a().func_58067_a((float)par2 + f, par3, (float)par4 + f, (float)(par2 + 1) - f, (double)par3 + 0.25D, (float)(par4 + 1) - f));
         }
 
         if (triggerMobType == EnumMobType.mobs)
         {
-            list = par1World.getEntitiesWithinAABB(net.minecraft.src.EntityLiving.class, AxisAlignedBB.getBoundingBoxFromPool((float)par2 + f, par3, (float)par4 + f, (float)(par2 + 1) - f, (double)par3 + 0.25D, (float)(par4 + 1) - f));
+            list = par1World.getEntitiesWithinAABB(net.minecraft.src.EntityLiving.class, AxisAlignedBB.func_58089_a().func_58067_a((float)par2 + f, par3, (float)par4 + f, (float)(par2 + 1) - f, (double)par3 + 0.25D, (float)(par4 + 1) - f));
         }
 
         if (triggerMobType == EnumMobType.players)
         {
-            list = par1World.getEntitiesWithinAABB(net.minecraft.src.EntityPlayer.class, AxisAlignedBB.getBoundingBoxFromPool((float)par2 + f, par3, (float)par4 + f, (float)(par2 + 1) - f, (double)par3 + 0.25D, (float)(par4 + 1) - f));
+            list = par1World.getEntitiesWithinAABB(net.minecraft.src.EntityPlayer.class, AxisAlignedBB.func_58089_a().func_58067_a((float)par2 + f, par3, (float)par4 + f, (float)(par2 + 1) - f, (double)par3 + 0.25D, (float)(par4 + 1) - f));
         }
 
-        if (list.size() > 0)
+        if (!list.isEmpty())
         {
             flag1 = true;
         }
@@ -187,20 +181,15 @@ public class BlockPressurePlate extends Block
         }
     }
 
-    /**
-     * Called whenever the block is removed.
-     */
-    public void onBlockRemoval(World par1World, int par2, int par3, int par4)
+    public void func_56322_a(World par1World, int par2, int par3, int par4, int par5, int par6)
     {
-        int i = par1World.getBlockMetadata(par2, par3, par4);
-
-        if (i > 0)
+        if (par6 > 0)
         {
             par1World.notifyBlocksOfNeighborChange(par2, par3, par4, blockID);
             par1World.notifyBlocksOfNeighborChange(par2, par3 - 1, par4, blockID);
         }
 
-        super.onBlockRemoval(par1World, par2, par3, par4);
+        super.func_56322_a(par1World, par2, par3, par4, par5, par6);
     }
 
     /**

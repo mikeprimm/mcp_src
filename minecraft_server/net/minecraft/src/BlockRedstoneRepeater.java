@@ -36,7 +36,7 @@ public class BlockRedstoneRepeater extends BlockDirectional
      */
     public boolean canPlaceBlockAt(World par1World, int par2, int par3, int par4)
     {
-        if (!par1World.isBlockNormalCube(par2, par3 - 1, par4))
+        if (!par1World.func_58038_s(par2, par3 - 1, par4))
         {
             return false;
         }
@@ -51,7 +51,7 @@ public class BlockRedstoneRepeater extends BlockDirectional
      */
     public boolean canBlockStay(World par1World, int par2, int par3, int par4)
     {
-        if (!par1World.isBlockNormalCube(par2, par3 - 1, par4))
+        if (!par1World.func_58038_s(par2, par3 - 1, par4))
         {
             return false;
         }
@@ -182,11 +182,7 @@ public class BlockRedstoneRepeater extends BlockDirectional
         boolean flag = ignoreTick(par1World, par2, par3, par4, i);
         int j = (i & 0xc) >> 2;
 
-        if (isRepeaterPowered && !flag)
-        {
-            par1World.scheduleBlockUpdate(par2, par3, par4, blockID, repeaterState[j] * 2);
-        }
-        else if (!isRepeaterPowered && flag)
+        if (isRepeaterPowered && !flag || !isRepeaterPowered && flag)
         {
             par1World.scheduleBlockUpdate(par2, par3, par4, blockID, repeaterState[j] * 2);
         }
@@ -214,11 +210,7 @@ public class BlockRedstoneRepeater extends BlockDirectional
         return false;
     }
 
-    /**
-     * Called upon block activation (left or right click on the block.). The three integers represent x,y,z of the
-     * block.
-     */
-    public boolean blockActivated(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer)
+    public boolean func_56323_a(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer, int par6, float par7, float par8, float par9)
     {
         int i = par1World.getBlockMetadata(par2, par3, par4);
         int j = (i & 0xc) >> 2;

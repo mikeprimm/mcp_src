@@ -4,13 +4,11 @@ public class ServerCommand
 {
     /** The command string. */
     public final String command;
+    public final ICommandSender field_55233_b;
 
-    /** The CommandListener object associated with this command. */
-    public final ICommandListener commandListener;
-
-    public ServerCommand(String par1Str, ICommandListener par2ICommandListener)
+    public ServerCommand(String par1Str, ICommandSender par2ICommandSender)
     {
         command = par1Str;
-        commandListener = par2ICommandListener;
+        field_55233_b = par2ICommandSender;
     }
 }

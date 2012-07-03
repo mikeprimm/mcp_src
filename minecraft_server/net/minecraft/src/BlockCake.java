@@ -42,7 +42,7 @@ public class BlockCake extends Block
         float f = 0.0625F;
         float f1 = (float)(1 + i * 2) / 16F;
         float f2 = 0.5F;
-        return AxisAlignedBB.getBoundingBoxFromPool((float)par2 + f1, par3, (float)par4 + f, (float)(par2 + 1) - f, ((float)par3 + f2) - f, (float)(par4 + 1) - f);
+        return AxisAlignedBB.func_58089_a().func_58067_a((float)par2 + f1, par3, (float)par4 + f, (float)(par2 + 1) - f, ((float)par3 + f2) - f, (float)(par4 + 1) - f);
     }
 
     /**
@@ -107,11 +107,7 @@ public class BlockCake extends Block
         return false;
     }
 
-    /**
-     * Called upon block activation (left or right click on the block.). The three integers represent x,y,z of the
-     * block.
-     */
-    public boolean blockActivated(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer)
+    public boolean func_56323_a(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer, int par6, float par7, float par8, float par9)
     {
         eatCakeSlice(par1World, par2, par3, par4, par5EntityPlayer);
         return true;

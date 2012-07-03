@@ -67,16 +67,16 @@ public class EntityAIMoveIndoors extends EntityAIBase
 
         if (entityObj.getDistanceSq(doorInfo.getInsidePosX(), doorInfo.posY, doorInfo.getInsidePosZ()) > 256D)
         {
-            Vec3D vec3d = RandomPositionGenerator.func_48395_a(entityObj, 14, 3, Vec3D.createVector((double)doorInfo.getInsidePosX() + 0.5D, doorInfo.getInsidePosY(), (double)doorInfo.getInsidePosZ() + 0.5D));
+            Vec3 vec3 = RandomPositionGenerator.func_48395_a(entityObj, 14, 3, Vec3.func_58052_a().func_58076_a((double)doorInfo.getInsidePosX() + 0.5D, doorInfo.getInsidePosY(), (double)doorInfo.getInsidePosZ() + 0.5D));
 
-            if (vec3d != null)
+            if (vec3 != null)
             {
-                entityObj.getNavigator().func_48658_a(vec3d.xCoord, vec3d.yCoord, vec3d.zCoord, 0.3F);
+                entityObj.getNavigator().tryMoveToXYZ(vec3.xCoord, vec3.yCoord, vec3.zCoord, 0.3F);
             }
         }
         else
         {
-            entityObj.getNavigator().func_48658_a((double)doorInfo.getInsidePosX() + 0.5D, doorInfo.getInsidePosY(), (double)doorInfo.getInsidePosZ() + 0.5D, 0.3F);
+            entityObj.getNavigator().tryMoveToXYZ((double)doorInfo.getInsidePosX() + 0.5D, doorInfo.getInsidePosY(), (double)doorInfo.getInsidePosZ() + 0.5D, 0.3F);
         }
     }
 

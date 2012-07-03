@@ -39,11 +39,7 @@ public class BlockDragonEgg extends Block
      */
     private void fallIfPossible(World par1World, int par2, int par3, int par4)
     {
-        int i = par2;
-        int j = par3;
-        int k = par4;
-
-        if (BlockSand.canFallBelow(par1World, i, j - 1, k) && j >= 0)
+        if (BlockSand.canFallBelow(par1World, par2, par3 - 1, par4) && par3 >= 0)
         {
             byte byte0 = 32;
 
@@ -66,11 +62,7 @@ public class BlockDragonEgg extends Block
         }
     }
 
-    /**
-     * Called upon block activation (left or right click on the block.). The three integers represent x,y,z of the
-     * block.
-     */
-    public boolean blockActivated(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer)
+    public boolean func_56323_a(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer, int par6, float par7, float par8, float par9)
     {
         teleportNearby(par1World, par2, par3, par4);
         return true;
@@ -134,14 +126,6 @@ public class BlockDragonEgg extends Block
     public int tickRate()
     {
         return 3;
-    }
-
-    /**
-     * Checks to see if its valid to put this block at the specified coordinates. Args: world, x, y, z
-     */
-    public boolean canPlaceBlockAt(World par1World, int par2, int par3, int par4)
-    {
-        return super.canPlaceBlockAt(par1World, par2, par3, par4);
     }
 
     /**

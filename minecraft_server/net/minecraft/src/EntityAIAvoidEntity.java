@@ -52,7 +52,7 @@ public class EntityAIAvoidEntity extends EntityAIBase
         {
             List list = theEntity.worldObj.getEntitiesWithinAABB(targetEntityClass, theEntity.boundingBox.expand(field_48234_e, 3D, field_48234_e));
 
-            if (list.size() == 0)
+            if (list.isEmpty())
             {
                 return false;
             }
@@ -60,31 +60,31 @@ public class EntityAIAvoidEntity extends EntityAIBase
             field_48233_d = (Entity)list.get(0);
         }
 
-        if (!theEntity.func_48318_al().canSee(field_48233_d))
+        if (!theEntity.getEntitySenses().canSee(field_48233_d))
         {
             return false;
         }
 
-        Vec3D vec3d = RandomPositionGenerator.func_48394_b(theEntity, 16, 7, Vec3D.createVector(field_48233_d.posX, field_48233_d.posY, field_48233_d.posZ));
+        Vec3 vec3 = RandomPositionGenerator.func_48394_b(theEntity, 16, 7, Vec3.func_58052_a().func_58076_a(field_48233_d.posX, field_48233_d.posY, field_48233_d.posZ));
 
-        if (vec3d == null)
+        if (vec3 == null)
         {
             return false;
         }
 
-        if (field_48233_d.getDistanceSq(vec3d.xCoord, vec3d.yCoord, vec3d.zCoord) < field_48233_d.getDistanceSqToEntity(theEntity))
+        if (field_48233_d.getDistanceSq(vec3.xCoord, vec3.yCoord, vec3.zCoord) < field_48233_d.getDistanceSqToEntity(theEntity))
         {
             return false;
         }
 
-        field_48231_f = entityPathNavigate.func_48650_a(vec3d.xCoord, vec3d.yCoord, vec3d.zCoord);
+        field_48231_f = entityPathNavigate.getPathToXYZ(vec3.xCoord, vec3.yCoord, vec3.zCoord);
 
         if (field_48231_f == null)
         {
             return false;
         }
 
-        return field_48231_f.func_48426_a(vec3d);
+        return field_48231_f.func_48426_a(vec3);
     }
 
     /**
@@ -118,11 +118,11 @@ public class EntityAIAvoidEntity extends EntityAIBase
     {
         if (theEntity.getDistanceSqToEntity(field_48233_d) < 49D)
         {
-            theEntity.getNavigator().func_48654_a(field_48236_c);
+            theEntity.getNavigator().setSpeed(field_48236_c);
         }
         else
         {
-            theEntity.getNavigator().func_48654_a(field_48235_b);
+            theEntity.getNavigator().setSpeed(field_48235_b);
         }
     }
 }

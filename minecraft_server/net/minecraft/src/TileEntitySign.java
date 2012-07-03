@@ -57,12 +57,7 @@ public class TileEntitySign extends TileEntity
     public Packet getDescriptionPacket()
     {
         String as[] = new String[4];
-
-        for (int i = 0; i < 4; i++)
-        {
-            as[i] = signText[i];
-        }
-
+        System.arraycopy(signText, 0, as, 0, 4);
         return new Packet130UpdateSign(xCoord, yCoord, zCoord, as);
     }
 

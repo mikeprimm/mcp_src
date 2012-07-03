@@ -30,6 +30,7 @@ public class BlockRail extends Block
         super(par1, par2, Material.circuits);
         isPowered = par3;
         setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 0.125F, 1.0F);
+        func_56326_a(CreativeTabs.field_56386_e);
     }
 
     /**
@@ -62,10 +63,10 @@ public class BlockRail extends Block
      * Ray traces through the blocks collision from start vector to end vector returning a ray trace hit. Args: world,
      * x, y, z, startVec, endVec
      */
-    public MovingObjectPosition collisionRayTrace(World par1World, int par2, int par3, int par4, Vec3D par5Vec3D, Vec3D par6Vec3D)
+    public MovingObjectPosition collisionRayTrace(World par1World, int par2, int par3, int par4, Vec3 par5Vec3, Vec3 par6Vec3)
     {
         setBlockBoundsBasedOnState(par1World, par2, par3, par4);
-        return super.collisionRayTrace(par1World, par2, par3, par4, par5Vec3D, par6Vec3D);
+        return super.collisionRayTrace(par1World, par2, par3, par4, par5Vec3, par6Vec3);
     }
 
     /**
@@ -134,7 +135,7 @@ public class BlockRail extends Block
      */
     public boolean canPlaceBlockAt(World par1World, int par2, int par3, int par4)
     {
-        return par1World.isBlockNormalCube(par2, par3 - 1, par4);
+        return par1World.func_58038_s(par2, par3 - 1, par4);
     }
 
     /**
@@ -174,7 +175,7 @@ public class BlockRail extends Block
 
         boolean flag = false;
 
-        if (!par1World.isBlockNormalCube(par2, par3 - 1, par4))
+        if (!par1World.func_58038_s(par2, par3 - 1, par4))
         {
             flag = true;
         }

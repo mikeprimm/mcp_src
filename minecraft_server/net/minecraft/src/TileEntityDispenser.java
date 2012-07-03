@@ -83,10 +83,7 @@ public class TileEntityDispenser extends TileEntity implements IInventory
         }
     }
 
-    /**
-     * gets stack of one item extracted from a stack chosen at random from the block inventory
-     */
-    public ItemStack getRandomStackFromInventory()
+    public int func_56110_m_()
     {
         int i = -1;
         int j = 1;
@@ -99,14 +96,7 @@ public class TileEntityDispenser extends TileEntity implements IInventory
             }
         }
 
-        if (i >= 0)
-        {
-            return decrStackSize(i, 1);
-        }
-        else
-        {
-            return null;
-        }
+        return i;
     }
 
     /**
@@ -122,6 +112,20 @@ public class TileEntityDispenser extends TileEntity implements IInventory
         }
 
         onInventoryChanged();
+    }
+
+    public int func_56111_a(ItemStack par1ItemStack)
+    {
+        for (int i = 0; i < dispenserContents.length; i++)
+        {
+            if (dispenserContents[i] == null || dispenserContents[i].itemID == 0)
+            {
+                dispenserContents[i] = par1ItemStack;
+                return i;
+            }
+        }
+
+        return -1;
     }
 
     /**

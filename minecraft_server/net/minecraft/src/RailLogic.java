@@ -1,7 +1,6 @@
 package net.minecraft.src;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 class RailLogic
 {
@@ -157,9 +156,9 @@ class RailLogic
 
     private boolean isConnectedTo(RailLogic par1RailLogic)
     {
-        for (int i = 0; i < connectedTracks.size(); i++)
+        for (Iterator iterator = connectedTracks.iterator(); iterator.hasNext();)
         {
-            ChunkPosition chunkposition = (ChunkPosition)connectedTracks.get(i);
+            ChunkPosition chunkposition = (ChunkPosition)iterator.next();
 
             if (chunkposition.x == par1RailLogic.trackX && chunkposition.z == par1RailLogic.trackZ)
             {
@@ -175,9 +174,9 @@ class RailLogic
      */
     private boolean isInTrack(int par1, int par2, int par3)
     {
-        for (int i = 0; i < connectedTracks.size(); i++)
+        for (Iterator iterator = connectedTracks.iterator(); iterator.hasNext();)
         {
-            ChunkPosition chunkposition = (ChunkPosition)connectedTracks.get(i);
+            ChunkPosition chunkposition = (ChunkPosition)iterator.next();
 
             if (chunkposition.x == par1 && chunkposition.z == par3)
             {
@@ -230,13 +229,15 @@ class RailLogic
             return false;
         }
 
-        if (connectedTracks.size() == 0)
+        if (connectedTracks.isEmpty())
         {
             return true;
         }
-
-        ChunkPosition chunkposition = (ChunkPosition)connectedTracks.get(0);
-        return par1RailLogic.trackY != trackY || chunkposition.y != trackY ? true : true;
+        else
+        {
+            ChunkPosition chunkposition = (ChunkPosition)connectedTracks.get(0);
+            return true;
+        }
     }
 
     /**
@@ -490,23 +491,29 @@ class RailLogic
         if (par2 || worldObj.getBlockMetadata(trackX, trackY, trackZ) != i)
         {
             worldObj.setBlockMetadataWithNotify(trackX, trackY, trackZ, i);
+            Iterator iterator = connectedTracks.iterator();
 
-            for (int j = 0; j < connectedTracks.size(); j++)
+            do
             {
-                RailLogic raillogic = getMinecartTrackLogic((ChunkPosition)connectedTracks.get(j));
-
-                if (raillogic == null)
+                if (!iterator.hasNext())
                 {
-                    continue;
+                    break;
                 }
 
-                raillogic.refreshConnectedTracks();
+                ChunkPosition chunkposition = (ChunkPosition)iterator.next();
+                RailLogic raillogic = getMinecartTrackLogic(chunkposition);
 
-                if (raillogic.canConnectTo(this))
+                if (raillogic != null)
                 {
-                    raillogic.connectToNeighbor(this);
+                    raillogic.refreshConnectedTracks();
+
+                    if (raillogic.canConnectTo(this))
+                    {
+                        raillogic.connectToNeighbor(this);
+                    }
                 }
             }
+            while (true);
         }
     }
 

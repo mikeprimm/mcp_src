@@ -406,13 +406,13 @@ public class PotionHelper
         }
         else if (par3)
         {
-            if ((par0 & 1 << par1) != 0)
+            if ((par0 & 1 << par1) == 0)
             {
-                par0 &= ~(1 << par1);
+                par0 |= 1 << par1;
             }
             else
             {
-                par0 |= 1 << par1;
+                par0 &= ~(1 << par1);
             }
         }
         else

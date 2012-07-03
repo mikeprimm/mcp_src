@@ -1,7 +1,6 @@
 package net.minecraft.src;
 
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class EntityPigZombie extends EntityZombie
 {
@@ -53,7 +52,7 @@ public class EntityPigZombie extends EntityZombie
      */
     public boolean getCanSpawnHere()
     {
-        return worldObj.difficultySetting > 0 && worldObj.checkIfAABBIsClear(boundingBox) && worldObj.getCollidingBoundingBoxes(this, boundingBox).size() == 0 && !worldObj.isAnyLiquid(boundingBox);
+        return worldObj.difficultySetting > 0 && worldObj.checkIfAABBIsClear(boundingBox) && worldObj.getCollidingBoundingBoxes(this, boundingBox).isEmpty() && !worldObj.isAnyLiquid(boundingBox);
     }
 
     /**
@@ -91,15 +90,6 @@ public class EntityPigZombie extends EntityZombie
     }
 
     /**
-     * Called frequently so the entity can update its state every tick as required. For example, zombies and skeletons
-     * use this to react to sunlight and start to burn.
-     */
-    public void onLivingUpdate()
-    {
-        super.onLivingUpdate();
-    }
-
-    /**
      * Called when the entity is attacked.
      */
     public boolean attackEntityFrom(DamageSource par1DamageSource, int par2)
@@ -109,10 +99,16 @@ public class EntityPigZombie extends EntityZombie
         if (entity instanceof EntityPlayer)
         {
             List list = worldObj.getEntitiesWithinAABBExcludingEntity(this, boundingBox.expand(32D, 32D, 32D));
+            Iterator iterator = list.iterator();
 
-            for (int i = 0; i < list.size(); i++)
+            do
             {
-                Entity entity1 = (Entity)list.get(i);
+                if (!iterator.hasNext())
+                {
+                    break;
+                }
+
+                Entity entity1 = (Entity)iterator.next();
 
                 if (entity1 instanceof EntityPigZombie)
                 {
@@ -120,6 +116,7 @@ public class EntityPigZombie extends EntityZombie
                     entitypigzombie.becomeAngryAt(entity);
                 }
             }
+            while (true);
 
             becomeAngryAt(entity);
         }
@@ -186,7 +183,7 @@ public class EntityPigZombie extends EntityZombie
         if (par1 > 0)
         {
             ItemStack itemstack = new ItemStack(Item.swordGold);
-            EnchantmentHelper.func_48622_a(rand, itemstack, 5);
+            EnchantmentHelper.func_56708_a(rand, itemstack, 5);
             entityDropItem(itemstack, 0.0F);
         }
         else

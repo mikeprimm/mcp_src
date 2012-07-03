@@ -6,20 +6,15 @@ import java.util.logging.Logger;
 import javax.swing.*;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
-import net.minecraft.server.MinecraftServer;
 
-public class ServerGUI extends JComponent implements ICommandListener
+public class ServerGUI extends JComponent
 {
     /** Reference to the logger. */
     public static Logger logger = Logger.getLogger("Minecraft");
+    private static boolean field_56552_b = false;
+    private DedicatedServer field_56553_c;
 
-    /** Reference to the MinecraftServer object. */
-    private MinecraftServer mcServer;
-
-    /**
-     * Initialises the GUI components.
-     */
-    public static void initGui(MinecraftServer par0MinecraftServer)
+    public static void func_56550_a(DedicatedServer par0DedicatedServer)
     {
         try
         {
@@ -27,18 +22,19 @@ public class ServerGUI extends JComponent implements ICommandListener
         }
         catch (Exception exception) { }
 
-        ServerGUI servergui = new ServerGUI(par0MinecraftServer);
+        ServerGUI servergui = new ServerGUI(par0DedicatedServer);
+        field_56552_b = true;
         JFrame jframe = new JFrame("Minecraft server");
         jframe.add(servergui);
         jframe.pack();
         jframe.setLocationRelativeTo(null);
         jframe.setVisible(true);
-        jframe.addWindowListener(new ServerWindowAdapter(par0MinecraftServer));
+        jframe.addWindowListener(new ServerWindowAdapter(par0DedicatedServer));
     }
 
-    public ServerGUI(MinecraftServer par1MinecraftServer)
+    public ServerGUI(DedicatedServer par1DedicatedServer)
     {
-        mcServer = par1MinecraftServer;
+        field_56553_c = par1DedicatedServer;
         setPreferredSize(new Dimension(854, 480));
         setLayout(new BorderLayout());
 
@@ -59,7 +55,7 @@ public class ServerGUI extends JComponent implements ICommandListener
     private JComponent getStatsComponent()
     {
         JPanel jpanel = new JPanel(new BorderLayout());
-        jpanel.add(new GuiStatsComponent(mcServer), "North");
+        jpanel.add(new GuiStatsComponent(field_56553_c), "North");
         jpanel.add(getPlayerListComponent(), "Center");
         jpanel.setBorder(new TitledBorder(new EtchedBorder(), "Stats"));
         return jpanel;
@@ -70,7 +66,7 @@ public class ServerGUI extends JComponent implements ICommandListener
      */
     private JComponent getPlayerListComponent()
     {
-        PlayerListBox playerlistbox = new PlayerListBox(mcServer);
+        PlayerListBox playerlistbox = new PlayerListBox(field_56553_c);
         JScrollPane jscrollpane = new JScrollPane(playerlistbox, 22, 30);
         jscrollpane.setBorder(new TitledBorder(new EtchedBorder(), "Players"));
         return jscrollpane;
@@ -95,27 +91,8 @@ public class ServerGUI extends JComponent implements ICommandListener
         return jpanel;
     }
 
-    /**
-     * Logs the message with a level of INFO.
-     */
-    public void log(String par1Str)
+    static DedicatedServer func_56551_a(ServerGUI par0ServerGUI)
     {
-        logger.info(par1Str);
-    }
-
-    /**
-     * Gets the players username.
-     */
-    public String getUsername()
-    {
-        return "CONSOLE";
-    }
-
-    /**
-     * Returns the MinecraftServer associated with the ServerGui.
-     */
-    static MinecraftServer getMinecraftServer(ServerGUI par0ServerGUI)
-    {
-        return par0ServerGUI.mcServer;
+        return par0ServerGUI.field_56553_c;
     }
 }

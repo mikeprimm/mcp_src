@@ -1,7 +1,6 @@
 package net.minecraft.src;
 
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class EntityLightningBolt extends EntityWeatherEffect
 {
@@ -98,12 +97,12 @@ public class EntityLightningBolt extends EntityWeatherEffect
         if (lightningState >= 0)
         {
             double d = 3D;
-            List list = worldObj.getEntitiesWithinAABBExcludingEntity(this, AxisAlignedBB.getBoundingBoxFromPool(posX - d, posY - d, posZ - d, posX + d, posY + 6D + d, posZ + d));
+            List list = worldObj.getEntitiesWithinAABBExcludingEntity(this, AxisAlignedBB.func_58089_a().func_58067_a(posX - d, posY - d, posZ - d, posX + d, posY + 6D + d, posZ + d));
+            Entity entity;
 
-            for (int l = 0; l < list.size(); l++)
+            for (Iterator iterator = list.iterator(); iterator.hasNext(); entity.onStruckByLightning(this))
             {
-                Entity entity = (Entity)list.get(l);
-                entity.onStruckByLightning(this);
+                entity = (Entity)iterator.next();
             }
 
             worldObj.lightningFlash = 2;

@@ -8,6 +8,7 @@ public class BlockTorch extends Block
     {
         super(par1, par2, Material.circuits);
         setTickRandomly(true);
+        func_56326_a(CreativeTabs.field_56388_c);
     }
 
     /**
@@ -49,29 +50,13 @@ public class BlockTorch extends Block
      */
     private boolean canPlaceTorchOn(World par1World, int par2, int par3, int par4)
     {
-        if (par1World.isBlockNormalCubeDefault(par2, par3, par4, true))
+        if (par1World.func_58038_s(par2, par3, par4))
         {
             return true;
         }
 
         int i = par1World.getBlockId(par2, par3, par4);
-
-        if (i == Block.fence.blockID || i == Block.netherFence.blockID || i == Block.glass.blockID)
-        {
-            return true;
-        }
-
-        if (Block.blocksList[i] != null && (Block.blocksList[i] instanceof BlockStairs))
-        {
-            int j = par1World.getBlockMetadata(par2, par3, par4);
-
-            if ((4 & j) != 0)
-            {
-                return true;
-            }
-        }
-
-        return false;
+        return i == Block.fence.blockID || i == Block.netherFence.blockID || i == Block.glass.blockID;
     }
 
     /**
@@ -102,11 +87,7 @@ public class BlockTorch extends Block
         return canPlaceTorchOn(par1World, par2, par3 - 1, par4);
     }
 
-    /**
-     * Called when a block is placed using an item. Used often for taking the facing and figuring out how to position
-     * the item. Args: x, y, z, facing
-     */
-    public void onBlockPlaced(World par1World, int par2, int par3, int par4, int par5)
+    public void func_56327_a(World par1World, int par2, int par3, int par4, int par5, float par6, float par7, float par8)
     {
         int i = par1World.getBlockMetadata(par2, par3, par4);
 
@@ -250,7 +231,7 @@ public class BlockTorch extends Block
      * Ray traces through the blocks collision from start vector to end vector returning a ray trace hit. Args: world,
      * x, y, z, startVec, endVec
      */
-    public MovingObjectPosition collisionRayTrace(World par1World, int par2, int par3, int par4, Vec3D par5Vec3D, Vec3D par6Vec3D)
+    public MovingObjectPosition collisionRayTrace(World par1World, int par2, int par3, int par4, Vec3 par5Vec3, Vec3 par6Vec3)
     {
         int i = par1World.getBlockMetadata(par2, par3, par4) & 7;
         float f = 0.15F;
@@ -277,6 +258,6 @@ public class BlockTorch extends Block
             setBlockBounds(0.5F - f1, 0.0F, 0.5F - f1, 0.5F + f1, 0.6F, 0.5F + f1);
         }
 
-        return super.collisionRayTrace(par1World, par2, par3, par4, par5Vec3D, par6Vec3D);
+        return super.collisionRayTrace(par1World, par2, par3, par4, par5Vec3, par6Vec3);
     }
 }

@@ -23,14 +23,28 @@ public class PropertyManager
 
         if (par1File.exists())
         {
+            FileInputStream fileinputstream = null;
+
             try
             {
-                serverProperties.load(new FileInputStream(par1File));
+                fileinputstream = new FileInputStream(par1File);
+                serverProperties.load(fileinputstream);
             }
             catch (Exception exception)
             {
                 logger.log(Level.WARNING, (new StringBuilder()).append("Failed to load ").append(par1File).toString(), exception);
                 generateNewProperties();
+            }
+            finally
+            {
+                if (fileinputstream != null)
+                {
+                    try
+                    {
+                        fileinputstream.close();
+                    }
+                    catch (IOException ioexception) { }
+                }
             }
         }
         else
@@ -54,14 +68,28 @@ public class PropertyManager
      */
     public void saveProperties()
     {
+        FileOutputStream fileoutputstream = null;
+
         try
         {
-            serverProperties.store(new FileOutputStream(serverPropertiesFile), "Minecraft server properties");
+            fileoutputstream = new FileOutputStream(serverPropertiesFile);
+            serverProperties.store(fileoutputstream, "Minecraft server properties");
         }
         catch (Exception exception)
         {
             logger.log(Level.WARNING, (new StringBuilder()).append("Failed to save ").append(serverPropertiesFile).toString(), exception);
             generateNewProperties();
+        }
+        finally
+        {
+            if (fileoutputstream != null)
+            {
+                try
+                {
+                    fileoutputstream.close();
+                }
+                catch (IOException ioexception) { }
+            }
         }
     }
 
@@ -127,11 +155,5 @@ public class PropertyManager
     public void setProperty(String par1Str, Object par2Obj)
     {
         serverProperties.setProperty(par1Str, (new StringBuilder()).append("").append(par2Obj).toString());
-    }
-
-    public void setProperty(String par1Str, boolean par2)
-    {
-        serverProperties.setProperty(par1Str, (new StringBuilder()).append("").append(par2).toString());
-        saveProperties();
     }
 }

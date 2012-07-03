@@ -19,7 +19,7 @@ public class BlockFarmland extends Block
      */
     public AxisAlignedBB getCollisionBoundingBoxFromPool(World par1World, int par2, int par3, int par4)
     {
-        return AxisAlignedBB.getBoundingBoxFromPool(par2 + 0, par3 + 0, par4 + 0, par2 + 1, par3 + 1, par4 + 1);
+        return AxisAlignedBB.func_58089_a().func_58067_a(par2 + 0, par3 + 0, par4 + 0, par2 + 1, par3 + 1, par4 + 1);
     }
 
     /**

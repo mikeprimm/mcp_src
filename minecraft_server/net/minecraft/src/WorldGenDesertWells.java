@@ -58,10 +58,10 @@ public class WorldGenDesertWells extends WorldGenerator
             }
         }
 
-        par1World.setBlockAndMetadata(par3 + 2, par4 + 1, par5, Block.stairSingle.blockID, 1);
-        par1World.setBlockAndMetadata(par3 - 2, par4 + 1, par5, Block.stairSingle.blockID, 1);
-        par1World.setBlockAndMetadata(par3, par4 + 1, par5 + 2, Block.stairSingle.blockID, 1);
-        par1World.setBlockAndMetadata(par3, par4 + 1, par5 - 2, Block.stairSingle.blockID, 1);
+        par1World.setBlockAndMetadata(par3 + 2, par4 + 1, par5, Block.field_55133_ak.blockID, 1);
+        par1World.setBlockAndMetadata(par3 - 2, par4 + 1, par5, Block.field_55133_ak.blockID, 1);
+        par1World.setBlockAndMetadata(par3, par4 + 1, par5 + 2, Block.field_55133_ak.blockID, 1);
+        par1World.setBlockAndMetadata(par3, par4 + 1, par5 - 2, Block.field_55133_ak.blockID, 1);
 
         for (int i1 = -1; i1 <= 1; i1++)
         {
@@ -73,7 +73,7 @@ public class WorldGenDesertWells extends WorldGenerator
                 }
                 else
                 {
-                    par1World.setBlockAndMetadata(par3 + i1, par4 + 4, par5 + j2, Block.stairSingle.blockID, 1);
+                    par1World.setBlockAndMetadata(par3 + i1, par4 + 4, par5 + j2, Block.field_55133_ak.blockID, 1);
                 }
             }
         }

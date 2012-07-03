@@ -9,12 +9,7 @@ public class Packet5PlayerInventory extends Packet
 
     /** Equipment slot: 0=held, 1-4=armor slot */
     public int slot;
-
-    /** Equipped item (-1 for empty slot). */
-    public int itemID;
-
-    /** The health of the item. */
-    public int itemDamage;
+    private ItemStack field_56281_c;
 
     public Packet5PlayerInventory()
     {
@@ -24,17 +19,7 @@ public class Packet5PlayerInventory extends Packet
     {
         entityID = par1;
         slot = par2;
-
-        if (par3ItemStack == null)
-        {
-            itemID = -1;
-            itemDamage = 0;
-        }
-        else
-        {
-            itemID = par3ItemStack.itemID;
-            itemDamage = par3ItemStack.getItemDamage();
-        }
+        field_56281_c = par3ItemStack != null ? par3ItemStack.copy() : null;
     }
 
     /**
@@ -44,8 +29,7 @@ public class Packet5PlayerInventory extends Packet
     {
         entityID = par1DataInputStream.readInt();
         slot = par1DataInputStream.readShort();
-        itemID = par1DataInputStream.readShort();
-        itemDamage = par1DataInputStream.readShort();
+        field_56281_c = readItemStack(par1DataInputStream);
     }
 
     /**
@@ -55,8 +39,7 @@ public class Packet5PlayerInventory extends Packet
     {
         par1DataOutputStream.writeInt(entityID);
         par1DataOutputStream.writeShort(slot);
-        par1DataOutputStream.writeShort(itemID);
-        par1DataOutputStream.writeShort(itemDamage);
+        writeItemStack(field_56281_c, par1DataOutputStream);
     }
 
     /**

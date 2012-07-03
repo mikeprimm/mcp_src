@@ -78,18 +78,18 @@ public class PathEntity
     /**
      * Gets the vector of the PathPoint associated with the given index.
      */
-    public Vec3D getVectorFromIndex(Entity par1Entity, int par2)
+    public Vec3 getVectorFromIndex(Entity par1Entity, int par2)
     {
         double d = (double)points[par2].xCoord + (double)(int)(par1Entity.width + 1.0F) * 0.5D;
         double d1 = points[par2].yCoord;
         double d2 = (double)points[par2].zCoord + (double)(int)(par1Entity.width + 1.0F) * 0.5D;
-        return Vec3D.createVector(d, d1, d2);
+        return Vec3.func_58052_a().func_58076_a(d, d1, d2);
     }
 
     /**
      * returns the current PathEntity target node as Vec3D
      */
-    public Vec3D getPosition(Entity par1Entity)
+    public Vec3 getPosition(Entity par1Entity)
     {
         return getVectorFromIndex(par1Entity, currentPathIndex);
     }
@@ -117,7 +117,7 @@ public class PathEntity
         return true;
     }
 
-    public boolean func_48426_a(Vec3D par1Vec3D)
+    public boolean func_48426_a(Vec3 par1Vec3)
     {
         PathPoint pathpoint = getFinalPathPoint();
 
@@ -127,7 +127,7 @@ public class PathEntity
         }
         else
         {
-            return pathpoint.xCoord == (int)par1Vec3D.xCoord && pathpoint.zCoord == (int)par1Vec3D.zCoord;
+            return pathpoint.xCoord == (int)par1Vec3.xCoord && pathpoint.zCoord == (int)par1Vec3.zCoord;
         }
     }
 }

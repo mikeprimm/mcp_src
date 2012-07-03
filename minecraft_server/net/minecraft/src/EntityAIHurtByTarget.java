@@ -6,6 +6,7 @@ import java.util.List;
 public class EntityAIHurtByTarget extends EntityAITarget
 {
     boolean field_48300_a;
+    EntityLiving field_56402_b;
 
     public EntityAIHurtByTarget(EntityLiving par1EntityLiving, boolean par2)
     {
@@ -23,15 +24,24 @@ public class EntityAIHurtByTarget extends EntityAITarget
     }
 
     /**
+     * Returns whether an in-progress EntityAIBase should continue executing
+     */
+    public boolean continueExecuting()
+    {
+        return taskOwner.getAITarget() != null && taskOwner.getAITarget() != field_56402_b;
+    }
+
+    /**
      * Execute a one shot task or start executing a continuous task
      */
     public void startExecuting()
     {
         taskOwner.setAttackTarget(taskOwner.getAITarget());
+        field_56402_b = taskOwner.getAITarget();
 
         if (field_48300_a)
         {
-            List list = taskOwner.worldObj.getEntitiesWithinAABB(taskOwner.getClass(), AxisAlignedBB.getBoundingBoxFromPool(taskOwner.posX, taskOwner.posY, taskOwner.posZ, taskOwner.posX + 1.0D, taskOwner.posY + 1.0D, taskOwner.posZ + 1.0D).expand(field_48288_d, 4D, field_48288_d));
+            List list = taskOwner.worldObj.getEntitiesWithinAABB(taskOwner.getClass(), AxisAlignedBB.func_58089_a().func_58067_a(taskOwner.posX, taskOwner.posY, taskOwner.posZ, taskOwner.posX + 1.0D, taskOwner.posY + 1.0D, taskOwner.posZ + 1.0D).expand(targetDistance, 4D, targetDistance));
             Iterator iterator = list.iterator();
 
             do
@@ -41,8 +51,7 @@ public class EntityAIHurtByTarget extends EntityAITarget
                     break;
                 }
 
-                Entity entity = (Entity)iterator.next();
-                EntityLiving entityliving = (EntityLiving)entity;
+                EntityLiving entityliving = (EntityLiving)iterator.next();
 
                 if (taskOwner != entityliving && entityliving.getAttackTarget() == null)
                 {

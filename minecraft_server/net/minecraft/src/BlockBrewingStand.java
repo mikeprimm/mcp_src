@@ -1,6 +1,6 @@
 package net.minecraft.src;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class BlockBrewingStand extends BlockContainer
@@ -31,10 +31,7 @@ public class BlockBrewingStand extends BlockContainer
         return 25;
     }
 
-    /**
-     * Returns the TileEntity used by this block.
-     */
-    public TileEntity getBlockEntity()
+    public TileEntity func_56351_a(World par1World)
     {
         return new TileEntityBrewingStand();
     }
@@ -47,16 +44,12 @@ public class BlockBrewingStand extends BlockContainer
         return false;
     }
 
-    /**
-     * Adds to the supplied array any colliding bounding boxes with the passed in bounding box. Args: world, x, y, z,
-     * axisAlignedBB, arrayList
-     */
-    public void getCollidingBoundingBoxes(World par1World, int par2, int par3, int par4, AxisAlignedBB par5AxisAlignedBB, ArrayList par6ArrayList)
+    public void func_56330_a(World par1World, int par2, int par3, int par4, AxisAlignedBB par5AxisAlignedBB, List par6List, Entity par7Entity)
     {
         setBlockBounds(0.4375F, 0.0F, 0.4375F, 0.5625F, 0.875F, 0.5625F);
-        super.getCollidingBoundingBoxes(par1World, par2, par3, par4, par5AxisAlignedBB, par6ArrayList);
+        super.func_56330_a(par1World, par2, par3, par4, par5AxisAlignedBB, par6List, par7Entity);
         setBlockBoundsForItemRender();
-        super.getCollidingBoundingBoxes(par1World, par2, par3, par4, par5AxisAlignedBB, par6ArrayList);
+        super.func_56330_a(par1World, par2, par3, par4, par5AxisAlignedBB, par6List, par7Entity);
     }
 
     /**
@@ -67,11 +60,7 @@ public class BlockBrewingStand extends BlockContainer
         setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 0.125F, 1.0F);
     }
 
-    /**
-     * Called upon block activation (left or right click on the block.). The three integers represent x,y,z of the
-     * block.
-     */
-    public boolean blockActivated(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer)
+    public boolean func_56323_a(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer, int par6, float par7, float par8, float par9)
     {
         if (par1World.isRemote)
         {
@@ -88,14 +77,11 @@ public class BlockBrewingStand extends BlockContainer
         return true;
     }
 
-    /**
-     * Called whenever the block is removed.
-     */
-    public void onBlockRemoval(World par1World, int par2, int par3, int par4)
+    public void func_56322_a(World par1World, int par2, int par3, int par4, int par5, int par6)
     {
         TileEntity tileentity = par1World.getBlockTileEntity(par2, par3, par4);
 
-        if (tileentity != null && (tileentity instanceof TileEntityBrewingStand))
+        if (tileentity instanceof TileEntityBrewingStand)
         {
             TileEntityBrewingStand tileentitybrewingstand = (TileEntityBrewingStand)tileentity;
             label0:
@@ -139,7 +125,7 @@ public class BlockBrewingStand extends BlockContainer
             }
         }
 
-        super.onBlockRemoval(par1World, par2, par3, par4);
+        super.func_56322_a(par1World, par2, par3, par4, par5, par6);
     }
 
     /**

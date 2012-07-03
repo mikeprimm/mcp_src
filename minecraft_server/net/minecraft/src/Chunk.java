@@ -225,10 +225,6 @@ public class Chunk
         }
     }
 
-    public void func_4053_c()
-    {
-    }
-
     /**
      * Propagates a given sky-visible block's light value downward and upward to neighboring blocks as necessary.
      */
@@ -506,8 +502,9 @@ public class Chunk
 
         int j = heightMap[i];
         int k = getBlockID(par1, par2, par3);
+        int l = getBlockMetadata(par1, par2, par3);
 
-        if (k == par4 && getBlockMetadata(par1, par2, par3) == par5)
+        if (k == par4 && l == par5)
         {
             return false;
         }
@@ -526,19 +523,25 @@ public class Chunk
             flag = par2 >= j;
         }
 
+        int i1 = xPosition * 16 + par1;
+        int j1 = zPosition * 16 + par3;
+
+        if (k != 0 && !worldObj.isRemote)
+        {
+            Block.blocksList[k].func_56329_g(worldObj, i1, par2, j1, l);
+        }
+
         extendedblockstorage.setExtBlockID(par1, par2 & 0xf, par3, par4);
-        int l = xPosition * 16 + par1;
-        int i1 = zPosition * 16 + par3;
 
         if (k != 0)
         {
             if (!worldObj.isRemote)
             {
-                Block.blocksList[k].onBlockRemoval(worldObj, l, par2, i1);
+                Block.blocksList[k].func_56322_a(worldObj, i1, par2, j1, k, l);
             }
             else if ((Block.blocksList[k] instanceof BlockContainer) && k != par4)
             {
-                worldObj.removeBlockTileEntity(l, par2, i1);
+                worldObj.removeBlockTileEntity(i1, par2, j1);
             }
         }
 
@@ -574,7 +577,7 @@ public class Chunk
         {
             if (!worldObj.isRemote)
             {
-                Block.blocksList[par4].onBlockAdded(worldObj, l, par2, i1);
+                Block.blocksList[par4].onBlockAdded(worldObj, i1, par2, j1);
             }
 
             if (Block.blocksList[par4] instanceof BlockContainer)
@@ -583,8 +586,8 @@ public class Chunk
 
                 if (tileentity == null)
                 {
-                    tileentity = ((BlockContainer)Block.blocksList[par4]).getBlockEntity();
-                    worldObj.setBlockTileEntity(l, par2, i1, tileentity);
+                    tileentity = ((BlockContainer)Block.blocksList[par4]).func_56351_a(worldObj);
+                    worldObj.setBlockTileEntity(i1, par2, j1, tileentity);
                 }
 
                 if (tileentity != null)
@@ -653,7 +656,14 @@ public class Chunk
 
         if (extendedblockstorage == null)
         {
-            return par1EnumSkyBlock.defaultLightValue;
+            if (canBlockSeeTheSky(par2, par3, par4))
+            {
+                return par1EnumSkyBlock.defaultLightValue;
+            }
+            else
+            {
+                return 0;
+            }
         }
 
         if (par1EnumSkyBlock == EnumSkyBlock.Sky)
@@ -697,10 +707,6 @@ public class Chunk
         else if (par1EnumSkyBlock == EnumSkyBlock.Block)
         {
             extendedblockstorage.setExtBlocklightValue(par2, par3 & 0xf, par4, par5);
-        }
-        else
-        {
-            return;
         }
     }
 
@@ -828,7 +834,7 @@ public class Chunk
 
             if (tileentity == null)
             {
-                tileentity = ((BlockContainer)Block.blocksList[i]).getBlockEntity();
+                tileentity = ((BlockContainer)Block.blocksList[i]).func_56351_a(worldObj);
                 worldObj.setBlockTileEntity(xPosition * 16 + par1, par2, zPosition * 16 + par3, tileentity);
             }
 
@@ -868,7 +874,7 @@ public class Chunk
     public void setChunkBlockTileEntity(int par1, int par2, int par3, TileEntity par4TileEntity)
     {
         ChunkPosition chunkposition = new ChunkPosition(par1, par2, par3);
-        par4TileEntity.worldObj = worldObj;
+        par4TileEntity.func_56108_a(worldObj);
         par4TileEntity.xCoord = xPosition * 16 + par1;
         par4TileEntity.yCoord = par2;
         par4TileEntity.zCoord = zPosition * 16 + par3;
@@ -910,10 +916,13 @@ public class Chunk
     {
         isChunkLoaded = true;
         worldObj.addTileEntity(chunkTileEntityMap.values());
+        List alist[] = entityLists;
+        int i = alist.length;
 
-        for (int i = 0; i < entityLists.length; i++)
+        for (int j = 0; j < i; j++)
         {
-            worldObj.addLoadedEntities(entityLists[i]);
+            List list = alist[j];
+            worldObj.addLoadedEntities(list);
         }
     }
 
@@ -930,9 +939,13 @@ public class Chunk
             tileentity = (TileEntity)iterator.next();
         }
 
-        for (int i = 0; i < entityLists.length; i++)
+        List alist[] = entityLists;
+        int i = alist.length;
+
+        for (int j = 0; j < i; j++)
         {
-            worldObj.unloadEntities(entityLists[i]);
+            List list = alist[j];
+            worldObj.unloadEntities(list);
         }
     }
 
@@ -963,37 +976,46 @@ public class Chunk
             j = entityLists.length - 1;
         }
 
+        label0:
+
         for (int k = i; k <= j; k++)
         {
             List list = entityLists[k];
+            Iterator iterator = list.iterator();
 
-            for (int l = 0; l < list.size(); l++)
+            do
             {
-                Entity entity = (Entity)list.get(l);
-
-                if (entity == par1Entity || !entity.boundingBox.intersectsWith(par2AxisAlignedBB))
+                if (!iterator.hasNext())
                 {
-                    continue;
+                    continue label0;
                 }
 
-                par3List.add(entity);
-                Entity aentity[] = entity.getParts();
+                Entity entity = (Entity)iterator.next();
 
-                if (aentity == null)
+                if (entity != par1Entity && entity.boundingBox.intersectsWith(par2AxisAlignedBB))
                 {
-                    continue;
-                }
+                    par3List.add(entity);
+                    Entity aentity[] = entity.getParts();
 
-                for (int i1 = 0; i1 < aentity.length; i1++)
-                {
-                    Entity entity1 = aentity[i1];
-
-                    if (entity1 != par1Entity && entity1.boundingBox.intersectsWith(par2AxisAlignedBB))
+                    if (aentity != null)
                     {
-                        par3List.add(entity1);
+                        int l = 0;
+
+                        while (l < aentity.length)
+                        {
+                            Entity entity1 = aentity[l];
+
+                            if (entity1 != par1Entity && entity1.boundingBox.intersectsWith(par2AxisAlignedBB))
+                            {
+                                par3List.add(entity1);
+                            }
+
+                            l++;
+                        }
                     }
                 }
             }
+            while (true);
         }
     }
 
@@ -1023,19 +1045,28 @@ public class Chunk
             j = 0;
         }
 
+        label0:
+
         for (int k = i; k <= j; k++)
         {
             List list = entityLists[k];
+            Iterator iterator = list.iterator();
 
-            for (int l = 0; l < list.size(); l++)
+            do
             {
-                Entity entity = (Entity)list.get(l);
+                if (!iterator.hasNext())
+                {
+                    continue label0;
+                }
+
+                Entity entity = (Entity)iterator.next();
 
                 if (par1Class.isAssignableFrom(entity.getClass()) && entity.boundingBox.intersectsWith(par2AxisAlignedBB))
                 {
                     par3List.add(entity);
                 }
             }
+            while (true);
         }
     }
 
@@ -1067,25 +1098,6 @@ public class Chunk
     public boolean isEmpty()
     {
         return false;
-    }
-
-    /**
-     * Turns unknown blocks into air blocks to avoid crashing Minecraft.
-     */
-    public void removeUnknownBlocks()
-    {
-        ExtendedBlockStorage aextendedblockstorage[] = storageArrays;
-        int i = aextendedblockstorage.length;
-
-        for (int j = 0; j < i; j++)
-        {
-            ExtendedBlockStorage extendedblockstorage = aextendedblockstorage[j];
-
-            if (extendedblockstorage != null)
-            {
-                extendedblockstorage.func_48603_e();
-            }
-        }
     }
 
     public void populateChunk(IChunkProvider par1IChunkProvider, IChunkProvider par2IChunkProvider, int par3, int par4)

@@ -5,15 +5,15 @@ import java.util.Random;
 public class EntityAIWander extends EntityAIBase
 {
     private EntityCreature entity;
-    private double field_46102_b;
-    private double field_46103_c;
-    private double field_46101_d;
-    private float field_48209_e;
+    private double xPosition;
+    private double yPosition;
+    private double zPosition;
+    private float speed;
 
     public EntityAIWander(EntityCreature par1EntityCreature, float par2)
     {
         entity = par1EntityCreature;
-        field_48209_e = par2;
+        speed = par2;
         setMutexBits(1);
     }
 
@@ -32,17 +32,17 @@ public class EntityAIWander extends EntityAIBase
             return false;
         }
 
-        Vec3D vec3d = RandomPositionGenerator.func_48396_a(entity, 10, 7);
+        Vec3 vec3 = RandomPositionGenerator.func_48396_a(entity, 10, 7);
 
-        if (vec3d == null)
+        if (vec3 == null)
         {
             return false;
         }
         else
         {
-            field_46102_b = vec3d.xCoord;
-            field_46103_c = vec3d.yCoord;
-            field_46101_d = vec3d.zCoord;
+            xPosition = vec3.xCoord;
+            yPosition = vec3.yCoord;
+            zPosition = vec3.zCoord;
             return true;
         }
     }
@@ -60,6 +60,6 @@ public class EntityAIWander extends EntityAIBase
      */
     public void startExecuting()
     {
-        entity.getNavigator().func_48658_a(field_46102_b, field_46103_c, field_46101_d, field_48209_e);
+        entity.getNavigator().tryMoveToXYZ(xPosition, yPosition, zPosition, speed);
     }
 }

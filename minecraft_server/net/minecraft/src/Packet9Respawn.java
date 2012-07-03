@@ -11,21 +11,19 @@ public class Packet9Respawn extends Packet
 
     /** Defaults to 128 */
     public int worldHeight;
-
-    /** 0 for survival, 1 for creative */
-    public int creativeMode;
+    public EnumGameType field_56258_d;
     public WorldType terrainType;
 
     public Packet9Respawn()
     {
     }
 
-    public Packet9Respawn(int par1, byte par2, WorldType par3WorldType, int par4, int par5)
+    public Packet9Respawn(int par1, byte par2, WorldType par3WorldType, int par4, EnumGameType par5EnumGameType)
     {
         respawnDimension = par1;
         difficulty = par2;
         worldHeight = par4;
-        creativeMode = par5;
+        field_56258_d = par5EnumGameType;
         terrainType = par3WorldType;
     }
 
@@ -44,7 +42,7 @@ public class Packet9Respawn extends Packet
     {
         respawnDimension = par1DataInputStream.readInt();
         difficulty = par1DataInputStream.readByte();
-        creativeMode = par1DataInputStream.readByte();
+        field_56258_d = EnumGameType.func_56604_a(par1DataInputStream.readByte());
         worldHeight = par1DataInputStream.readShort();
         String s = readString(par1DataInputStream, 16);
         terrainType = WorldType.parseWorldType(s);
@@ -62,7 +60,7 @@ public class Packet9Respawn extends Packet
     {
         par1DataOutputStream.writeInt(respawnDimension);
         par1DataOutputStream.writeByte(difficulty);
-        par1DataOutputStream.writeByte(creativeMode);
+        par1DataOutputStream.writeByte(field_56258_d.func_56607_a());
         par1DataOutputStream.writeShort(worldHeight);
         writeString(terrainType.func_48449_a(), par1DataOutputStream);
     }
@@ -72,6 +70,6 @@ public class Packet9Respawn extends Packet
      */
     public int getPacketSize()
     {
-        return 8 + terrainType.func_48449_a().length();
+        return 8 + (terrainType != null ? terrainType.func_48449_a().length() : 0);
     }
 }

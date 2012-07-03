@@ -15,13 +15,6 @@ public class ComponentStrongholdCorridor extends ComponentStronghold
         field_35343_a = par4 != 2 && par4 != 0 ? par3StructureBoundingBox.getXSize() : par3StructureBoundingBox.getZSize();
     }
 
-    /**
-     * 'Initiates construction of the Structure Component picked, at the current Location of StructGen'
-     */
-    public void buildComponent(StructureComponent structurecomponent, List list, Random random)
-    {
-    }
-
     public static StructureBoundingBox func_35342_a(List par0List, Random par1Random, int par2, int par3, int par4, int par5)
     {
         StructureBoundingBox structureboundingbox = StructureBoundingBox.getComponentToAddBoundingBox(par2, par3, par4, -1, -1, 0, 5, 5, 4, par5);
@@ -49,8 +42,8 @@ public class ComponentStrongholdCorridor extends ComponentStronghold
     }
 
     /**
-     * 'second Part of Structure generating, this for example places Spiderwebs, Mob Spawners, it closes Mineshafts at
-     * the end, it adds Fences...'
+     * second Part of Structure generating, this for example places Spiderwebs, Mob Spawners, it closes Mineshafts at
+     * the end, it adds Fences...
      */
     public boolean addComponentParts(World par1World, Random par2Random, StructureBoundingBox par3StructureBoundingBox)
     {

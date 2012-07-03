@@ -5,22 +5,18 @@ class SlotBrewingStandPotion extends Slot
     /** The player that has this container open. */
     private EntityPlayer player;
 
-    /** The brewing stand this slot belongs to. */
-    final ContainerBrewingStand container;
-
-    public SlotBrewingStandPotion(ContainerBrewingStand par1ContainerBrewingStand, EntityPlayer par2EntityPlayer, IInventory par3IInventory, int par4, int par5, int par6)
+    public SlotBrewingStandPotion(EntityPlayer par1EntityPlayer, IInventory par2IInventory, int par3, int par4, int par5)
     {
-        super(par3IInventory, par4, par5, par6);
-        container = par1ContainerBrewingStand;
-        player = par2EntityPlayer;
+        super(par2IInventory, par3, par4, par5);
+        player = par1EntityPlayer;
     }
 
     /**
-     * Check if the stack is a valid item for this slot.
+     * Check if the stack is a valid item for this slot. Always true beside for the armor slots.
      */
     public boolean isItemValid(ItemStack par1ItemStack)
     {
-        return par1ItemStack != null && (par1ItemStack.itemID == Item.potion.shiftedIndex || par1ItemStack.itemID == Item.glassBottle.shiftedIndex);
+        return func_55195_c(par1ItemStack);
     }
 
     /**
@@ -43,5 +39,10 @@ class SlotBrewingStandPotion extends Slot
         }
 
         super.onPickupFromSlot(par1ItemStack);
+    }
+
+    public static boolean func_55195_c(ItemStack par0ItemStack)
+    {
+        return par0ItemStack != null && (par0ItemStack.itemID == Item.potion.shiftedIndex || par0ItemStack.itemID == Item.glassBottle.shiftedIndex);
     }
 }

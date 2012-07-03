@@ -3,6 +3,7 @@ package net.minecraft.src;
 public class EntityFallingSand extends Entity
 {
     public int blockID;
+    public int field_56127_b;
 
     /** How long the block has been falling for. */
     public int fallTime;
@@ -15,9 +16,15 @@ public class EntityFallingSand extends Entity
 
     public EntityFallingSand(World par1World, double par2, double par4, double par6, int par8)
     {
+        this(par1World, par2, par4, par6, par8, 0);
+    }
+
+    public EntityFallingSand(World par1World, double par2, double par4, double par6, int par8, int par9)
+    {
         super(par1World);
         fallTime = 0;
         blockID = par8;
+        field_56127_b = par9;
         preventEntitySpawning = true;
         setSize(0.98F, 0.98F);
         yOffset = height / 2.0F;
@@ -71,39 +78,43 @@ public class EntityFallingSand extends Entity
         motionX *= 0.98000001907348633D;
         motionY *= 0.98000001907348633D;
         motionZ *= 0.98000001907348633D;
-        int i = MathHelper.floor_double(posX);
-        int j = MathHelper.floor_double(posY);
-        int k = MathHelper.floor_double(posZ);
 
-        if (fallTime == 1 && worldObj.getBlockId(i, j, k) == blockID)
+        if (!worldObj.isRemote)
         {
-            worldObj.setBlockWithNotify(i, j, k, 0);
-        }
-        else if (!worldObj.isRemote && fallTime == 1)
-        {
-            setDead();
-        }
+            int i = MathHelper.floor_double(posX);
+            int j = MathHelper.floor_double(posY);
+            int k = MathHelper.floor_double(posZ);
 
-        if (onGround)
-        {
-            motionX *= 0.69999998807907104D;
-            motionZ *= 0.69999998807907104D;
-            motionY *= -0.5D;
-
-            if (worldObj.getBlockId(i, j, k) != Block.pistonMoving.blockID)
+            if (fallTime == 1 && worldObj.getBlockId(i, j, k) == blockID)
+            {
+                worldObj.setBlockWithNotify(i, j, k, 0);
+            }
+            else if (!worldObj.isRemote && fallTime == 1)
             {
                 setDead();
+            }
 
-                if ((!worldObj.canBlockBePlacedAt(blockID, i, j, k, true, 1) || BlockSand.canFallBelow(worldObj, i, j - 1, k) || !worldObj.setBlockWithNotify(i, j, k, blockID)) && !worldObj.isRemote)
+            if (onGround)
+            {
+                motionX *= 0.69999998807907104D;
+                motionZ *= 0.69999998807907104D;
+                motionY *= -0.5D;
+
+                if (worldObj.getBlockId(i, j, k) != Block.pistonMoving.blockID)
                 {
-                    dropItem(blockID, 1);
+                    setDead();
+
+                    if ((!worldObj.canBlockBePlacedAt(blockID, i, j, k, true, 1) || BlockSand.canFallBelow(worldObj, i, j - 1, k) || !worldObj.setBlockAndMetadataWithNotify(i, j, k, blockID, field_56127_b)) && !worldObj.isRemote)
+                    {
+                        entityDropItem(new ItemStack(blockID, 1, field_56127_b), 0.0F);
+                    }
                 }
             }
-        }
-        else if (fallTime > 100 && !worldObj.isRemote && (j < 1 || j > 256) || fallTime > 600)
-        {
-            dropItem(blockID, 1);
-            setDead();
+            else if (fallTime > 100 && !worldObj.isRemote && (j < 1 || j > 256) || fallTime > 600)
+            {
+                dropItem(blockID, 1);
+                setDead();
+            }
         }
     }
 

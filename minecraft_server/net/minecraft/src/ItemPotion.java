@@ -9,6 +9,7 @@ public class ItemPotion extends Item
      * recalculating it).
      */
     private HashMap effectCache;
+    private static final Map field_56460_b = new LinkedHashMap();
 
     public ItemPotion(int par1)
     {
@@ -17,6 +18,7 @@ public class ItemPotion extends Item
         setMaxStackSize(1);
         setHasSubtypes(true);
         setMaxDamage(0);
+        func_56455_a(CreativeTabs.field_56395_k);
     }
 
     /**
@@ -45,7 +47,10 @@ public class ItemPotion extends Item
 
     public ItemStack onFoodEaten(ItemStack par1ItemStack, World par2World, EntityPlayer par3EntityPlayer)
     {
-        par1ItemStack.stackSize--;
+        if (!par3EntityPlayer.capabilities.isCreativeMode)
+        {
+            par1ItemStack.stackSize--;
+        }
 
         if (!par2World.isRemote)
         {
@@ -96,7 +101,11 @@ public class ItemPotion extends Item
     {
         if (isSplash(par1ItemStack.getItemDamage()))
         {
-            par1ItemStack.stackSize--;
+            if (!par3EntityPlayer.capabilities.isCreativeMode)
+            {
+                par1ItemStack.stackSize--;
+            }
+
             par2World.playSoundAtEntity(par3EntityPlayer, "random.bow", 0.5F, 0.4F / (itemRand.nextFloat() * 0.4F + 0.8F));
 
             if (!par2World.isRemote)
@@ -113,11 +122,7 @@ public class ItemPotion extends Item
         }
     }
 
-    /**
-     * Callback for item usage. If the item does something special on right clicking, he will have one of those. Return
-     * True if something happen and false if it don't. This is for ITEMS, not BLOCKS !
-     */
-    public boolean onItemUse(ItemStack par1ItemStack, EntityPlayer par2EntityPlayer, World par3World, int i, int j, int k, int l)
+    public boolean func_56454_a(ItemStack par1ItemStack, EntityPlayer par2EntityPlayer, World par3World, int i, int j, int k, int l, float f, float f1, float f2)
     {
         return false;
     }

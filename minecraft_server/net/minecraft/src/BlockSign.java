@@ -98,10 +98,7 @@ public class BlockSign extends BlockContainer
         return false;
     }
 
-    /**
-     * Returns the TileEntity used by this block.
-     */
-    public TileEntity getBlockEntity()
+    public TileEntity func_56351_a(World par1World)
     {
         try
         {

@@ -29,7 +29,7 @@ public abstract class EntityAIDoorInteract extends EntityAIBase
         PathNavigate pathnavigate = theEntity.getNavigator();
         PathEntity pathentity = pathnavigate.getPath();
 
-        if (pathentity == null || pathentity.isFinished() || !pathnavigate.func_48657_b())
+        if (pathentity == null || pathentity.isFinished() || !pathnavigate.getCanBreakDoors())
         {
             return false;
         }
@@ -104,8 +104,7 @@ public abstract class EntityAIDoorInteract extends EntityAIBase
         }
         else
         {
-            BlockDoor blockdoor = (BlockDoor)Block.blocksList[i];
-            return blockdoor;
+            return (BlockDoor)Block.blocksList[i];
         }
     }
 }

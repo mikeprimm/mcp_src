@@ -29,7 +29,7 @@ class SlotArmor extends Slot
     }
 
     /**
-     * Check if the stack is a valid item for this slot.
+     * Check if the stack is a valid item for this slot. Always true beside for the armor slots.
      */
     public boolean isItemValid(ItemStack par1ItemStack)
     {

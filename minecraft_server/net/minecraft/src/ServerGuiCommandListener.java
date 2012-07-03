@@ -25,7 +25,7 @@ class ServerGuiCommandListener implements ActionListener
 
         if (s.length() > 0)
         {
-            ServerGUI.getMinecraftServer(mcServerGui).addCommand(s, mcServerGui);
+            ServerGUI.func_56551_a(mcServerGui).func_56225_a(s, MinecraftServer.func_55089_q());
         }
 
         textField.setText("");

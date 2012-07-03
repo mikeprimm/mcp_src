@@ -1,5 +1,6 @@
 package net.minecraft.src;
 
+import java.util.Iterator;
 import java.util.List;
 
 public class InventoryBasic implements IInventory
@@ -121,9 +122,11 @@ public class InventoryBasic implements IInventory
     {
         if (field_40084_d != null)
         {
-            for (int i = 0; i < field_40084_d.size(); i++)
+            IInvBasic iinvbasic;
+
+            for (Iterator iterator = field_40084_d.iterator(); iterator.hasNext(); iinvbasic.onInventoryChanged(this))
             {
-                ((IInvBasic)field_40084_d.get(i)).onInventoryChanged(this);
+                iinvbasic = (IInvBasic)iterator.next();
             }
         }
     }

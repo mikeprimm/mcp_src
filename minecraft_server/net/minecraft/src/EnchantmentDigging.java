@@ -13,7 +13,7 @@ public class EnchantmentDigging extends Enchantment
      */
     public int getMinEnchantability(int par1)
     {
-        return 1 + 15 * (par1 - 1);
+        return 1 + 10 * (par1 - 1);
     }
 
     /**

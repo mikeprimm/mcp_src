@@ -42,21 +42,16 @@ public class EntityAIPlay extends EntityAIBase
                 break;
             }
 
-            Entity entity = (Entity)iterator.next();
+            EntityVillager entityvillager = (EntityVillager)iterator.next();
 
-            if (entity != villagerObj)
+            if (entityvillager != villagerObj && !entityvillager.getIsPlayingFlag() && entityvillager.getGrowingAge() < 0)
             {
-                EntityVillager entityvillager = (EntityVillager)entity;
+                double d1 = entityvillager.getDistanceSqToEntity(villagerObj);
 
-                if (!entityvillager.getIsPlayingFlag() && entityvillager.getGrowingAge() < 0)
+                if (d1 <= d)
                 {
-                    double d1 = entityvillager.getDistanceSqToEntity(villagerObj);
-
-                    if (d1 <= d)
-                    {
-                        d = d1;
-                        targetVillager = entityvillager;
-                    }
+                    d = d1;
+                    targetVillager = entityvillager;
                 }
             }
         }
@@ -64,9 +59,9 @@ public class EntityAIPlay extends EntityAIBase
 
         if (targetVillager == null)
         {
-            Vec3D vec3d = RandomPositionGenerator.func_48396_a(villagerObj, 16, 3);
+            Vec3 vec3 = RandomPositionGenerator.func_48396_a(villagerObj, 16, 3);
 
-            if (vec3d == null)
+            if (vec3 == null)
             {
                 return false;
             }
@@ -121,14 +116,14 @@ public class EntityAIPlay extends EntityAIBase
         }
         else if (villagerObj.getNavigator().noPath())
         {
-            Vec3D vec3d = RandomPositionGenerator.func_48396_a(villagerObj, 16, 3);
+            Vec3 vec3 = RandomPositionGenerator.func_48396_a(villagerObj, 16, 3);
 
-            if (vec3d == null)
+            if (vec3 == null)
             {
                 return;
             }
 
-            villagerObj.getNavigator().func_48658_a(vec3d.xCoord, vec3d.yCoord, vec3d.zCoord, field_48166_c);
+            villagerObj.getNavigator().tryMoveToXYZ(vec3.xCoord, vec3.yCoord, vec3.zCoord, field_48166_c);
         }
     }
 }

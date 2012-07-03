@@ -35,17 +35,17 @@ public class EntityAIMoveTowardsTarget extends EntityAIBase
             return false;
         }
 
-        Vec3D vec3d = RandomPositionGenerator.func_48395_a(theEntity, 16, 7, Vec3D.createVector(targetEntity.posX, targetEntity.posY, targetEntity.posZ));
+        Vec3 vec3 = RandomPositionGenerator.func_48395_a(theEntity, 16, 7, Vec3.func_58052_a().func_58076_a(targetEntity.posX, targetEntity.posY, targetEntity.posZ));
 
-        if (vec3d == null)
+        if (vec3 == null)
         {
             return false;
         }
         else
         {
-            movePosX = vec3d.xCoord;
-            movePosY = vec3d.yCoord;
-            movePosZ = vec3d.zCoord;
+            movePosX = vec3.xCoord;
+            movePosY = vec3.yCoord;
+            movePosZ = vec3.zCoord;
             return true;
         }
     }
@@ -71,6 +71,6 @@ public class EntityAIMoveTowardsTarget extends EntityAIBase
      */
     public void startExecuting()
     {
-        theEntity.getNavigator().func_48658_a(movePosX, movePosY, movePosZ, field_48217_f);
+        theEntity.getNavigator().tryMoveToXYZ(movePosX, movePosY, movePosZ, field_48217_f);
     }
 }

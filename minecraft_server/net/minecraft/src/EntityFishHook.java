@@ -1,17 +1,16 @@
 package net.minecraft.src;
 
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class EntityFishHook extends Entity
 {
-    /** The tile this entity is on, X position(unifying naming) */
+    /** The tile this entity is on, X position */
     private int xTile;
 
-    /** The tile this entity is on, Y position(unifying naming) */
+    /** The tile this entity is on, Y position */
     private int yTile;
 
-    /** The tile this entity is on, Z position(unifying naming) */
+    /** The tile this entity is on, Z position */
     private int zTile;
     private int inTile;
     private boolean inGround;
@@ -164,16 +163,7 @@ public class EntityFishHook extends Entity
         {
             int i = worldObj.getBlockId(xTile, yTile, zTile);
 
-            if (i != inTile)
-            {
-                inGround = false;
-                motionX *= rand.nextFloat() * 0.2F;
-                motionY *= rand.nextFloat() * 0.2F;
-                motionZ *= rand.nextFloat() * 0.2F;
-                ticksInGround = 0;
-                ticksInAir = 0;
-            }
-            else
+            if (i == inTile)
             {
                 ticksInGround++;
 
@@ -184,53 +174,63 @@ public class EntityFishHook extends Entity
 
                 return;
             }
+
+            inGround = false;
+            motionX *= rand.nextFloat() * 0.2F;
+            motionY *= rand.nextFloat() * 0.2F;
+            motionZ *= rand.nextFloat() * 0.2F;
+            ticksInGround = 0;
+            ticksInAir = 0;
         }
         else
         {
             ticksInAir++;
         }
 
-        Vec3D vec3d = Vec3D.createVector(posX, posY, posZ);
-        Vec3D vec3d1 = Vec3D.createVector(posX + motionX, posY + motionY, posZ + motionZ);
-        MovingObjectPosition movingobjectposition = worldObj.rayTraceBlocks(vec3d, vec3d1);
-        vec3d = Vec3D.createVector(posX, posY, posZ);
-        vec3d1 = Vec3D.createVector(posX + motionX, posY + motionY, posZ + motionZ);
+        Vec3 vec3 = Vec3.func_58052_a().func_58076_a(posX, posY, posZ);
+        Vec3 vec3_1 = Vec3.func_58052_a().func_58076_a(posX + motionX, posY + motionY, posZ + motionZ);
+        MovingObjectPosition movingobjectposition = worldObj.rayTraceBlocks(vec3, vec3_1);
+        vec3 = Vec3.func_58052_a().func_58076_a(posX, posY, posZ);
+        vec3_1 = Vec3.func_58052_a().func_58076_a(posX + motionX, posY + motionY, posZ + motionZ);
 
         if (movingobjectposition != null)
         {
-            vec3d1 = Vec3D.createVector(movingobjectposition.hitVec.xCoord, movingobjectposition.hitVec.yCoord, movingobjectposition.hitVec.zCoord);
+            vec3_1 = Vec3.func_58052_a().func_58076_a(movingobjectposition.hitVec.xCoord, movingobjectposition.hitVec.yCoord, movingobjectposition.hitVec.zCoord);
         }
 
         Entity entity = null;
         List list = worldObj.getEntitiesWithinAABBExcludingEntity(this, boundingBox.addCoord(motionX, motionY, motionZ).expand(1.0D, 1.0D, 1.0D));
         double d3 = 0.0D;
+        Iterator iterator = list.iterator();
 
-        for (int j = 0; j < list.size(); j++)
+        do
         {
-            Entity entity1 = (Entity)list.get(j);
-
-            if (!entity1.canBeCollidedWith() || entity1 == angler && ticksInAir < 5)
+            if (!iterator.hasNext())
             {
-                continue;
+                break;
             }
 
-            float f2 = 0.3F;
-            AxisAlignedBB axisalignedbb = entity1.boundingBox.expand(f2, f2, f2);
-            MovingObjectPosition movingobjectposition1 = axisalignedbb.calculateIntercept(vec3d, vec3d1);
+            Entity entity1 = (Entity)iterator.next();
 
-            if (movingobjectposition1 == null)
+            if (entity1.canBeCollidedWith() && (entity1 != angler || ticksInAir >= 5))
             {
-                continue;
-            }
+                float f2 = 0.3F;
+                AxisAlignedBB axisalignedbb = entity1.boundingBox.expand(f2, f2, f2);
+                MovingObjectPosition movingobjectposition1 = axisalignedbb.calculateIntercept(vec3, vec3_1);
 
-            double d6 = vec3d.distanceTo(movingobjectposition1.hitVec);
+                if (movingobjectposition1 != null)
+                {
+                    double d6 = vec3.distanceTo(movingobjectposition1.hitVec);
 
-            if (d6 < d3 || d3 == 0.0D)
-            {
-                entity = entity1;
-                d3 = d6;
+                    if (d6 < d3 || d3 == 0.0D)
+                    {
+                        entity = entity1;
+                        d3 = d6;
+                    }
+                }
             }
         }
+        while (true);
 
         if (entity != null)
         {
@@ -278,18 +278,18 @@ public class EntityFishHook extends Entity
             f1 = 0.5F;
         }
 
-        int k = 5;
+        int j = 5;
         double d5 = 0.0D;
 
-        for (int l = 0; l < k; l++)
+        for (int k = 0; k < j; k++)
         {
-            double d8 = ((boundingBox.minY + ((boundingBox.maxY - boundingBox.minY) * (double)(l + 0)) / (double)k) - 0.125D) + 0.125D;
-            double d9 = ((boundingBox.minY + ((boundingBox.maxY - boundingBox.minY) * (double)(l + 1)) / (double)k) - 0.125D) + 0.125D;
-            AxisAlignedBB axisalignedbb1 = AxisAlignedBB.getBoundingBoxFromPool(boundingBox.minX, d8, boundingBox.minZ, boundingBox.maxX, d9, boundingBox.maxZ);
+            double d8 = ((boundingBox.minY + ((boundingBox.maxY - boundingBox.minY) * (double)(k + 0)) / (double)j) - 0.125D) + 0.125D;
+            double d9 = ((boundingBox.minY + ((boundingBox.maxY - boundingBox.minY) * (double)(k + 1)) / (double)j) - 0.125D) + 0.125D;
+            AxisAlignedBB axisalignedbb1 = AxisAlignedBB.func_58089_a().func_58067_a(boundingBox.minX, d8, boundingBox.minZ, boundingBox.maxX, d9, boundingBox.maxZ);
 
             if (worldObj.isAABBInMaterial(axisalignedbb1, Material.water))
             {
-                d5 += 1.0D / (double)k;
+                d5 += 1.0D / (double)j;
             }
         }
 
@@ -315,14 +315,14 @@ public class EntityFishHook extends Entity
                     worldObj.playSoundAtEntity(this, "random.splash", 0.25F, 1.0F + (rand.nextFloat() - rand.nextFloat()) * 0.4F);
                     float f3 = MathHelper.floor_double(boundingBox.minY);
 
-                    for (int i1 = 0; (float)i1 < 1.0F + width * 20F; i1++)
+                    for (int l = 0; (float)l < 1.0F + width * 20F; l++)
                     {
                         float f4 = (rand.nextFloat() * 2.0F - 1.0F) * width;
                         float f6 = (rand.nextFloat() * 2.0F - 1.0F) * width;
                         worldObj.spawnParticle("bubble", posX + (double)f4, f3 + 1.0F, posZ + (double)f6, motionX, motionY - (double)(rand.nextFloat() * 0.2F), motionZ);
                     }
 
-                    for (int j1 = 0; (float)j1 < 1.0F + width * 20F; j1++)
+                    for (int i1 = 0; (float)i1 < 1.0F + width * 20F; i1++)
                     {
                         float f5 = (rand.nextFloat() * 2.0F - 1.0F) * width;
                         float f7 = (rand.nextFloat() * 2.0F - 1.0F) * width;
@@ -380,6 +380,11 @@ public class EntityFishHook extends Entity
 
     public int catchFish()
     {
+        if (worldObj.isRemote)
+        {
+            return 0;
+        }
+
         byte byte0 = 0;
 
         if (bobber != null)
@@ -418,5 +423,18 @@ public class EntityFishHook extends Entity
         setDead();
         angler.fishEntity = null;
         return byte0;
+    }
+
+    /**
+     * Will get destroyed next tick.
+     */
+    public void setDead()
+    {
+        super.setDead();
+
+        if (angler != null)
+        {
+            angler.fishEntity = null;
+        }
     }
 }

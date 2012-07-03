@@ -9,19 +9,29 @@ public class Packet60Explosion extends Packet
     public double explosionY;
     public double explosionZ;
     public float explosionSize;
-    public Set destroyedBlockPositions;
+    public List field_58030_e;
+    private float field_56266_f;
+    private float field_56267_g;
+    private float field_56268_h;
 
     public Packet60Explosion()
     {
     }
 
-    public Packet60Explosion(double par1, double par3, double par5, float par7, Set par8Set)
+    public Packet60Explosion(double par1, double par3, double par5, float par7, List par8List, Vec3 par9Vec3)
     {
         explosionX = par1;
         explosionY = par3;
         explosionZ = par5;
         explosionSize = par7;
-        destroyedBlockPositions = new HashSet(par8Set);
+        field_58030_e = new ArrayList(par8List);
+
+        if (par9Vec3 != null)
+        {
+            field_56266_f = (float)par9Vec3.xCoord;
+            field_56267_g = (float)par9Vec3.yCoord;
+            field_56268_h = (float)par9Vec3.zCoord;
+        }
     }
 
     /**
@@ -34,7 +44,7 @@ public class Packet60Explosion extends Packet
         explosionZ = par1DataInputStream.readDouble();
         explosionSize = par1DataInputStream.readFloat();
         int i = par1DataInputStream.readInt();
-        destroyedBlockPositions = new HashSet();
+        field_58030_e = new ArrayList(i);
         int j = (int)explosionX;
         int k = (int)explosionY;
         int l = (int)explosionZ;
@@ -44,8 +54,12 @@ public class Packet60Explosion extends Packet
             int j1 = par1DataInputStream.readByte() + j;
             int k1 = par1DataInputStream.readByte() + k;
             int l1 = par1DataInputStream.readByte() + l;
-            destroyedBlockPositions.add(new ChunkPosition(j1, k1, l1));
+            field_58030_e.add(new ChunkPosition(j1, k1, l1));
         }
+
+        field_56266_f = par1DataInputStream.readFloat();
+        field_56267_g = par1DataInputStream.readFloat();
+        field_56268_h = par1DataInputStream.readFloat();
     }
 
     /**
@@ -57,13 +71,13 @@ public class Packet60Explosion extends Packet
         par1DataOutputStream.writeDouble(explosionY);
         par1DataOutputStream.writeDouble(explosionZ);
         par1DataOutputStream.writeFloat(explosionSize);
-        par1DataOutputStream.writeInt(destroyedBlockPositions.size());
+        par1DataOutputStream.writeInt(field_58030_e.size());
         int i = (int)explosionX;
         int j = (int)explosionY;
         int k = (int)explosionZ;
         int j1;
 
-        for (Iterator iterator = destroyedBlockPositions.iterator(); iterator.hasNext(); par1DataOutputStream.writeByte(j1))
+        for (Iterator iterator = field_58030_e.iterator(); iterator.hasNext(); par1DataOutputStream.writeByte(j1))
         {
             ChunkPosition chunkposition = (ChunkPosition)iterator.next();
             int l = chunkposition.x - i;
@@ -72,6 +86,10 @@ public class Packet60Explosion extends Packet
             par1DataOutputStream.writeByte(l);
             par1DataOutputStream.writeByte(i1);
         }
+
+        par1DataOutputStream.writeFloat(field_56266_f);
+        par1DataOutputStream.writeFloat(field_56267_g);
+        par1DataOutputStream.writeFloat(field_56268_h);
     }
 
     /**
@@ -87,6 +105,6 @@ public class Packet60Explosion extends Packet
      */
     public int getPacketSize()
     {
-        return 32 + destroyedBlockPositions.size() * 3;
+        return 32 + field_58030_e.size() * 3 + 3;
     }
 }

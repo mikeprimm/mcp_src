@@ -67,4 +67,9 @@ public class Packet30Entity extends Packet
     {
         return 4;
     }
+
+    public String toString()
+    {
+        return (new StringBuilder()).append("Entity_").append(super.toString()).toString();
+    }
 }

@@ -13,7 +13,7 @@ public class SlotFurnace extends Slot
     }
 
     /**
-     * Check if the stack is a valid item for this slot.
+     * Check if the stack is a valid item for this slot. Always true beside for the armor slots.
      */
     public boolean isItemValid(ItemStack par1ItemStack)
     {
@@ -52,6 +52,17 @@ public class SlotFurnace extends Slot
     protected void func_48416_b(ItemStack par1ItemStack)
     {
         par1ItemStack.onCrafting(thePlayer.worldObj, thePlayer, field_48419_f);
+
+        if (!thePlayer.worldObj.isRemote)
+        {
+            for (int i = field_48419_f; i > 0;)
+            {
+                int j = EntityXPOrb.getXPSplit(i);
+                i -= j;
+                thePlayer.worldObj.spawnEntityInWorld(new EntityXPOrb(thePlayer.worldObj, thePlayer.posX, thePlayer.posY + 0.5D, thePlayer.posZ + 0.5D, j));
+            }
+        }
+
         field_48419_f = 0;
 
         if (par1ItemStack.itemID == Item.ingotIron.shiftedIndex)

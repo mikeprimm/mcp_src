@@ -24,6 +24,16 @@ public class RConThreadClient extends RConThreadBase
         loggedIn = false;
         buffer = new byte[1460];
         clientSocket = par2Socket;
+
+        try
+        {
+            clientSocket.setSoTimeout(0);
+        }
+        catch (Exception exception)
+        {
+            running = false;
+        }
+
         rconPassword = par1IServer.getStringProperty("rcon.password", "");
         log((new StringBuilder()).append("Rcon connection from: ").append(par2Socket.getInetAddress()).toString());
     }
@@ -39,88 +49,79 @@ public class RConThreadClient extends RConThreadBase
                     break;
                 }
 
-                try
+                BufferedInputStream bufferedinputstream = new BufferedInputStream(clientSocket.getInputStream());
+                int i = bufferedinputstream.read(buffer, 0, 1460);
+
+                if (10 > i)
                 {
-                    BufferedInputStream bufferedinputstream = new BufferedInputStream(clientSocket.getInputStream());
-                    int i = bufferedinputstream.read(buffer, 0, 1460);
-
-                    if (10 > i)
-                    {
-                        return;
-                    }
-
-                    int j = 0;
-                    int k = RConUtils.getBytesAsLEInt(buffer, 0, i);
-
-                    if (k != i - 4)
-                    {
-                        return;
-                    }
-
-                    j += 4;
-                    int l = RConUtils.getBytesAsLEInt(buffer, j, i);
-                    j += 4;
-                    int i1 = RConUtils.getRemainingBytesAsLEInt(buffer, j);
-                    j += 4;
-
-                    switch (i1)
-                    {
-                        case 3:
-                            String s = RConUtils.getBytesAsString(buffer, j, i);
-                            j += s.length();
-
-                            if (0 != s.length() && s.equals(rconPassword))
-                            {
-                                loggedIn = true;
-                                sendResponse(l, 2, "");
-                            }
-                            else
-                            {
-                                loggedIn = false;
-                                sendLoginFailedResponse();
-                            }
-
-                            break;
-
-                        case 2:
-                            if (loggedIn)
-                            {
-                                String s1 = RConUtils.getBytesAsString(buffer, j, i);
-
-                                try
-                                {
-                                    sendMultipacketResponse(l, server.handleRConCommand(s1));
-                                }
-                                catch (Exception exception1)
-                                {
-                                    sendMultipacketResponse(l, (new StringBuilder()).append("Error executing: ").append(s1).append(" (").append(exception1.getMessage()).append(")").toString());
-                                }
-                            }
-                            else
-                            {
-                                sendLoginFailedResponse();
-                            }
-
-                            break;
-
-                        default:
-                            sendMultipacketResponse(l, String.format("Unknown request %s", new Object[]
-                                    {
-                                        Integer.toHexString(i1)
-                                }));
-                            break;
-                    }
+                    return;
                 }
-                catch (SocketTimeoutException sockettimeoutexception) { }
-                catch (IOException ioexception)
+
+                int j = 0;
+                int k = RConUtils.getBytesAsLEInt(buffer, 0, i);
+
+                if (k != i - 4)
                 {
-                    if (running)
-                    {
-                        log((new StringBuilder()).append("IO: ").append(ioexception.getMessage()).toString());
-                    }
+                    return;
+                }
+
+                j += 4;
+                int l = RConUtils.getBytesAsLEInt(buffer, j, i);
+                j += 4;
+                int i1 = RConUtils.getRemainingBytesAsLEInt(buffer, j);
+                j += 4;
+
+                switch (i1)
+                {
+                    case 3:
+                        String s = RConUtils.getBytesAsString(buffer, j, i);
+                        j += s.length();
+
+                        if (0 != s.length() && s.equals(rconPassword))
+                        {
+                            loggedIn = true;
+                            sendResponse(l, 2, "");
+                        }
+                        else
+                        {
+                            loggedIn = false;
+                            sendLoginFailedResponse();
+                        }
+
+                        break;
+
+                    case 2:
+                        if (loggedIn)
+                        {
+                            String s1 = RConUtils.getBytesAsString(buffer, j, i);
+
+                            try
+                            {
+                                sendMultipacketResponse(l, server.handleRConCommand(s1));
+                            }
+                            catch (Exception exception1)
+                            {
+                                sendMultipacketResponse(l, (new StringBuilder()).append("Error executing: ").append(s1).append(" (").append(exception1.getMessage()).append(")").toString());
+                            }
+                        }
+                        else
+                        {
+                            sendLoginFailedResponse();
+                        }
+
+                        break;
+
+                    default:
+                        sendMultipacketResponse(l, String.format("Unknown request %s", new Object[]
+                                {
+                                    Integer.toHexString(i1)
+                            }));
+                        break;
                 }
             }
         }
+        catch (SocketTimeoutException sockettimeoutexception) { }
+        catch (IOException ioexception) { }
         catch (Exception exception)
         {
             System.out.println(exception);

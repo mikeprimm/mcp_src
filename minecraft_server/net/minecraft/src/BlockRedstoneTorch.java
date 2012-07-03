@@ -6,11 +6,7 @@ public class BlockRedstoneTorch extends BlockTorch
 {
     /** Whether the redstone torch is currently active or not. */
     private boolean torchActive;
-
-    /**
-     * An array of when redstone torches became active.  Used for redstone torches to burn out.
-     */
-    private static List torchUpdates = new ArrayList();
+    private static Map field_56343_b = new HashMap();
 
     /**
      * From the specified side and block metadata retrieves the blocks texture. Args: side, metadata
@@ -29,16 +25,21 @@ public class BlockRedstoneTorch extends BlockTorch
 
     private boolean checkForBurnout(World par1World, int par2, int par3, int par4, boolean par5)
     {
+        if (!field_56343_b.containsKey(par1World))
+        {
+            field_56343_b.put(par1World, new ArrayList());
+        }
+
         if (par5)
         {
-            torchUpdates.add(new RedstoneUpdateInfo(par2, par3, par4, par1World.getWorldTime()));
+            ((List)field_56343_b.get(par1World)).add(new RedstoneUpdateInfo(par2, par3, par4, par1World.getWorldTime()));
         }
 
         int i = 0;
 
-        for (int j = 0; j < torchUpdates.size(); j++)
+        for (Iterator iterator = ((List)field_56343_b.get(par1World)).iterator(); iterator.hasNext();)
         {
-            RedstoneUpdateInfo redstoneupdateinfo = (RedstoneUpdateInfo)torchUpdates.get(j);
+            RedstoneUpdateInfo redstoneupdateinfo = (RedstoneUpdateInfo)iterator.next();
 
             if (redstoneupdateinfo.x == par2 && redstoneupdateinfo.y == par3 && redstoneupdateinfo.z == par4 && ++i >= 8)
             {
@@ -55,6 +56,7 @@ public class BlockRedstoneTorch extends BlockTorch
         torchActive = false;
         torchActive = par3;
         setTickRandomly(true);
+        func_56326_a(null);
     }
 
     /**
@@ -86,10 +88,7 @@ public class BlockRedstoneTorch extends BlockTorch
         }
     }
 
-    /**
-     * Called whenever the block is removed.
-     */
-    public void onBlockRemoval(World par1World, int par2, int par3, int par4)
+    public void func_56322_a(World par1World, int par2, int par3, int par4, int par5, int par6)
     {
         if (torchActive)
         {
@@ -174,7 +173,7 @@ public class BlockRedstoneTorch extends BlockTorch
     {
         boolean flag = isIndirectlyPowered(par1World, par2, par3, par4);
 
-        for (; torchUpdates.size() > 0 && par1World.getWorldTime() - ((RedstoneUpdateInfo)torchUpdates.get(0)).updateTime > 60L; torchUpdates.remove(0)) { }
+        for (List list = (List)field_56343_b.get(par1World); list != null && !list.isEmpty() && par1World.getWorldTime() - ((RedstoneUpdateInfo)list.get(0)).updateTime > 60L; list.remove(0)) { }
 
         if (torchActive)
         {
@@ -241,5 +240,19 @@ public class BlockRedstoneTorch extends BlockTorch
     public boolean canProvidePower()
     {
         return true;
+    }
+
+    public void func_56331_a(World par1World, long par2, long par4)
+    {
+        List list = (List)field_56343_b.get(par1World);
+
+        if (list != null)
+        {
+            for (Iterator iterator = list.iterator(); iterator.hasNext();)
+            {
+                RedstoneUpdateInfo redstoneupdateinfo = (RedstoneUpdateInfo)iterator.next();
+                redstoneupdateinfo.updateTime += par2;
+            }
+        }
     }
 }

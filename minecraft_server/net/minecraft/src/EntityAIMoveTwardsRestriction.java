@@ -26,17 +26,17 @@ public class EntityAIMoveTwardsRestriction extends EntityAIBase
         }
 
         ChunkCoordinates chunkcoordinates = theEntity.getHomePosition();
-        Vec3D vec3d = RandomPositionGenerator.func_48395_a(theEntity, 16, 7, Vec3D.createVector(chunkcoordinates.posX, chunkcoordinates.posY, chunkcoordinates.posZ));
+        Vec3 vec3 = RandomPositionGenerator.func_48395_a(theEntity, 16, 7, Vec3.func_58052_a().func_58076_a(chunkcoordinates.posX, chunkcoordinates.posY, chunkcoordinates.posZ));
 
-        if (vec3d == null)
+        if (vec3 == null)
         {
             return false;
         }
         else
         {
-            movePosX = vec3d.xCoord;
-            movePosY = vec3d.yCoord;
-            movePosZ = vec3d.zCoord;
+            movePosX = vec3.xCoord;
+            movePosY = vec3.yCoord;
+            movePosZ = vec3.zCoord;
             return true;
         }
     }
@@ -54,6 +54,6 @@ public class EntityAIMoveTwardsRestriction extends EntityAIBase
      */
     public void startExecuting()
     {
-        theEntity.getNavigator().func_48658_a(movePosX, movePosY, movePosZ, field_48149_e);
+        theEntity.getNavigator().tryMoveToXYZ(movePosX, movePosY, movePosZ, field_48149_e);
     }
 }

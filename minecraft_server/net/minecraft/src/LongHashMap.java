@@ -95,7 +95,7 @@ public class LongHashMap
     }
 
     /**
-     * add the key value pair to the hash
+     * Add a key-value pair.
      */
     public void add(long par1, Object par3Obj)
     {
@@ -107,6 +107,7 @@ public class LongHashMap
             if (longhashmapentry.key == par1)
             {
                 longhashmapentry.value = par3Obj;
+                return;
             }
         }
 
@@ -216,7 +217,7 @@ public class LongHashMap
     }
 
     /**
-     * creates the key in the hashTable
+     * creates the key in the hash table
      */
     private void createKey(int par1, long par2, Object par4Obj, int par5)
     {

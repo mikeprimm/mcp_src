@@ -2,18 +2,18 @@ package net.minecraft.src;
 
 public class ItemHoe extends Item
 {
+    protected EnumToolMaterial field_56464_a;
+
     public ItemHoe(int par1, EnumToolMaterial par2EnumToolMaterial)
     {
         super(par1);
+        field_56464_a = par2EnumToolMaterial;
         maxStackSize = 1;
         setMaxDamage(par2EnumToolMaterial.getMaxUses());
+        func_56455_a(CreativeTabs.field_56397_i);
     }
 
-    /**
-     * Callback for item usage. If the item does something special on right clicking, he will have one of those. Return
-     * True if something happen and false if it don't. This is for ITEMS, not BLOCKS !
-     */
-    public boolean onItemUse(ItemStack par1ItemStack, EntityPlayer par2EntityPlayer, World par3World, int par4, int par5, int par6, int par7)
+    public boolean func_56454_a(ItemStack par1ItemStack, EntityPlayer par2EntityPlayer, World par3World, int par4, int par5, int par6, int par7, float par8, float par9, float par10)
     {
         if (!par2EntityPlayer.canPlayerEdit(par4, par5, par6))
         {
@@ -43,5 +43,10 @@ public class ItemHoe extends Item
         {
             return false;
         }
+    }
+
+    public String func_56463_b()
+    {
+        return field_56464_a.toString();
     }
 }

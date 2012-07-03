@@ -17,14 +17,16 @@ public class TileEntityPiston extends TileEntity
 
     /** the progress in (de)extending */
     private float lastProgress;
-    private static List pushedObjects = new ArrayList();
+    private List pushedObjects;
 
     public TileEntityPiston()
     {
+        pushedObjects = new ArrayList();
     }
 
     public TileEntityPiston(int par1, int par2, int par3, boolean par4, boolean par5)
     {
+        pushedObjects = new ArrayList();
         storedBlockID = par1;
         storedMetadata = par2;
         storedOrientation = par3;
@@ -77,13 +79,13 @@ public class TileEntityPiston extends TileEntity
 
     private void updatePushedObjects(float par1, float par2)
     {
-        if (!extending)
+        if (extending)
         {
-            par1--;
+            par1 = 1.0F - par1;
         }
         else
         {
-            par1 = 1.0F - par1;
+            par1--;
         }
 
         AxisAlignedBB axisalignedbb = Block.pistonMoving.getAxisAlignedBB(worldObj, xCoord, yCoord, zCoord, storedBlockID, par1, storedOrientation);

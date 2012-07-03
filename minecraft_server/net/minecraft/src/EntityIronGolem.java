@@ -16,7 +16,7 @@ public class EntityIronGolem extends EntityGolem
         villageObj = null;
         texture = "/mob/villager_golem.png";
         setSize(1.4F, 2.9F);
-        getNavigator().func_48656_a(true);
+        getNavigator().setAvoidsWater(true);
         tasks.addTask(1, new EntityAIAttackOnCollide(this, 0.25F, true));
         tasks.addTask(2, new EntityAIMoveTowardsTarget(this, 0.22F, 32F));
         tasks.addTask(3, new EntityAIMoveThroughVillage(this, 0.16F, true));
@@ -123,24 +123,6 @@ public class EntityIronGolem extends EntityGolem
         {
             return super.func_48336_a(par1Class);
         }
-    }
-
-    /**
-     * (abstract) Protected helper method to write subclass entity data to NBT.
-     */
-    public void writeEntityToNBT(NBTTagCompound par1NBTTagCompound)
-    {
-        super.writeEntityToNBT(par1NBTTagCompound);
-        par1NBTTagCompound.setBoolean("PlayerCreated", func_48379_n_());
-    }
-
-    /**
-     * (abstract) Protected helper method to read subclass entity data from NBT.
-     */
-    public void readEntityFromNBT(NBTTagCompound par1NBTTagCompound)
-    {
-        super.readEntityFromNBT(par1NBTTagCompound);
-        func_48381_b(par1NBTTagCompound.getBoolean("PlayerCreated"));
     }
 
     public boolean attackEntityAsMob(Entity par1Entity)

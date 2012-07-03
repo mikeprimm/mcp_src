@@ -7,6 +7,7 @@ public class BlockLever extends Block
     protected BlockLever(int par1, int par2)
     {
         super(par1, par2, Material.circuits);
+        func_56326_a(CreativeTabs.field_56385_d);
     }
 
     /**
@@ -48,7 +49,12 @@ public class BlockLever extends Block
      */
     public boolean canPlaceBlockOnSide(World par1World, int par2, int par3, int par4, int par5)
     {
-        if (par5 == 1 && par1World.isBlockNormalCube(par2, par3 - 1, par4))
+        if (par5 == 0 && par1World.isBlockNormalCube(par2, par3 + 1, par4))
+        {
+            return true;
+        }
+
+        if (par5 == 1 && par1World.func_58038_s(par2, par3 - 1, par4))
         {
             return true;
         }
@@ -96,21 +102,27 @@ public class BlockLever extends Block
             return true;
         }
 
-        return par1World.isBlockNormalCube(par2, par3 - 1, par4);
+        if (par1World.func_58038_s(par2, par3 - 1, par4))
+        {
+            return true;
+        }
+
+        return par1World.isBlockNormalCube(par2, par3 + 1, par4);
     }
 
-    /**
-     * Called when a block is placed using an item. Used often for taking the facing and figuring out how to position
-     * the item. Args: x, y, z, facing
-     */
-    public void onBlockPlaced(World par1World, int par2, int par3, int par4, int par5)
+    public void func_56327_a(World par1World, int par2, int par3, int par4, int par5, float par6, float par7, float par8)
     {
         int i = par1World.getBlockMetadata(par2, par3, par4);
         int j = i & 8;
         i &= 7;
         i = -1;
 
-        if (par5 == 1 && par1World.isBlockNormalCube(par2, par3 - 1, par4))
+        if (par5 == 0 && par1World.isBlockNormalCube(par2, par3 + 1, par4))
+        {
+            i = par1World.rand.nextBoolean() ? 0 : 7;
+        }
+
+        if (par5 == 1 && par1World.func_58038_s(par2, par3 - 1, par4))
         {
             i = 5 + par1World.rand.nextInt(2);
         }
@@ -148,6 +160,32 @@ public class BlockLever extends Block
         }
     }
 
+    public static int func_56340_d(int par0)
+    {
+        switch (par0)
+        {
+            case 0:
+                return 0;
+
+            case 1:
+                return 5;
+
+            case 2:
+                return 4;
+
+            case 3:
+                return 3;
+
+            case 4:
+                return 2;
+
+            case 5:
+                return 1;
+        }
+
+        return -1;
+    }
+
     /**
      * Lets the block know when one of its neighbor changes. Doesn't know which neighbor changed (coordinates passed are
      * their own) Args: x, y, z, neighbor blockID
@@ -179,12 +217,22 @@ public class BlockLever extends Block
                 flag = true;
             }
 
-            if (!par1World.isBlockNormalCube(par2, par3 - 1, par4) && i == 5)
+            if (!par1World.func_58038_s(par2, par3 - 1, par4) && i == 5)
             {
                 flag = true;
             }
 
-            if (!par1World.isBlockNormalCube(par2, par3 - 1, par4) && i == 6)
+            if (!par1World.func_58038_s(par2, par3 - 1, par4) && i == 6)
+            {
+                flag = true;
+            }
+
+            if (!par1World.isBlockNormalCube(par2, par3 + 1, par4) && i == 0)
+            {
+                flag = true;
+            }
+
+            if (!par1World.isBlockNormalCube(par2, par3 + 1, par4) && i == 7)
             {
                 flag = true;
             }
@@ -239,10 +287,15 @@ public class BlockLever extends Block
         {
             setBlockBounds(0.5F - f, 0.2F, 1.0F - f * 2.0F, 0.5F + f, 0.8F, 1.0F);
         }
-        else
+        else if (i == 5 || i == 6)
         {
             float f1 = 0.25F;
             setBlockBounds(0.5F - f1, 0.0F, 0.5F - f1, 0.5F + f1, 0.6F, 0.5F + f1);
+        }
+        else if (i == 0 || i == 7)
+        {
+            float f2 = 0.25F;
+            setBlockBounds(0.5F - f2, 0.4F, 0.5F - f2, 0.5F + f2, 1.0F, 0.5F + f2);
         }
     }
 
@@ -251,14 +304,10 @@ public class BlockLever extends Block
      */
     public void onBlockClicked(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer)
     {
-        blockActivated(par1World, par2, par3, par4, par5EntityPlayer);
+        func_56323_a(par1World, par2, par3, par4, par5EntityPlayer, 0, 0.0F, 0.0F, 0.0F);
     }
 
-    /**
-     * Called upon block activation (left or right click on the block.). The three integers represent x,y,z of the
-     * block.
-     */
-    public boolean blockActivated(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer)
+    public boolean func_56323_a(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer, int par6, float par7, float par8, float par9)
     {
         if (par1World.isRemote)
         {
@@ -289,49 +338,52 @@ public class BlockLever extends Block
         {
             par1World.notifyBlocksOfNeighborChange(par2, par3, par4 + 1, blockID);
         }
-        else
+        else if (j == 5 || j == 6)
         {
             par1World.notifyBlocksOfNeighborChange(par2, par3 - 1, par4, blockID);
+        }
+        else if (j == 0 || j == 7)
+        {
+            par1World.notifyBlocksOfNeighborChange(par2, par3 + 1, par4, blockID);
         }
 
         return true;
     }
 
-    /**
-     * Called whenever the block is removed.
-     */
-    public void onBlockRemoval(World par1World, int par2, int par3, int par4)
+    public void func_56322_a(World par1World, int par2, int par3, int par4, int par5, int par6)
     {
-        int i = par1World.getBlockMetadata(par2, par3, par4);
-
-        if ((i & 8) > 0)
+        if ((par6 & 8) > 0)
         {
             par1World.notifyBlocksOfNeighborChange(par2, par3, par4, blockID);
-            int j = i & 7;
+            int i = par6 & 7;
 
-            if (j == 1)
+            if (i == 1)
             {
                 par1World.notifyBlocksOfNeighborChange(par2 - 1, par3, par4, blockID);
             }
-            else if (j == 2)
+            else if (i == 2)
             {
                 par1World.notifyBlocksOfNeighborChange(par2 + 1, par3, par4, blockID);
             }
-            else if (j == 3)
+            else if (i == 3)
             {
                 par1World.notifyBlocksOfNeighborChange(par2, par3, par4 - 1, blockID);
             }
-            else if (j == 4)
+            else if (i == 4)
             {
                 par1World.notifyBlocksOfNeighborChange(par2, par3, par4 + 1, blockID);
             }
-            else
+            else if (i == 5 || i == 6)
             {
                 par1World.notifyBlocksOfNeighborChange(par2, par3 - 1, par4, blockID);
             }
+            else if (i == 0 || i == 7)
+            {
+                par1World.notifyBlocksOfNeighborChange(par2, par3 + 1, par4, blockID);
+            }
         }
 
-        super.onBlockRemoval(par1World, par2, par3, par4);
+        super.func_56322_a(par1World, par2, par3, par4, par5, par6);
     }
 
     /**
@@ -355,6 +407,16 @@ public class BlockLever extends Block
         }
 
         int j = i & 7;
+
+        if (j == 0 && par5 == 0)
+        {
+            return true;
+        }
+
+        if (j == 7 && par5 == 0)
+        {
+            return true;
+        }
 
         if (j == 6 && par5 == 1)
         {

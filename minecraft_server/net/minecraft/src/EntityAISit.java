@@ -55,7 +55,7 @@ public class EntityAISit extends EntityAIBase
     public void startExecuting()
     {
         theEntity.getNavigator().clearPathEntity();
-        theEntity.func_48369_c(true);
+        theEntity.setSitting(true);
     }
 
     /**
@@ -63,7 +63,7 @@ public class EntityAISit extends EntityAIBase
      */
     public void resetTask()
     {
-        theEntity.func_48369_c(false);
+        theEntity.setSitting(false);
     }
 
     public void func_48210_a(boolean par1)

@@ -15,6 +15,7 @@ public class BlockTrapDoor extends Block
         float f = 0.5F;
         float f1 = 1.0F;
         setBlockBounds(0.5F - f, 0.0F, 0.5F - f, 0.5F + f, f1, 0.5F + f);
+        func_56326_a(CreativeTabs.field_56385_d);
     }
 
     /**
@@ -108,14 +109,10 @@ public class BlockTrapDoor extends Block
      */
     public void onBlockClicked(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer)
     {
-        blockActivated(par1World, par2, par3, par4, par5EntityPlayer);
+        func_56323_a(par1World, par2, par3, par4, par5EntityPlayer, 0, 0.0F, 0.0F, 0.0F);
     }
 
-    /**
-     * Called upon block activation (left or right click on the block.). The three integers represent x,y,z of the
-     * block.
-     */
-    public boolean blockActivated(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer)
+    public boolean func_56323_a(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer, int par6, float par7, float par8, float par9)
     {
         if (blockMaterial == Material.iron)
         {
@@ -200,17 +197,13 @@ public class BlockTrapDoor extends Block
      * Ray traces through the blocks collision from start vector to end vector returning a ray trace hit. Args: world,
      * x, y, z, startVec, endVec
      */
-    public MovingObjectPosition collisionRayTrace(World par1World, int par2, int par3, int par4, Vec3D par5Vec3D, Vec3D par6Vec3D)
+    public MovingObjectPosition collisionRayTrace(World par1World, int par2, int par3, int par4, Vec3 par5Vec3, Vec3 par6Vec3)
     {
         setBlockBoundsBasedOnState(par1World, par2, par3, par4);
-        return super.collisionRayTrace(par1World, par2, par3, par4, par5Vec3D, par6Vec3D);
+        return super.collisionRayTrace(par1World, par2, par3, par4, par5Vec3, par6Vec3);
     }
 
-    /**
-     * Called when a block is placed using an item. Used often for taking the facing and figuring out how to position
-     * the item. Args: x, y, z, facing
-     */
-    public void onBlockPlaced(World par1World, int par2, int par3, int par4, int par5)
+    public void func_56327_a(World par1World, int par2, int par3, int par4, int par5, float par6, float par7, float par8)
     {
         byte byte0 = 0;
 

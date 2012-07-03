@@ -4,17 +4,17 @@ import java.util.*;
 
 public class ComponentMineshaftRoom extends StructureComponent
 {
-    private LinkedList chidStructures;
+    private List field_55100_a;
 
     public ComponentMineshaftRoom(int par1, Random par2Random, int par3, int par4)
     {
         super(par1);
-        chidStructures = new LinkedList();
+        field_55100_a = new LinkedList();
         boundingBox = new StructureBoundingBox(par3, 50, par4, par3 + 7 + par2Random.nextInt(6), 54 + par2Random.nextInt(6), par4 + 7 + par2Random.nextInt(6));
     }
 
     /**
-     * 'Initiates construction of the Structure Component picked, at the current Location of StructGen'
+     * Initiates construction of the Structure Component picked, at the current Location of StructGen
      */
     public void buildComponent(StructureComponent par1StructureComponent, List par2List, Random par3Random)
     {
@@ -40,7 +40,7 @@ public class ComponentMineshaftRoom extends StructureComponent
             if (structurecomponent != null)
             {
                 StructureBoundingBox structureboundingbox = structurecomponent.getBoundingBox();
-                chidStructures.add(new StructureBoundingBox(structureboundingbox.minX, structureboundingbox.minY, boundingBox.minZ, structureboundingbox.maxX, structureboundingbox.maxY, boundingBox.minZ + 1));
+                field_55100_a.add(new StructureBoundingBox(structureboundingbox.minX, structureboundingbox.minY, boundingBox.minZ, structureboundingbox.maxX, structureboundingbox.maxY, boundingBox.minZ + 1));
             }
         }
 
@@ -58,7 +58,7 @@ public class ComponentMineshaftRoom extends StructureComponent
             if (structurecomponent1 != null)
             {
                 StructureBoundingBox structureboundingbox1 = structurecomponent1.getBoundingBox();
-                chidStructures.add(new StructureBoundingBox(structureboundingbox1.minX, structureboundingbox1.minY, boundingBox.maxZ - 1, structureboundingbox1.maxX, structureboundingbox1.maxY, boundingBox.maxZ));
+                field_55100_a.add(new StructureBoundingBox(structureboundingbox1.minX, structureboundingbox1.minY, boundingBox.maxZ - 1, structureboundingbox1.maxX, structureboundingbox1.maxY, boundingBox.maxZ));
             }
         }
 
@@ -76,7 +76,7 @@ public class ComponentMineshaftRoom extends StructureComponent
             if (structurecomponent2 != null)
             {
                 StructureBoundingBox structureboundingbox2 = structurecomponent2.getBoundingBox();
-                chidStructures.add(new StructureBoundingBox(boundingBox.minX, structureboundingbox2.minY, structureboundingbox2.minZ, boundingBox.minX + 1, structureboundingbox2.maxY, structureboundingbox2.maxZ));
+                field_55100_a.add(new StructureBoundingBox(boundingBox.minX, structureboundingbox2.minY, structureboundingbox2.minZ, boundingBox.minX + 1, structureboundingbox2.maxY, structureboundingbox2.maxZ));
             }
         }
 
@@ -94,14 +94,14 @@ public class ComponentMineshaftRoom extends StructureComponent
             if (structurecomponent3 != null)
             {
                 StructureBoundingBox structureboundingbox3 = structurecomponent3.getBoundingBox();
-                chidStructures.add(new StructureBoundingBox(boundingBox.maxX - 1, structureboundingbox3.minY, structureboundingbox3.minZ, boundingBox.maxX, structureboundingbox3.maxY, structureboundingbox3.maxZ));
+                field_55100_a.add(new StructureBoundingBox(boundingBox.maxX - 1, structureboundingbox3.minY, structureboundingbox3.minZ, boundingBox.maxX, structureboundingbox3.maxY, structureboundingbox3.maxZ));
             }
         }
     }
 
     /**
-     * 'second Part of Structure generating, this for example places Spiderwebs, Mob Spawners, it closes Mineshafts at
-     * the end, it adds Fences...'
+     * second Part of Structure generating, this for example places Spiderwebs, Mob Spawners, it closes Mineshafts at
+     * the end, it adds Fences...
      */
     public boolean addComponentParts(World par1World, Random par2Random, StructureBoundingBox par3StructureBoundingBox)
     {
@@ -114,7 +114,7 @@ public class ComponentMineshaftRoom extends StructureComponent
         fillWithBlocks(par1World, par3StructureBoundingBox, boundingBox.minX, boundingBox.minY + 1, boundingBox.minZ, boundingBox.maxX, Math.min(boundingBox.minY + 3, boundingBox.maxY), boundingBox.maxZ, 0, 0, false);
         StructureBoundingBox structureboundingbox;
 
-        for (Iterator iterator = chidStructures.iterator(); iterator.hasNext(); fillWithBlocks(par1World, par3StructureBoundingBox, structureboundingbox.minX, structureboundingbox.maxY - 2, structureboundingbox.minZ, structureboundingbox.maxX, structureboundingbox.maxY, structureboundingbox.maxZ, 0, 0, false))
+        for (Iterator iterator = field_55100_a.iterator(); iterator.hasNext(); fillWithBlocks(par1World, par3StructureBoundingBox, structureboundingbox.minX, structureboundingbox.maxY - 2, structureboundingbox.minZ, structureboundingbox.maxX, structureboundingbox.maxY, structureboundingbox.maxZ, 0, 0, false))
         {
             structureboundingbox = (StructureBoundingBox)iterator.next();
         }

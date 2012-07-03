@@ -141,7 +141,7 @@ public class BiomeDecorator
         ironGen = new WorldGenMinable(Block.oreIron.blockID, 8);
         goldGen = new WorldGenMinable(Block.oreGold.blockID, 8);
         redstoneGen = new WorldGenMinable(Block.oreRedstone.blockID, 7);
-        diamondGen = new WorldGenMinable(Block.oreDiamond.blockID, 7);
+        diamondGen = new WorldGenMinable(Block.field_56337_aw.blockID, 7);
         lapisGen = new WorldGenMinable(Block.oreLapis.blockID, 6);
         plantYellowGen = new WorldGenFlowers(Block.plantYellow.blockID);
         plantRedGen = new WorldGenFlowers(Block.plantRed.blockID);

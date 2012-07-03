@@ -5,6 +5,7 @@ public class BlockFenceGate extends BlockDirectional
     public BlockFenceGate(int par1, int par2)
     {
         super(par1, par2, Material.wood);
+        func_56326_a(CreativeTabs.field_56385_d);
     }
 
     /**
@@ -37,11 +38,11 @@ public class BlockFenceGate extends BlockDirectional
 
         if (i == 2 || i == 0)
         {
-            return AxisAlignedBB.getBoundingBoxFromPool(par2, par3, (float)par4 + 0.375F, par2 + 1, (float)par3 + 1.5F, (float)par4 + 0.625F);
+            return AxisAlignedBB.func_58089_a().func_58067_a(par2, par3, (float)par4 + 0.375F, par2 + 1, (float)par3 + 1.5F, (float)par4 + 0.625F);
         }
         else
         {
-            return AxisAlignedBB.getBoundingBoxFromPool((float)par2 + 0.375F, par3, par4, (float)par2 + 0.625F, (float)par3 + 1.5F, par4 + 1);
+            return AxisAlignedBB.func_58089_a().func_58067_a((float)par2 + 0.375F, par3, par4, (float)par2 + 0.625F, (float)par3 + 1.5F, par4 + 1);
         }
     }
 
@@ -101,11 +102,7 @@ public class BlockFenceGate extends BlockDirectional
         par1World.setBlockMetadataWithNotify(par2, par3, par4, i);
     }
 
-    /**
-     * Called upon block activation (left or right click on the block.). The three integers represent x,y,z of the
-     * block.
-     */
-    public boolean blockActivated(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer)
+    public boolean func_56323_a(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer, int par6, float par7, float par8, float par9)
     {
         int i = par1World.getBlockMetadata(par2, par3, par4);
 

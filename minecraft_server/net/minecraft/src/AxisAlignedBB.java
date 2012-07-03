@@ -1,15 +1,8 @@
 package net.minecraft.src;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class AxisAlignedBB
 {
-    /** List of bounding boxes (not all necessarily being actively used) */
-    private static List boundingBoxes = new ArrayList();
-
-    /** Tracks how many bounding boxes are being used */
-    private static int numBoundingBoxesInUse = 0;
+    private static final ThreadLocal field_56779_g = new AABBLocalPool();
     public double minX;
     public double minY;
     public double minZ;
@@ -25,28 +18,12 @@ public class AxisAlignedBB
         return new AxisAlignedBB(par0, par2, par4, par6, par8, par10);
     }
 
-    /**
-     * Sets the number of bounding boxes in use from the pool to 0 so they will be reused
-     */
-    public static void clearBoundingBoxPool()
+    public static AABBPool func_58089_a()
     {
-        numBoundingBoxesInUse = 0;
+        return (AABBPool)field_56779_g.get();
     }
 
-    /**
-     * Returns a bounding box with the specified bounds from the pool.  Args: minX, minY, minZ, maxX, maxY, maxZ
-     */
-    public static AxisAlignedBB getBoundingBoxFromPool(double par0, double par2, double par4, double par6, double par8, double par10)
-    {
-        if (numBoundingBoxesInUse >= boundingBoxes.size())
-        {
-            boundingBoxes.add(getBoundingBox(0.0D, 0.0D, 0.0D, 0.0D, 0.0D, 0.0D));
-        }
-
-        return ((AxisAlignedBB)boundingBoxes.get(numBoundingBoxesInUse++)).setBounds(par0, par2, par4, par6, par8, par10);
-    }
-
-    private AxisAlignedBB(double par1, double par3, double par5, double par7, double par9, double par11)
+    protected AxisAlignedBB(double par1, double par3, double par5, double par7, double par9, double par11)
     {
         minX = par1;
         minY = par3;
@@ -112,7 +89,7 @@ public class AxisAlignedBB
             d5 += par5;
         }
 
-        return getBoundingBoxFromPool(d, d1, d2, d3, d4, d5);
+        return func_58089_a().func_58067_a(d, d1, d2, d3, d4, d5);
     }
 
     /**
@@ -127,7 +104,7 @@ public class AxisAlignedBB
         double d3 = maxX + par1;
         double d4 = maxY + par3;
         double d5 = maxZ + par5;
-        return getBoundingBoxFromPool(d, d1, d2, d3, d4, d5);
+        return func_58089_a().func_58067_a(d, d1, d2, d3, d4, d5);
     }
 
     /**
@@ -136,7 +113,7 @@ public class AxisAlignedBB
      */
     public AxisAlignedBB getOffsetBoundingBox(double par1, double par3, double par5)
     {
-        return getBoundingBoxFromPool(minX + par1, minY + par3, minZ + par5, maxX + par1, maxY + par3, maxZ + par5);
+        return func_58089_a().func_58067_a(minX + par1, minY + par3, minZ + par5, maxX + par1, maxY + par3, maxZ + par5);
     }
 
     /**
@@ -294,19 +271,19 @@ public class AxisAlignedBB
     /**
      * Returns if the supplied Vec3D is completely inside the bounding box
      */
-    public boolean isVecInside(Vec3D par1Vec3D)
+    public boolean isVecInside(Vec3 par1Vec3)
     {
-        if (par1Vec3D.xCoord <= minX || par1Vec3D.xCoord >= maxX)
+        if (par1Vec3.xCoord <= minX || par1Vec3.xCoord >= maxX)
         {
             return false;
         }
 
-        if (par1Vec3D.yCoord <= minY || par1Vec3D.yCoord >= maxY)
+        if (par1Vec3.yCoord <= minY || par1Vec3.yCoord >= maxY)
         {
             return false;
         }
 
-        return par1Vec3D.zCoord > minZ && par1Vec3D.zCoord < maxZ;
+        return par1Vec3.zCoord > minZ && par1Vec3.zCoord < maxZ;
     }
 
     /**
@@ -320,7 +297,7 @@ public class AxisAlignedBB
         double d3 = maxX - par1;
         double d4 = maxY - par3;
         double d5 = maxZ - par5;
-        return getBoundingBoxFromPool(d, d1, d2, d3, d4, d5);
+        return func_58089_a().func_58067_a(d, d1, d2, d3, d4, d5);
     }
 
     /**
@@ -328,162 +305,162 @@ public class AxisAlignedBB
      */
     public AxisAlignedBB copy()
     {
-        return getBoundingBoxFromPool(minX, minY, minZ, maxX, maxY, maxZ);
+        return func_58089_a().func_58067_a(minX, minY, minZ, maxX, maxY, maxZ);
     }
 
-    public MovingObjectPosition calculateIntercept(Vec3D par1Vec3D, Vec3D par2Vec3D)
+    public MovingObjectPosition calculateIntercept(Vec3 par1Vec3, Vec3 par2Vec3)
     {
-        Vec3D vec3d = par1Vec3D.getIntermediateWithXValue(par2Vec3D, minX);
-        Vec3D vec3d1 = par1Vec3D.getIntermediateWithXValue(par2Vec3D, maxX);
-        Vec3D vec3d2 = par1Vec3D.getIntermediateWithYValue(par2Vec3D, minY);
-        Vec3D vec3d3 = par1Vec3D.getIntermediateWithYValue(par2Vec3D, maxY);
-        Vec3D vec3d4 = par1Vec3D.getIntermediateWithZValue(par2Vec3D, minZ);
-        Vec3D vec3d5 = par1Vec3D.getIntermediateWithZValue(par2Vec3D, maxZ);
+        Vec3 vec3 = par1Vec3.getIntermediateWithXValue(par2Vec3, minX);
+        Vec3 vec3_1 = par1Vec3.getIntermediateWithXValue(par2Vec3, maxX);
+        Vec3 vec3_2 = par1Vec3.getIntermediateWithYValue(par2Vec3, minY);
+        Vec3 vec3_3 = par1Vec3.getIntermediateWithYValue(par2Vec3, maxY);
+        Vec3 vec3_4 = par1Vec3.getIntermediateWithZValue(par2Vec3, minZ);
+        Vec3 vec3_5 = par1Vec3.getIntermediateWithZValue(par2Vec3, maxZ);
 
-        if (!isVecInYZ(vec3d))
+        if (!isVecInYZ(vec3))
         {
-            vec3d = null;
+            vec3 = null;
         }
 
-        if (!isVecInYZ(vec3d1))
+        if (!isVecInYZ(vec3_1))
         {
-            vec3d1 = null;
+            vec3_1 = null;
         }
 
-        if (!isVecInXZ(vec3d2))
+        if (!isVecInXZ(vec3_2))
         {
-            vec3d2 = null;
+            vec3_2 = null;
         }
 
-        if (!isVecInXZ(vec3d3))
+        if (!isVecInXZ(vec3_3))
         {
-            vec3d3 = null;
+            vec3_3 = null;
         }
 
-        if (!isVecInXY(vec3d4))
+        if (!isVecInXY(vec3_4))
         {
-            vec3d4 = null;
+            vec3_4 = null;
         }
 
-        if (!isVecInXY(vec3d5))
+        if (!isVecInXY(vec3_5))
         {
-            vec3d5 = null;
+            vec3_5 = null;
         }
 
-        Vec3D vec3d6 = null;
+        Vec3 vec3_6 = null;
 
-        if (vec3d != null && (vec3d6 == null || par1Vec3D.squareDistanceTo(vec3d) < par1Vec3D.squareDistanceTo(vec3d6)))
+        if (vec3 != null && (vec3_6 == null || par1Vec3.squareDistanceTo(vec3) < par1Vec3.squareDistanceTo(vec3_6)))
         {
-            vec3d6 = vec3d;
+            vec3_6 = vec3;
         }
 
-        if (vec3d1 != null && (vec3d6 == null || par1Vec3D.squareDistanceTo(vec3d1) < par1Vec3D.squareDistanceTo(vec3d6)))
+        if (vec3_1 != null && (vec3_6 == null || par1Vec3.squareDistanceTo(vec3_1) < par1Vec3.squareDistanceTo(vec3_6)))
         {
-            vec3d6 = vec3d1;
+            vec3_6 = vec3_1;
         }
 
-        if (vec3d2 != null && (vec3d6 == null || par1Vec3D.squareDistanceTo(vec3d2) < par1Vec3D.squareDistanceTo(vec3d6)))
+        if (vec3_2 != null && (vec3_6 == null || par1Vec3.squareDistanceTo(vec3_2) < par1Vec3.squareDistanceTo(vec3_6)))
         {
-            vec3d6 = vec3d2;
+            vec3_6 = vec3_2;
         }
 
-        if (vec3d3 != null && (vec3d6 == null || par1Vec3D.squareDistanceTo(vec3d3) < par1Vec3D.squareDistanceTo(vec3d6)))
+        if (vec3_3 != null && (vec3_6 == null || par1Vec3.squareDistanceTo(vec3_3) < par1Vec3.squareDistanceTo(vec3_6)))
         {
-            vec3d6 = vec3d3;
+            vec3_6 = vec3_3;
         }
 
-        if (vec3d4 != null && (vec3d6 == null || par1Vec3D.squareDistanceTo(vec3d4) < par1Vec3D.squareDistanceTo(vec3d6)))
+        if (vec3_4 != null && (vec3_6 == null || par1Vec3.squareDistanceTo(vec3_4) < par1Vec3.squareDistanceTo(vec3_6)))
         {
-            vec3d6 = vec3d4;
+            vec3_6 = vec3_4;
         }
 
-        if (vec3d5 != null && (vec3d6 == null || par1Vec3D.squareDistanceTo(vec3d5) < par1Vec3D.squareDistanceTo(vec3d6)))
+        if (vec3_5 != null && (vec3_6 == null || par1Vec3.squareDistanceTo(vec3_5) < par1Vec3.squareDistanceTo(vec3_6)))
         {
-            vec3d6 = vec3d5;
+            vec3_6 = vec3_5;
         }
 
-        if (vec3d6 == null)
+        if (vec3_6 == null)
         {
             return null;
         }
 
         byte byte0 = -1;
 
-        if (vec3d6 == vec3d)
+        if (vec3_6 == vec3)
         {
             byte0 = 4;
         }
 
-        if (vec3d6 == vec3d1)
+        if (vec3_6 == vec3_1)
         {
             byte0 = 5;
         }
 
-        if (vec3d6 == vec3d2)
+        if (vec3_6 == vec3_2)
         {
             byte0 = 0;
         }
 
-        if (vec3d6 == vec3d3)
+        if (vec3_6 == vec3_3)
         {
             byte0 = 1;
         }
 
-        if (vec3d6 == vec3d4)
+        if (vec3_6 == vec3_4)
         {
             byte0 = 2;
         }
 
-        if (vec3d6 == vec3d5)
+        if (vec3_6 == vec3_5)
         {
             byte0 = 3;
         }
 
-        return new MovingObjectPosition(0, 0, 0, byte0, vec3d6);
+        return new MovingObjectPosition(0, 0, 0, byte0, vec3_6);
     }
 
     /**
      * Checks if the specified vector is within the YZ dimensions of the bounding box. Args: Vec3D
      */
-    private boolean isVecInYZ(Vec3D par1Vec3D)
+    private boolean isVecInYZ(Vec3 par1Vec3)
     {
-        if (par1Vec3D == null)
+        if (par1Vec3 == null)
         {
             return false;
         }
         else
         {
-            return par1Vec3D.yCoord >= minY && par1Vec3D.yCoord <= maxY && par1Vec3D.zCoord >= minZ && par1Vec3D.zCoord <= maxZ;
+            return par1Vec3.yCoord >= minY && par1Vec3.yCoord <= maxY && par1Vec3.zCoord >= minZ && par1Vec3.zCoord <= maxZ;
         }
     }
 
     /**
      * Checks if the specified vector is within the XZ dimensions of the bounding box. Args: Vec3D
      */
-    private boolean isVecInXZ(Vec3D par1Vec3D)
+    private boolean isVecInXZ(Vec3 par1Vec3)
     {
-        if (par1Vec3D == null)
+        if (par1Vec3 == null)
         {
             return false;
         }
         else
         {
-            return par1Vec3D.xCoord >= minX && par1Vec3D.xCoord <= maxX && par1Vec3D.zCoord >= minZ && par1Vec3D.zCoord <= maxZ;
+            return par1Vec3.xCoord >= minX && par1Vec3.xCoord <= maxX && par1Vec3.zCoord >= minZ && par1Vec3.zCoord <= maxZ;
         }
     }
 
     /**
      * Checks if the specified vector is within the XY dimensions of the bounding box. Args: Vec3D
      */
-    private boolean isVecInXY(Vec3D par1Vec3D)
+    private boolean isVecInXY(Vec3 par1Vec3)
     {
-        if (par1Vec3D == null)
+        if (par1Vec3 == null)
         {
             return false;
         }
         else
         {
-            return par1Vec3D.xCoord >= minX && par1Vec3D.xCoord <= maxX && par1Vec3D.yCoord >= minY && par1Vec3D.yCoord <= maxY;
+            return par1Vec3.xCoord >= minX && par1Vec3.xCoord <= maxX && par1Vec3.yCoord >= minY && par1Vec3.yCoord <= maxY;
         }
     }
 

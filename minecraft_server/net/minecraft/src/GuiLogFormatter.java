@@ -45,7 +45,7 @@ class GuiLogFormatter extends Formatter
         }
         else if (level == Level.SEVERE)
         {
-            stringbuilder.append((new StringBuilder()).append("[").append(level.getLocalizedName()).append("] ").toString());
+            stringbuilder.append("[").append(level.getLocalizedName()).append("] ");
         }
 
         stringbuilder.append(par1LogRecord.getMessage());

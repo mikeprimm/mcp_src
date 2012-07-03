@@ -39,17 +39,17 @@ public class EntityAIFleeSun extends EntityAIBase
             return false;
         }
 
-        Vec3D vec3d = findPossibleShelter();
+        Vec3 vec3 = findPossibleShelter();
 
-        if (vec3d == null)
+        if (vec3 == null)
         {
             return false;
         }
         else
         {
-            shelterX = vec3d.xCoord;
-            shelterY = vec3d.yCoord;
-            shelterZ = vec3d.zCoord;
+            shelterX = vec3.xCoord;
+            shelterY = vec3.yCoord;
+            shelterZ = vec3.zCoord;
             return true;
         }
     }
@@ -67,10 +67,10 @@ public class EntityAIFleeSun extends EntityAIBase
      */
     public void startExecuting()
     {
-        theCreature.getNavigator().func_48658_a(shelterX, shelterY, shelterZ, field_48257_e);
+        theCreature.getNavigator().tryMoveToXYZ(shelterX, shelterY, shelterZ, field_48257_e);
     }
 
-    private Vec3D findPossibleShelter()
+    private Vec3 findPossibleShelter()
     {
         Random random = theCreature.getRNG();
 
@@ -82,7 +82,7 @@ public class EntityAIFleeSun extends EntityAIBase
 
             if (!theWorld.canBlockSeeTheSky(j, k, l) && theCreature.getBlockPathWeight(j, k, l) < 0.0F)
             {
-                return Vec3D.createVector(j, k, l);
+                return Vec3.func_58052_a().func_58076_a(j, k, l);
             }
         }
 

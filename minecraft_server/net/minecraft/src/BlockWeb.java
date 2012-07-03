@@ -7,6 +7,7 @@ public class BlockWeb extends Block
     public BlockWeb(int par1, int par2)
     {
         super(par1, par2, Material.web);
+        func_56326_a(CreativeTabs.field_56388_c);
     }
 
     /**

@@ -98,7 +98,14 @@ public class BlockFlowing extends BlockFluid
                 flag = false;
             }
 
-            if (k != i)
+            if (k == i)
+            {
+                if (flag)
+                {
+                    updateFlow(par1World, par2, par3, par4);
+                }
+            }
+            else
             {
                 i = k;
 
@@ -112,10 +119,6 @@ public class BlockFlowing extends BlockFluid
                     par1World.scheduleBlockUpdate(par2, par3, par4, blockID, tickRate());
                     par1World.notifyBlocksOfNeighborChange(par2, par3, par4, blockID);
                 }
-            }
-            else if (flag)
-            {
-                updateFlow(par1World, par2, par3, par4);
             }
         }
         else
@@ -134,11 +137,11 @@ public class BlockFlowing extends BlockFluid
 
             if (i >= 8)
             {
-                par1World.setBlockAndMetadataWithNotify(par2, par3 - 1, par4, blockID, i);
+                flowIntoBlock(par1World, par2, par3 - 1, par4, i);
             }
             else
             {
-                par1World.setBlockAndMetadataWithNotify(par2, par3 - 1, par4, blockID, i + 8);
+                flowIntoBlock(par1World, par2, par3 - 1, par4, i + 8);
             }
         }
         else if (i >= 0 && (i == 0 || blockBlocksFlow(par1World, par2, par3 - 1, par4)))
@@ -249,21 +252,23 @@ public class BlockFlowing extends BlockFluid
                 continue;
             }
 
-            if (!blockBlocksFlow(par1World, k, l - 1, i1))
+            if (blockBlocksFlow(par1World, k, l - 1, i1))
+            {
+                if (par5 >= 4)
+                {
+                    continue;
+                }
+
+                int j1 = calculateFlowCost(par1World, k, l, i1, par5 + 1, j);
+
+                if (j1 < i)
+                {
+                    i = j1;
+                }
+            }
+            else
             {
                 return par5;
-            }
-
-            if (par5 >= 4)
-            {
-                continue;
-            }
-
-            int j1 = calculateFlowCost(par1World, k, l, i1, par5 + 1, j);
-
-            if (j1 < i)
-            {
-                i = j1;
             }
         }
 
@@ -309,13 +314,13 @@ public class BlockFlowing extends BlockFluid
                 continue;
             }
 
-            if (!blockBlocksFlow(par1World, k, j1 - 1, k1))
+            if (blockBlocksFlow(par1World, k, j1 - 1, k1))
             {
-                flowCost[i] = 0;
+                flowCost[i] = calculateFlowCost(par1World, k, j1, k1, 1, i);
             }
             else
             {
-                flowCost[i] = calculateFlowCost(par1World, k, j1, k1, 1, i);
+                flowCost[i] = 0;
             }
         }
 

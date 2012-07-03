@@ -161,9 +161,9 @@ public class VillageSiege
                     return false;
                 }
 
-                Vec3D vec3d = func_48501_a(field_48505_g, field_48511_h, field_48512_i);
+                Vec3 vec3 = func_48501_a(field_48505_g, field_48511_h, field_48512_i);
 
-                if (vec3d != null)
+                if (vec3 != null)
                 {
                     field_48507_e = 0;
                     field_48506_d = 20;
@@ -177,9 +177,9 @@ public class VillageSiege
 
     private boolean func_48503_c()
     {
-        Vec3D vec3d = func_48501_a(field_48505_g, field_48511_h, field_48512_i);
+        Vec3 vec3 = func_48501_a(field_48505_g, field_48511_h, field_48512_i);
 
-        if (vec3d == null)
+        if (vec3 == null)
         {
             return false;
         }
@@ -196,14 +196,14 @@ public class VillageSiege
             return false;
         }
 
-        entityzombie.setLocationAndAngles(vec3d.xCoord, vec3d.yCoord, vec3d.zCoord, field_48510_a.rand.nextFloat() * 360F, 0.0F);
+        entityzombie.setLocationAndAngles(vec3.xCoord, vec3.yCoord, vec3.zCoord, field_48510_a.rand.nextFloat() * 360F, 0.0F);
         field_48510_a.spawnEntityInWorld(entityzombie);
         ChunkCoordinates chunkcoordinates = field_48504_f.getCenter();
         entityzombie.setHomeArea(chunkcoordinates.posX, chunkcoordinates.posY, chunkcoordinates.posZ, field_48504_f.getVillageRadius());
         return true;
     }
 
-    private Vec3D func_48501_a(int par1, int par2, int par3)
+    private Vec3 func_48501_a(int par1, int par2, int par3)
     {
         for (int i = 0; i < 10; i++)
         {
@@ -213,7 +213,7 @@ public class VillageSiege
 
             if (field_48504_f.isInRange(j, k, l) && SpawnerAnimals.canCreatureTypeSpawnAtLocation(EnumCreatureType.monster, field_48510_a, j, k, l))
             {
-                return Vec3D.createVector(j, k, l);
+                return Vec3.func_58052_a().func_58076_a(j, k, l);
             }
         }
 

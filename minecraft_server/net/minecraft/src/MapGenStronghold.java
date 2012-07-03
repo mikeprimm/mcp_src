@@ -37,15 +37,7 @@ public class MapGenStronghold extends MapGenStructure
                 int l = (int)Math.round(Math.cos(d) * d1);
                 int i1 = (int)Math.round(Math.sin(d) * d1);
                 ArrayList arraylist = new ArrayList();
-                BiomeGenBase abiomegenbase[] = allowedBiomeGenBases;
-                int j1 = abiomegenbase.length;
-
-                for (int k1 = 0; k1 < j1; k1++)
-                {
-                    BiomeGenBase biomegenbase = abiomegenbase[k1];
-                    arraylist.add(biomegenbase);
-                }
-
+                Collections.addAll(arraylist, allowedBiomeGenBases);
                 ChunkPosition chunkposition = worldObj.getWorldChunkManager().findBiomePosition((l << 4) + 8, (i1 << 4) + 8, 112, arraylist, random);
 
                 if (chunkposition != null)
@@ -72,7 +64,7 @@ public class MapGenStronghold extends MapGenStructure
         {
             ChunkCoordIntPair chunkcoordintpair = achunkcoordintpair[j];
 
-            if (par1 == chunkcoordintpair.chunkXPos && par2 == chunkcoordintpair.chunkZPos)
+            if (par1 == chunkcoordintpair.chunkXPos && par2 == chunkcoordintpair.chunkZPosition)
             {
                 System.out.println((new StringBuilder()).append(par1).append(", ").append(par2).toString());
                 return true;

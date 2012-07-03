@@ -49,10 +49,13 @@ public class Packet104WindowItems extends Packet
     {
         par1DataOutputStream.writeByte(windowId);
         par1DataOutputStream.writeShort(itemStack.length);
+        ItemStack aitemstack[] = itemStack;
+        int i = aitemstack.length;
 
-        for (int i = 0; i < itemStack.length; i++)
+        for (int j = 0; j < i; j++)
         {
-            writeItemStack(itemStack[i], par1DataOutputStream);
+            ItemStack itemstack = aitemstack[j];
+            writeItemStack(itemstack, par1DataOutputStream);
         }
     }
 

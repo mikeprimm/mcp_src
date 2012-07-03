@@ -19,7 +19,12 @@ public class ItemPickaxe extends ItemTool
             return toolMaterial.getHarvestLevel() == 3;
         }
 
-        if (par1Block == Block.blockDiamond || par1Block == Block.oreDiamond)
+        if (par1Block == Block.field_56336_ax || par1Block == Block.field_56337_aw)
+        {
+            return toolMaterial.getHarvestLevel() >= 2;
+        }
+
+        if (par1Block == Block.oreDiamond)
         {
             return toolMaterial.getHarvestLevel() >= 2;
         }
@@ -72,8 +77,8 @@ public class ItemPickaxe extends ItemTool
     {
         blocksEffectiveAgainst = (new Block[]
                 {
-                    Block.cobblestone, Block.stairDouble, Block.stairSingle, Block.stone, Block.sandStone, Block.cobblestoneMossy, Block.oreIron, Block.blockSteel, Block.oreCoal, Block.blockGold,
-                    Block.oreGold, Block.oreDiamond, Block.blockDiamond, Block.ice, Block.netherrack, Block.oreLapis, Block.blockLapis, Block.oreRedstone, Block.oreRedstoneGlowing, Block.rail,
+                    Block.cobblestone, Block.field_55134_aj, Block.field_55133_ak, Block.stone, Block.sandStone, Block.cobblestoneMossy, Block.oreIron, Block.blockSteel, Block.oreCoal, Block.blockGold,
+                    Block.oreGold, Block.field_56337_aw, Block.field_56336_ax, Block.ice, Block.netherrack, Block.oreLapis, Block.blockLapis, Block.oreRedstone, Block.oreRedstoneGlowing, Block.rail,
                     Block.railDetector, Block.railPowered
                 });
     }

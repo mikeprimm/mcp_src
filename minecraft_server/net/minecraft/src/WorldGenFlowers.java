@@ -20,7 +20,7 @@ public class WorldGenFlowers extends WorldGenerator
             int k = (par4 + par2Random.nextInt(4)) - par2Random.nextInt(4);
             int l = (par5 + par2Random.nextInt(8)) - par2Random.nextInt(8);
 
-            if (par1World.isAirBlock(j, k, l) && ((BlockFlower)Block.blocksList[plantBlockId]).canBlockStay(par1World, j, k, l))
+            if (par1World.isAirBlock(j, k, l) && Block.blocksList[plantBlockId].canBlockStay(par1World, j, k, l))
             {
                 par1World.setBlock(j, k, l, plantBlockId);
             }

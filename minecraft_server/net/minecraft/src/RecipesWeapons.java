@@ -15,7 +15,7 @@ public class RecipesWeapons
         recipeItems = (new Object[][]
                 {
                     new Object[] {
-                        Block.planks, Block.cobblestone, Item.ingotIron, Item.diamond, Item.ingotGold
+                        Block.planks, Block.cobblestone, Item.ingotIron, Item.field_56457_n, Item.ingotGold
                     }, new Object[] {
                         Item.swordWood, Item.swordStone, Item.swordSteel, Item.swordDiamond, Item.swordGold
                     }
@@ -23,7 +23,7 @@ public class RecipesWeapons
     }
 
     /**
-     * Adds weapon recipes to the CraftingManager
+     * Adds the weapon recipes to the CraftingManager.
      */
     public void addRecipes(CraftingManager par1CraftingManager)
     {

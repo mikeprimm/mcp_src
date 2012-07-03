@@ -234,15 +234,6 @@ public class ExtendedBlockStorage
         }
     }
 
-    public void func_48603_e()
-    {
-    }
-
-    public int func_48587_f()
-    {
-        return blockRefCount;
-    }
-
     public byte[] func_48590_g()
     {
         return blockLSBArray;

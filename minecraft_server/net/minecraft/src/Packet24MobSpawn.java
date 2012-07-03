@@ -39,9 +39,9 @@ public class Packet24MobSpawn extends Packet
     {
         entityId = par1EntityLiving.entityId;
         type = (byte)EntityList.getEntityID(par1EntityLiving);
-        xPosition = MathHelper.floor_double(par1EntityLiving.posX * 32D);
+        xPosition = par1EntityLiving.field_55074_am.func_55187_a(par1EntityLiving.posX);
         yPosition = MathHelper.floor_double(par1EntityLiving.posY * 32D);
-        zPosition = MathHelper.floor_double(par1EntityLiving.posZ * 32D);
+        zPosition = par1EntityLiving.field_55074_am.func_55187_a(par1EntityLiving.posZ);
         yaw = (byte)(int)((par1EntityLiving.rotationYaw * 256F) / 360F);
         pitch = (byte)(int)((par1EntityLiving.rotationPitch * 256F) / 360F);
         field_48113_h = (byte)(int)((par1EntityLiving.rotationYawHead * 256F) / 360F);

@@ -45,12 +45,9 @@ public interface IWorldAccess
     public abstract void playRecord(String s, int i, int j, int k);
 
     /**
-     * In all implementations, this method does nothing.
-     */
-    public abstract void doNothingWithTileEntity(int i, int j, int k, TileEntity tileentity);
-
-    /**
      * Plays a pre-canned sound effect along with potentially auxiliary data-driven one-shot behaviour (particles, etc).
      */
     public abstract void playAuxSFX(EntityPlayer entityplayer, int i, int j, int k, int l, int i1);
+
+    public abstract void func_56537_a(int i, int j, int k, int l, int i1);
 }

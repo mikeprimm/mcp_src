@@ -1,7 +1,6 @@
 package net.minecraft.src;
 
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public abstract class EntityThrowable extends Entity
 {
@@ -128,16 +127,7 @@ public abstract class EntityThrowable extends Entity
         {
             int i = worldObj.getBlockId(xTile, yTile, zTile);
 
-            if (i != inTile)
-            {
-                inGround = false;
-                motionX *= rand.nextFloat() * 0.2F;
-                motionY *= rand.nextFloat() * 0.2F;
-                motionZ *= rand.nextFloat() * 0.2F;
-                ticksInGround = 0;
-                ticksInAir = 0;
-            }
-            else
+            if (i == inTile)
             {
                 ticksInGround++;
 
@@ -148,21 +138,28 @@ public abstract class EntityThrowable extends Entity
 
                 return;
             }
+
+            inGround = false;
+            motionX *= rand.nextFloat() * 0.2F;
+            motionY *= rand.nextFloat() * 0.2F;
+            motionZ *= rand.nextFloat() * 0.2F;
+            ticksInGround = 0;
+            ticksInAir = 0;
         }
         else
         {
             ticksInAir++;
         }
 
-        Vec3D vec3d = Vec3D.createVector(posX, posY, posZ);
-        Vec3D vec3d1 = Vec3D.createVector(posX + motionX, posY + motionY, posZ + motionZ);
-        MovingObjectPosition movingobjectposition = worldObj.rayTraceBlocks(vec3d, vec3d1);
-        vec3d = Vec3D.createVector(posX, posY, posZ);
-        vec3d1 = Vec3D.createVector(posX + motionX, posY + motionY, posZ + motionZ);
+        Vec3 vec3 = Vec3.func_58052_a().func_58076_a(posX, posY, posZ);
+        Vec3 vec3_1 = Vec3.func_58052_a().func_58076_a(posX + motionX, posY + motionY, posZ + motionZ);
+        MovingObjectPosition movingobjectposition = worldObj.rayTraceBlocks(vec3, vec3_1);
+        vec3 = Vec3.func_58052_a().func_58076_a(posX, posY, posZ);
+        vec3_1 = Vec3.func_58052_a().func_58076_a(posX + motionX, posY + motionY, posZ + motionZ);
 
         if (movingobjectposition != null)
         {
-            vec3d1 = Vec3D.createVector(movingobjectposition.hitVec.xCoord, movingobjectposition.hitVec.yCoord, movingobjectposition.hitVec.zCoord);
+            vec3_1 = Vec3.func_58052_a().func_58076_a(movingobjectposition.hitVec.xCoord, movingobjectposition.hitVec.yCoord, movingobjectposition.hitVec.zCoord);
         }
 
         if (!worldObj.isRemote)
@@ -170,33 +167,36 @@ public abstract class EntityThrowable extends Entity
             Entity entity = null;
             List list = worldObj.getEntitiesWithinAABBExcludingEntity(this, boundingBox.addCoord(motionX, motionY, motionZ).expand(1.0D, 1.0D, 1.0D));
             double d = 0.0D;
+            Iterator iterator = list.iterator();
 
-            for (int k = 0; k < list.size(); k++)
+            do
             {
-                Entity entity1 = (Entity)list.get(k);
-
-                if (!entity1.canBeCollidedWith() || entity1 == thrower && ticksInAir < 5)
+                if (!iterator.hasNext())
                 {
-                    continue;
+                    break;
                 }
 
-                float f4 = 0.3F;
-                AxisAlignedBB axisalignedbb = entity1.boundingBox.expand(f4, f4, f4);
-                MovingObjectPosition movingobjectposition1 = axisalignedbb.calculateIntercept(vec3d, vec3d1);
+                Entity entity1 = (Entity)iterator.next();
 
-                if (movingobjectposition1 == null)
+                if (entity1.canBeCollidedWith() && (entity1 != thrower || ticksInAir >= 5))
                 {
-                    continue;
-                }
+                    float f4 = 0.3F;
+                    AxisAlignedBB axisalignedbb = entity1.boundingBox.expand(f4, f4, f4);
+                    MovingObjectPosition movingobjectposition1 = axisalignedbb.calculateIntercept(vec3, vec3_1);
 
-                double d1 = vec3d.distanceTo(movingobjectposition1.hitVec);
+                    if (movingobjectposition1 != null)
+                    {
+                        double d1 = vec3.distanceTo(movingobjectposition1.hitVec);
 
-                if (d1 < d || d == 0.0D)
-                {
-                    entity = entity1;
-                    d = d1;
+                        if (d1 < d || d == 0.0D)
+                        {
+                            entity = entity1;
+                            d = d1;
+                        }
+                    }
                 }
             }
+            while (true);
 
             if (entity != null)
             {
@@ -280,12 +280,5 @@ public abstract class EntityThrowable extends Entity
         inTile = par1NBTTagCompound.getByte("inTile") & 0xff;
         throwableShake = par1NBTTagCompound.getByte("shake") & 0xff;
         inGround = par1NBTTagCompound.getByte("inGround") == 1;
-    }
-
-    /**
-     * Called by a player entity when they collide with an entity
-     */
-    public void onCollideWithPlayer(EntityPlayer entityplayer)
-    {
     }
 }

@@ -1,7 +1,6 @@
 package net.minecraft.src;
 
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class EntityArrow extends Entity
 {
@@ -11,7 +10,7 @@ public class EntityArrow extends Entity
     private int inTile;
     private int inData;
     private boolean inGround;
-    public boolean doesArrowBelongToPlayer;
+    public int field_58012_a;
 
     /** Seems to be some sort of timer for animating an arrow. */
     public int arrowShake;
@@ -23,9 +22,6 @@ public class EntityArrow extends Entity
     private double damage;
     private int field_46010_n;
 
-    /** Is this arrow a critical hit? (Controls particles and damage) */
-    public boolean arrowCritical;
-
     public EntityArrow(World par1World)
     {
         super(par1World);
@@ -35,11 +31,10 @@ public class EntityArrow extends Entity
         inTile = 0;
         inData = 0;
         inGround = false;
-        doesArrowBelongToPlayer = false;
+        field_58012_a = 0;
         arrowShake = 0;
         ticksInAir = 0;
         damage = 2D;
-        arrowCritical = false;
         setSize(0.5F, 0.5F);
     }
 
@@ -52,11 +47,10 @@ public class EntityArrow extends Entity
         inTile = 0;
         inData = 0;
         inGround = false;
-        doesArrowBelongToPlayer = false;
+        field_58012_a = 0;
         arrowShake = 0;
         ticksInAir = 0;
         damage = 2D;
-        arrowCritical = false;
         setSize(0.5F, 0.5F);
         setPosition(par2, par4, par6);
         yOffset = 0.0F;
@@ -71,13 +65,17 @@ public class EntityArrow extends Entity
         inTile = 0;
         inData = 0;
         inGround = false;
-        doesArrowBelongToPlayer = false;
+        field_58012_a = 0;
         arrowShake = 0;
         ticksInAir = 0;
         damage = 2D;
-        arrowCritical = false;
         shootingEntity = par2EntityLiving;
-        doesArrowBelongToPlayer = par2EntityLiving instanceof EntityPlayer;
+
+        if (par2EntityLiving instanceof EntityPlayer)
+        {
+            field_58012_a = 1;
+        }
+
         posY = (par2EntityLiving.posY + (double)par2EntityLiving.getEyeHeight()) - 0.10000000149011612D;
         double d = par3EntityLiving.posX - par2EntityLiving.posX;
         double d1 = (par3EntityLiving.posY + (double)par3EntityLiving.getEyeHeight()) - 0.69999998807907104D - posY;
@@ -111,13 +109,17 @@ public class EntityArrow extends Entity
         inTile = 0;
         inData = 0;
         inGround = false;
-        doesArrowBelongToPlayer = false;
+        field_58012_a = 0;
         arrowShake = 0;
         ticksInAir = 0;
         damage = 2D;
-        arrowCritical = false;
         shootingEntity = par2EntityLiving;
-        doesArrowBelongToPlayer = par2EntityLiving instanceof EntityPlayer;
+
+        if (par2EntityLiving instanceof EntityPlayer)
+        {
+            field_58012_a = 1;
+        }
+
         setSize(0.5F, 0.5F);
         setLocationAndAngles(par2EntityLiving.posX, par2EntityLiving.posY + (double)par2EntityLiving.getEyeHeight(), par2EntityLiving.posZ, par2EntityLiving.rotationYaw, par2EntityLiving.rotationPitch);
         posX -= MathHelper.cos((rotationYaw / 180F) * (float)Math.PI) * 0.16F;
@@ -133,6 +135,7 @@ public class EntityArrow extends Entity
 
     protected void entityInit()
     {
+        dataWatcher.addObject(16, Byte.valueOf((byte)0));
     }
 
     /**
@@ -181,7 +184,7 @@ public class EntityArrow extends Entity
             Block.blocksList[i].setBlockBoundsBasedOnState(worldObj, xTile, yTile, zTile);
             AxisAlignedBB axisalignedbb = Block.blocksList[i].getCollisionBoundingBoxFromPool(worldObj, xTile, yTile, zTile);
 
-            if (axisalignedbb != null && axisalignedbb.isVecInside(Vec3D.createVector(posX, posY, posZ)))
+            if (axisalignedbb != null && axisalignedbb.isVecInside(Vec3.func_58052_a().func_58076_a(posX, posY, posZ)))
             {
                 inGround = true;
             }
@@ -219,47 +222,50 @@ public class EntityArrow extends Entity
         }
 
         ticksInAir++;
-        Vec3D vec3d = Vec3D.createVector(posX, posY, posZ);
-        Vec3D vec3d1 = Vec3D.createVector(posX + motionX, posY + motionY, posZ + motionZ);
-        MovingObjectPosition movingobjectposition = worldObj.rayTraceBlocks_do_do(vec3d, vec3d1, false, true);
-        vec3d = Vec3D.createVector(posX, posY, posZ);
-        vec3d1 = Vec3D.createVector(posX + motionX, posY + motionY, posZ + motionZ);
+        Vec3 vec3 = Vec3.func_58052_a().func_58076_a(posX, posY, posZ);
+        Vec3 vec3_1 = Vec3.func_58052_a().func_58076_a(posX + motionX, posY + motionY, posZ + motionZ);
+        MovingObjectPosition movingobjectposition = worldObj.rayTraceBlocks_do_do(vec3, vec3_1, false, true);
+        vec3 = Vec3.func_58052_a().func_58076_a(posX, posY, posZ);
+        vec3_1 = Vec3.func_58052_a().func_58076_a(posX + motionX, posY + motionY, posZ + motionZ);
 
         if (movingobjectposition != null)
         {
-            vec3d1 = Vec3D.createVector(movingobjectposition.hitVec.xCoord, movingobjectposition.hitVec.yCoord, movingobjectposition.hitVec.zCoord);
+            vec3_1 = Vec3.func_58052_a().func_58076_a(movingobjectposition.hitVec.xCoord, movingobjectposition.hitVec.yCoord, movingobjectposition.hitVec.zCoord);
         }
 
         Entity entity = null;
         List list = worldObj.getEntitiesWithinAABBExcludingEntity(this, boundingBox.addCoord(motionX, motionY, motionZ).expand(1.0D, 1.0D, 1.0D));
         double d = 0.0D;
+        Iterator iterator = list.iterator();
 
-        for (int l = 0; l < list.size(); l++)
+        do
         {
-            Entity entity1 = (Entity)list.get(l);
-
-            if (!entity1.canBeCollidedWith() || entity1 == shootingEntity && ticksInAir < 5)
+            if (!iterator.hasNext())
             {
-                continue;
+                break;
             }
 
-            float f5 = 0.3F;
-            AxisAlignedBB axisalignedbb1 = entity1.boundingBox.expand(f5, f5, f5);
-            MovingObjectPosition movingobjectposition1 = axisalignedbb1.calculateIntercept(vec3d, vec3d1);
+            Entity entity1 = (Entity)iterator.next();
 
-            if (movingobjectposition1 == null)
+            if (entity1.canBeCollidedWith() && (entity1 != shootingEntity || ticksInAir >= 5))
             {
-                continue;
-            }
+                float f5 = 0.3F;
+                AxisAlignedBB axisalignedbb1 = entity1.boundingBox.expand(f5, f5, f5);
+                MovingObjectPosition movingobjectposition1 = axisalignedbb1.calculateIntercept(vec3, vec3_1);
 
-            double d1 = vec3d.distanceTo(movingobjectposition1.hitVec);
+                if (movingobjectposition1 != null)
+                {
+                    double d1 = vec3.distanceTo(movingobjectposition1.hitVec);
 
-            if (d1 < d || d == 0.0D)
-            {
-                entity = entity1;
-                d = d1;
+                    if (d1 < d || d == 0.0D)
+                    {
+                        entity = entity1;
+                        d = d1;
+                    }
+                }
             }
         }
+        while (true);
 
         if (entity != null)
         {
@@ -271,11 +277,11 @@ public class EntityArrow extends Entity
             if (movingobjectposition.entityHit != null)
             {
                 float f1 = MathHelper.sqrt_double(motionX * motionX + motionY * motionY + motionZ * motionZ);
-                int j1 = (int)Math.ceil((double)f1 * damage);
+                int i1 = (int)Math.ceil((double)f1 * damage);
 
-                if (arrowCritical)
+                if (func_56126_n())
                 {
-                    j1 += rand.nextInt(j1 / 2 + 2);
+                    i1 += rand.nextInt(i1 / 2 + 2);
                 }
 
                 DamageSource damagesource = null;
@@ -294,7 +300,7 @@ public class EntityArrow extends Entity
                     movingobjectposition.entityHit.setFire(5);
                 }
 
-                if (movingobjectposition.entityHit.attackEntityFrom(damagesource, j1))
+                if (movingobjectposition.entityHit.attackEntityFrom(damagesource, i1))
                 {
                     if (movingobjectposition.entityHit instanceof EntityLiving)
                     {
@@ -341,15 +347,15 @@ public class EntityArrow extends Entity
                 worldObj.playSoundAtEntity(this, "random.bowhit", 1.0F, 1.2F / (rand.nextFloat() * 0.2F + 0.9F));
                 inGround = true;
                 arrowShake = 7;
-                arrowCritical = false;
+                func_56125_a(false);
             }
         }
 
-        if (arrowCritical)
+        if (func_56126_n())
         {
-            for (int i1 = 0; i1 < 4; i1++)
+            for (int l = 0; l < 4; l++)
             {
-                worldObj.spawnParticle("crit", posX + (motionX * (double)i1) / 4D, posY + (motionY * (double)i1) / 4D, posZ + (motionZ * (double)i1) / 4D, -motionX, -motionY + 0.20000000000000001D, -motionZ);
+                worldObj.spawnParticle("crit", posX + (motionX * (double)l) / 4D, posY + (motionY * (double)l) / 4D, posZ + (motionZ * (double)l) / 4D, -motionX, -motionY + 0.20000000000000001D, -motionZ);
             }
         }
 
@@ -374,7 +380,7 @@ public class EntityArrow extends Entity
 
         if (isInWater())
         {
-            for (int k1 = 0; k1 < 4; k1++)
+            for (int j1 = 0; j1 < 4; j1++)
             {
                 float f8 = 0.25F;
                 worldObj.spawnParticle("bubble", posX - motionX * (double)f8, posY - motionY * (double)f8, posZ - motionZ * (double)f8, motionX, motionY, motionZ);
@@ -388,6 +394,7 @@ public class EntityArrow extends Entity
         motionZ *= f4;
         motionY -= f6;
         setPosition(posX, posY, posZ);
+        func_56098_S();
     }
 
     /**
@@ -402,7 +409,7 @@ public class EntityArrow extends Entity
         par1NBTTagCompound.setByte("inData", (byte)inData);
         par1NBTTagCompound.setByte("shake", (byte)arrowShake);
         par1NBTTagCompound.setByte("inGround", (byte)(inGround ? 1 : 0));
-        par1NBTTagCompound.setBoolean("player", doesArrowBelongToPlayer);
+        par1NBTTagCompound.setByte("pickup", (byte)field_58012_a);
         par1NBTTagCompound.setDouble("damage", damage);
     }
 
@@ -418,11 +425,19 @@ public class EntityArrow extends Entity
         inData = par1NBTTagCompound.getByte("inData") & 0xff;
         arrowShake = par1NBTTagCompound.getByte("shake") & 0xff;
         inGround = par1NBTTagCompound.getByte("inGround") == 1;
-        doesArrowBelongToPlayer = par1NBTTagCompound.getBoolean("player");
 
         if (par1NBTTagCompound.hasKey("damage"))
         {
             damage = par1NBTTagCompound.getDouble("damage");
+        }
+
+        if (par1NBTTagCompound.hasKey("pickup"))
+        {
+            field_58012_a = par1NBTTagCompound.getByte("pickup");
+        }
+        else if (par1NBTTagCompound.hasKey("player"))
+        {
+            field_58012_a = par1NBTTagCompound.getBoolean("player") ? 1 : 0;
         }
     }
 
@@ -431,12 +446,19 @@ public class EntityArrow extends Entity
      */
     public void onCollideWithPlayer(EntityPlayer par1EntityPlayer)
     {
-        if (worldObj.isRemote)
+        if (worldObj.isRemote || !inGround || arrowShake > 0)
         {
             return;
         }
 
-        if (inGround && doesArrowBelongToPlayer && arrowShake <= 0 && par1EntityPlayer.inventory.addItemStackToInventory(new ItemStack(Item.arrow, 1)))
+        boolean flag = field_58012_a == 1 || field_58012_a == 2 && par1EntityPlayer.capabilities.isCreativeMode;
+
+        if (field_58012_a == 1 && !par1EntityPlayer.inventory.addItemStackToInventory(new ItemStack(Item.arrow, 1)))
+        {
+            flag = false;
+        }
+
+        if (flag)
         {
             worldObj.playSoundAtEntity(this, "random.pop", 0.2F, ((rand.nextFloat() - rand.nextFloat()) * 0.7F + 1.0F) * 2.0F);
             par1EntityPlayer.onItemPickup(this, 1);
@@ -465,5 +487,25 @@ public class EntityArrow extends Entity
     public boolean canAttackWithItem()
     {
         return false;
+    }
+
+    public void func_56125_a(boolean par1)
+    {
+        byte byte0 = dataWatcher.getWatchableObjectByte(16);
+
+        if (par1)
+        {
+            dataWatcher.updateObject(16, Byte.valueOf((byte)(byte0 | 1)));
+        }
+        else
+        {
+            dataWatcher.updateObject(16, Byte.valueOf((byte)(byte0 & -2)));
+        }
+    }
+
+    public boolean func_56126_n()
+    {
+        byte byte0 = dataWatcher.getWatchableObjectByte(16);
+        return (byte0 & 1) != 0;
     }
 }

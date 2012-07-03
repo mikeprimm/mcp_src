@@ -58,12 +58,12 @@ public class Village
 
         if (numIronGolems < i && villageDoorInfoList.size() > 20 && worldObj.rand.nextInt(7000) == 0)
         {
-            Vec3D vec3d = tryGetIronGolemSpawningLocation(MathHelper.floor_float(center.posX), MathHelper.floor_float(center.posY), MathHelper.floor_float(center.posZ), 2, 4, 2);
+            Vec3 vec3 = tryGetIronGolemSpawningLocation(MathHelper.floor_float(center.posX), MathHelper.floor_float(center.posY), MathHelper.floor_float(center.posZ), 2, 4, 2);
 
-            if (vec3d != null)
+            if (vec3 != null)
             {
                 EntityIronGolem entityirongolem = new EntityIronGolem(worldObj);
-                entityirongolem.setPosition(vec3d.xCoord, vec3d.yCoord, vec3d.zCoord);
+                entityirongolem.setPosition(vec3.xCoord, vec3.yCoord, vec3.zCoord);
                 worldObj.spawnEntityInWorld(entityirongolem);
                 numIronGolems++;
             }
@@ -73,7 +73,7 @@ public class Village
     /**
      * Tries up to 10 times to get a valid spawning location before eventually failing and returning null.
      */
-    private Vec3D tryGetIronGolemSpawningLocation(int par1, int par2, int par3, int par4, int par5, int par6)
+    private Vec3 tryGetIronGolemSpawningLocation(int par1, int par2, int par3, int par4, int par5, int par6)
     {
         for (int i = 0; i < 10; i++)
         {
@@ -83,7 +83,7 @@ public class Village
 
             if (isInRange(j, k, l) && isValidIronGolemSpawningLocation(j, k, l, par4, par5, par6))
             {
-                return Vec3D.createVector(j, k, l);
+                return Vec3.func_58052_a().func_58076_a(j, k, l);
             }
         }
 
@@ -92,7 +92,7 @@ public class Village
 
     private boolean isValidIronGolemSpawningLocation(int par1, int par2, int par3, int par4, int par5, int par6)
     {
-        if (!worldObj.isBlockNormalCube(par1, par2 - 1, par3))
+        if (!worldObj.func_58038_s(par1, par2 - 1, par3))
         {
             return false;
         }
@@ -119,13 +119,13 @@ public class Village
 
     private void updateNumIronGolems()
     {
-        List list = worldObj.getEntitiesWithinAABB(net.minecraft.src.EntityIronGolem.class, AxisAlignedBB.getBoundingBoxFromPool(center.posX - villageRadius, center.posY - 4, center.posZ - villageRadius, center.posX + villageRadius, center.posY + 4, center.posZ + villageRadius));
+        List list = worldObj.getEntitiesWithinAABB(net.minecraft.src.EntityIronGolem.class, AxisAlignedBB.func_58089_a().func_58067_a(center.posX - villageRadius, center.posY - 4, center.posZ - villageRadius, center.posX + villageRadius, center.posY + 4, center.posZ + villageRadius));
         numIronGolems = list.size();
     }
 
     private void updateNumVillagers()
     {
-        List list = worldObj.getEntitiesWithinAABB(net.minecraft.src.EntityVillager.class, AxisAlignedBB.getBoundingBoxFromPool(center.posX - villageRadius, center.posY - 4, center.posZ - villageRadius, center.posX + villageRadius, center.posY + 4, center.posZ + villageRadius));
+        List list = worldObj.getEntitiesWithinAABB(net.minecraft.src.EntityVillager.class, AxisAlignedBB.func_58089_a().func_58067_a(center.posX - villageRadius, center.posY - 4, center.posZ - villageRadius, center.posX + villageRadius, center.posY + 4, center.posZ + villageRadius));
         numVillagers = list.size();
     }
 
@@ -300,10 +300,16 @@ public class Village
     {
         double d = Double.MAX_VALUE;
         VillageAgressor villageagressor = null;
+        Iterator iterator = villageAgressors.iterator();
 
-        for (int i = 0; i < villageAgressors.size(); i++)
+        do
         {
-            VillageAgressor villageagressor1 = (VillageAgressor)villageAgressors.get(i);
+            if (!iterator.hasNext())
+            {
+                break;
+            }
+
+            VillageAgressor villageagressor1 = (VillageAgressor)iterator.next();
             double d1 = villageagressor1.agressor.getDistanceSqToEntity(par1EntityLiving);
 
             if (d1 <= d)
@@ -312,6 +318,7 @@ public class Village
                 d = d1;
             }
         }
+        while (true);
 
         return villageagressor == null ? null : villageagressor.agressor;
     }

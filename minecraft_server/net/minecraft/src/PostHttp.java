@@ -68,26 +68,25 @@ public class PostHttp
     {
         try
         {
-            String s = par1Str;
             HttpURLConnection httpurlconnection = (HttpURLConnection)par0URL.openConnection();
             httpurlconnection.setRequestMethod("POST");
             httpurlconnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-            httpurlconnection.setRequestProperty("Content-Length", (new StringBuilder()).append("").append(s.getBytes().length).toString());
+            httpurlconnection.setRequestProperty("Content-Length", (new StringBuilder()).append("").append(par1Str.getBytes().length).toString());
             httpurlconnection.setRequestProperty("Content-Language", "en-US");
             httpurlconnection.setUseCaches(false);
             httpurlconnection.setDoInput(true);
             httpurlconnection.setDoOutput(true);
             DataOutputStream dataoutputstream = new DataOutputStream(httpurlconnection.getOutputStream());
-            dataoutputstream.writeBytes(s);
+            dataoutputstream.writeBytes(par1Str);
             dataoutputstream.flush();
             dataoutputstream.close();
             BufferedReader bufferedreader = new BufferedReader(new InputStreamReader(httpurlconnection.getInputStream()));
             StringBuffer stringbuffer = new StringBuffer();
-            String s1;
+            String s;
 
-            while ((s1 = bufferedreader.readLine()) != null)
+            while ((s = bufferedreader.readLine()) != null)
             {
-                stringbuffer.append(s1);
+                stringbuffer.append(s);
                 stringbuffer.append('\r');
             }
 

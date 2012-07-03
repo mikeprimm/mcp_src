@@ -14,7 +14,7 @@ public class ContainerDispenser extends Container
         {
             for (int l = 0; l < 3; l++)
             {
-                addSlot(new Slot(par2TileEntityDispenser, l + i * 3, 62 + l * 18, 17 + i * 18));
+                func_55143_a(new Slot(par2TileEntityDispenser, l + i * 3, 62 + l * 18, 17 + i * 18));
             }
         }
 
@@ -22,13 +22,13 @@ public class ContainerDispenser extends Container
         {
             for (int i1 = 0; i1 < 9; i1++)
             {
-                addSlot(new Slot(par1IInventory, i1 + j * 9 + 9, 8 + i1 * 18, 84 + j * 18));
+                func_55143_a(new Slot(par1IInventory, i1 + j * 9 + 9, 8 + i1 * 18, 84 + j * 18));
             }
         }
 
         for (int k = 0; k < 9; k++)
         {
-            addSlot(new Slot(par1IInventory, k, 8 + k * 18, 142));
+            func_55143_a(new Slot(par1IInventory, k, 8 + k * 18, 142));
         }
     }
 
@@ -71,14 +71,12 @@ public class ContainerDispenser extends Container
                 slot.onSlotChanged();
             }
 
-            if (itemstack1.stackSize != itemstack.stackSize)
-            {
-                slot.onPickupFromSlot(itemstack1);
-            }
-            else
+            if (itemstack1.stackSize == itemstack.stackSize)
             {
                 return null;
             }
+
+            slot.onPickupFromSlot(itemstack1);
         }
 
         return itemstack;

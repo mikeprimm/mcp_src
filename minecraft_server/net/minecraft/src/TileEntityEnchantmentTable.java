@@ -106,6 +106,6 @@ public class TileEntityEnchantmentTable extends TileEntity
         }
 
         field_40067_e += (f1 - field_40067_e) * 0.9F;
-        pageFlip = pageFlip + field_40067_e;
+        pageFlip += field_40067_e;
     }
 }

@@ -59,7 +59,7 @@ public class EntityAICreeperSwell extends EntityAIBase
             return;
         }
 
-        if (!swellingCreeper.func_48318_al().canSee(creeperAttackTarget))
+        if (!swellingCreeper.getEntitySenses().canSee(creeperAttackTarget))
         {
             swellingCreeper.setCreeperState(-1);
             return;

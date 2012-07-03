@@ -207,7 +207,7 @@ public abstract class NBTBase
 
     public boolean equals(Object par1Obj)
     {
-        if (par1Obj == null || !(par1Obj instanceof NBTBase))
+        if (!(par1Obj instanceof NBTBase))
         {
             return false;
         }

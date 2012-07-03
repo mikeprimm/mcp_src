@@ -3,7 +3,7 @@ package net.minecraft.src;
 import java.io.*;
 import java.util.*;
 
-public class AnvilChunkLoader implements IChunkLoader, IThreadedFileIO
+public class AnvilChunkLoader implements IThreadedFileIO, IChunkLoader
 {
     private List field_48469_a;
     private Set field_48467_b;
@@ -25,31 +25,34 @@ public class AnvilChunkLoader implements IChunkLoader, IThreadedFileIO
      */
     public Chunk loadChunk(World par1World, int par2, int par3) throws IOException
     {
-        NBTTagCompound nbttagcompound = null;
+        NBTTagCompound nbttagcompound;
+        nbttagcompound = null;
         ChunkCoordIntPair chunkcoordintpair = new ChunkCoordIntPair(par2, par3);
 
         synchronized (field_48468_c)
         {
-            if (field_48467_b.contains(chunkcoordintpair))
+            label0:
             {
-                int i = 0;
+                if (!field_48467_b.contains(chunkcoordintpair))
+                {
+                    break label0;
+                }
+
+                Iterator iterator = field_48469_a.iterator();
+                AnvilChunkLoaderPending anvilchunkloaderpending;
 
                 do
                 {
-                    if (i >= field_48469_a.size())
+                    if (!iterator.hasNext())
                     {
-                        break;
+                        break label0;
                     }
 
-                    if (((AnvilChunkLoaderPending)field_48469_a.get(i)).field_48581_a.equals(chunkcoordintpair))
-                    {
-                        nbttagcompound = ((AnvilChunkLoaderPending)field_48469_a.get(i)).field_48580_b;
-                        break;
-                    }
-
-                    i++;
+                    anvilchunkloaderpending = (AnvilChunkLoaderPending)iterator.next();
                 }
-                while (true);
+                while (!anvilchunkloaderpending.field_48581_a.equals(chunkcoordintpair));
+
+                nbttagcompound = anvilchunkloaderpending.field_48580_b;
             }
         }
 
@@ -84,21 +87,20 @@ public class AnvilChunkLoader implements IChunkLoader, IThreadedFileIO
             return null;
         }
 
-        Chunk chunk = func_48465_a(par1World, par4NBTTagCompound.getCompoundTag("Level"));
+        Chunk chunk = readChunkFromNBT(par1World, par4NBTTagCompound.getCompoundTag("Level"));
 
         if (!chunk.isAtLocation(par2, par3))
         {
             System.out.println((new StringBuilder()).append("Chunk file at ").append(par2).append(",").append(par3).append(" is in the wrong location; relocating. (Expected ").append(par2).append(", ").append(par3).append(", got ").append(chunk.xPosition).append(", ").append(chunk.zPosition).append(")").toString());
             par4NBTTagCompound.setInteger("xPos", par2);
             par4NBTTagCompound.setInteger("zPos", par3);
-            chunk = func_48465_a(par1World, par4NBTTagCompound.getCompoundTag("Level"));
+            chunk = readChunkFromNBT(par1World, par4NBTTagCompound.getCompoundTag("Level"));
         }
 
-        chunk.removeUnknownBlocks();
         return chunk;
     }
 
-    public void saveChunk(World par1World, Chunk par2Chunk) throws IOException
+    public void saveChunk(World par1World, Chunk par2Chunk) throws MinecraftException, IOException
     {
         par1World.checkSessionLock();
 
@@ -107,7 +109,7 @@ public class AnvilChunkLoader implements IChunkLoader, IThreadedFileIO
             NBTTagCompound nbttagcompound = new NBTTagCompound();
             NBTTagCompound nbttagcompound1 = new NBTTagCompound();
             nbttagcompound.setTag("Level", nbttagcompound1);
-            func_48462_a(par2Chunk, par1World, nbttagcompound1);
+            writeChunkToNBT(par2Chunk, par1World, nbttagcompound1);
             func_48463_a(par2Chunk.getChunkCoordIntPair(), nbttagcompound);
         }
         catch (Exception exception)
@@ -135,7 +137,6 @@ public class AnvilChunkLoader implements IChunkLoader, IThreadedFileIO
             field_48469_a.add(new AnvilChunkLoaderPending(par1ChunkCoordIntPair, par2NBTTagCompound));
             field_48467_b.add(par1ChunkCoordIntPair);
             ThreadedFileIOBase.threadedIOInstance.queueIO(this);
-            return;
         }
     }
 
@@ -148,7 +149,7 @@ public class AnvilChunkLoader implements IChunkLoader, IThreadedFileIO
 
         synchronized (field_48468_c)
         {
-            if (field_48469_a.size() > 0)
+            if (!field_48469_a.isEmpty())
             {
                 anvilchunkloaderpending = (AnvilChunkLoaderPending)field_48469_a.remove(0);
                 field_48467_b.remove(anvilchunkloaderpending.field_48581_a);
@@ -176,7 +177,7 @@ public class AnvilChunkLoader implements IChunkLoader, IThreadedFileIO
 
     private void func_48461_a(AnvilChunkLoaderPending par1AnvilChunkLoaderPending) throws IOException
     {
-        DataOutputStream dataoutputstream = RegionFileCache.getChunkOutputStream(chunkSaveLocation, par1AnvilChunkLoaderPending.field_48581_a.chunkXPos, par1AnvilChunkLoaderPending.field_48581_a.chunkZPos);
+        DataOutputStream dataoutputstream = RegionFileCache.getChunkOutputStream(chunkSaveLocation, par1AnvilChunkLoaderPending.field_48581_a.chunkXPos, par1AnvilChunkLoaderPending.field_48581_a.chunkZPosition);
         CompressedStreamTools.write(par1AnvilChunkLoaderPending.field_48580_b, dataoutputstream);
         dataoutputstream.close();
     }
@@ -185,7 +186,7 @@ public class AnvilChunkLoader implements IChunkLoader, IThreadedFileIO
      * Save extra data associated with this Chunk not normally saved during autosave, only during chunk unload.
      * Currently unused.
      */
-    public void saveExtraChunkData(World world, Chunk chunk) throws IOException
+    public void saveExtraChunkData(World world, Chunk chunk)
     {
     }
 
@@ -204,9 +205,12 @@ public class AnvilChunkLoader implements IChunkLoader, IThreadedFileIO
     {
     }
 
-    private void func_48462_a(Chunk par1Chunk, World par2World, NBTTagCompound par3NBTTagCompound)
+    /**
+     * Writes the Chunk passed as an argument to the NBTTagCompound also passed, using the World argument to retrieve
+     * the Chunk's last update time.
+     */
+    private void writeChunkToNBT(Chunk par1Chunk, World par2World, NBTTagCompound par3NBTTagCompound)
     {
-        par2World.checkSessionLock();
         par3NBTTagCompound.setInteger("xPos", par1Chunk.xPosition);
         par3NBTTagCompound.setInteger("zPos", par1Chunk.zPosition);
         par3NBTTagCompound.setLong("LastUpdate", par2World.getWorldTime());
@@ -221,7 +225,7 @@ public class AnvilChunkLoader implements IChunkLoader, IThreadedFileIO
         {
             ExtendedBlockStorage extendedblockstorage = aextendedblockstorage1[k];
 
-            if (extendedblockstorage == null || extendedblockstorage.func_48587_f() == 0)
+            if (extendedblockstorage == null)
             {
                 continue;
             }
@@ -305,7 +309,11 @@ public class AnvilChunkLoader implements IChunkLoader, IThreadedFileIO
         }
     }
 
-    private Chunk func_48465_a(World par1World, NBTTagCompound par2NBTTagCompound)
+    /**
+     * Reads the data stored in the passed NBTTagCompound and creates a Chunk with that data in the passed World.
+     * Returns the created Chunk.
+     */
+    private Chunk readChunkFromNBT(World par1World, NBTTagCompound par2NBTTagCompound)
     {
         int i = par2NBTTagCompound.getInteger("xPos");
         int j = par2NBTTagCompound.getInteger("zPos");

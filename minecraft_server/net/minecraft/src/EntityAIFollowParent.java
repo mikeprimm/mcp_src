@@ -39,8 +39,7 @@ public class EntityAIFollowParent extends EntityAIBase
                 break;
             }
 
-            Entity entity = (Entity)iterator.next();
-            EntityAnimal entityanimal1 = (EntityAnimal)entity;
+            EntityAnimal entityanimal1 = (EntityAnimal)iterator.next();
 
             if (entityanimal1.getGrowingAge() >= 0)
             {

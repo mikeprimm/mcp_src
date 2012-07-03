@@ -4,9 +4,7 @@ public final class WorldSettings
 {
     /** The seed for the map. */
     private final long seed;
-
-    /** The type of the map. 0 is survival, 1 is creative. */
-    private final int gameType;
+    private final EnumGameType field_56527_b;
 
     /**
      * Switch for the map features. 'true' for enabled, 'false' for disabled.
@@ -16,14 +14,32 @@ public final class WorldSettings
     /** True if hardcore mode is enabled */
     private final boolean hardcoreEnabled;
     private final WorldType terrainType;
+    private boolean field_55212_f;
+    private boolean field_55213_g;
 
-    public WorldSettings(long par1, int par3, boolean par4, boolean par5, WorldType par6WorldType)
+    public WorldSettings(long par1, EnumGameType par3EnumGameType, boolean par4, boolean par5, WorldType par6WorldType)
     {
         seed = par1;
-        gameType = par3;
+        field_56527_b = par3EnumGameType;
         mapFeaturesEnabled = par4;
         hardcoreEnabled = par5;
         terrainType = par6WorldType;
+    }
+
+    public WorldSettings(WorldInfo par1WorldInfo)
+    {
+        this(par1WorldInfo.getSeed(), par1WorldInfo.func_56510_o(), par1WorldInfo.isMapFeaturesEnabled(), par1WorldInfo.isHardcoreModeEnabled(), par1WorldInfo.getTerrainType());
+    }
+
+    public WorldSettings func_56526_a()
+    {
+        field_55213_g = true;
+        return this;
+    }
+
+    public boolean func_55211_b()
+    {
+        return field_55213_g;
     }
 
     /**
@@ -34,12 +50,9 @@ public final class WorldSettings
         return seed;
     }
 
-    /**
-     * Get the type of game the map is set at. 0 is survival, 1 is creative.
-     */
-    public int getGameType()
+    public EnumGameType func_56525_d()
     {
-        return gameType;
+        return field_56527_b;
     }
 
     /**
@@ -51,7 +64,7 @@ public final class WorldSettings
     }
 
     /**
-     * Get whether the map features generation is enabled or disabled.
+     * Get whether the map features (e.g. strongholds) generation is enabled or disabled.
      */
     public boolean isMapFeaturesEnabled()
     {
@@ -63,18 +76,13 @@ public final class WorldSettings
         return terrainType;
     }
 
-    /**
-     * Checks to see if the int passed is a valid game type indicator.
-     */
-    public static int validGameType(int par0)
+    public boolean func_55209_h()
     {
-        switch (par0)
-        {
-            case 0:
-            case 1:
-                return par0;
-        }
+        return field_55212_f;
+    }
 
-        return 0;
+    public static EnumGameType func_56524_a(int par0)
+    {
+        return EnumGameType.func_56604_a(par0);
     }
 }

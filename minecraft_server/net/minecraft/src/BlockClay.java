@@ -7,6 +7,7 @@ public class BlockClay extends Block
     public BlockClay(int par1, int par2)
     {
         super(par1, par2, Material.clay);
+        func_56326_a(CreativeTabs.field_56387_b);
     }
 
     /**

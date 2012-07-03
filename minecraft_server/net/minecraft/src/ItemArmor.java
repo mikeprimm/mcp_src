@@ -33,6 +33,7 @@ public class ItemArmor extends Item
         damageReduceAmount = par2EnumArmorMaterial.getDamageReductionAmount(par4);
         setMaxDamage(par2EnumArmorMaterial.getDurability(par4));
         maxStackSize = 1;
+        func_56455_a(CreativeTabs.field_56394_j);
     }
 
     /**

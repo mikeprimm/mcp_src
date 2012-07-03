@@ -89,7 +89,7 @@ public class ComponentMineshaftCorridor extends StructureComponent
     }
 
     /**
-     * 'Initiates construction of the Structure Component picked, at the current Location of StructGen'
+     * Initiates construction of the Structure Component picked, at the current Location of StructGen
      */
     public void buildComponent(StructureComponent par1StructureComponent, List par2List, Random par3Random)
     {
@@ -203,8 +203,8 @@ public class ComponentMineshaftCorridor extends StructureComponent
     }
 
     /**
-     * 'second Part of Structure generating, this for example places Spiderwebs, Mob Spawners, it closes Mineshafts at
-     * the end, it adds Fences...'
+     * second Part of Structure generating, this for example places Spiderwebs, Mob Spawners, it closes Mineshafts at
+     * the end, it adds Fences...
      */
     public boolean addComponentParts(World par1World, Random par2Random, StructureBoundingBox par3StructureBoundingBox)
     {
@@ -228,14 +228,14 @@ public class ComponentMineshaftCorridor extends StructureComponent
             fillWithBlocks(par1World, par3StructureBoundingBox, 0, 0, i1, 0, 1, i1, Block.fence.blockID, 0, false);
             fillWithBlocks(par1World, par3StructureBoundingBox, 2, 0, i1, 2, 1, i1, Block.fence.blockID, 0, false);
 
-            if (par2Random.nextInt(4) != 0)
-            {
-                fillWithBlocks(par1World, par3StructureBoundingBox, 0, 2, i1, 2, 2, i1, Block.planks.blockID, 0, false);
-            }
-            else
+            if (par2Random.nextInt(4) == 0)
             {
                 fillWithBlocks(par1World, par3StructureBoundingBox, 0, 2, i1, 0, 2, i1, Block.planks.blockID, 0, false);
                 fillWithBlocks(par1World, par3StructureBoundingBox, 2, 2, i1, 2, 2, i1, Block.planks.blockID, 0, false);
+            }
+            else
+            {
+                fillWithBlocks(par1World, par3StructureBoundingBox, 0, 2, i1, 2, 2, i1, Block.planks.blockID, 0, false);
             }
 
             randomlyPlaceBlock(par1World, par3StructureBoundingBox, par2Random, 0.1F, 0, 2, i1 - 1, Block.web.blockID, 0);
@@ -251,12 +251,12 @@ public class ComponentMineshaftCorridor extends StructureComponent
 
             if (par2Random.nextInt(100) == 0)
             {
-                createTreasureChestAtCurrentPosition(par1World, par3StructureBoundingBox, par2Random, 2, 0, i1 - 1, StructureMineshaftPieces.getTreasurePieces(), 3 + par2Random.nextInt(4));
+                func_56289_a(par1World, par3StructureBoundingBox, par2Random, 2, 0, i1 - 1, StructureMineshaftPieces.func_55183_a(), 3 + par2Random.nextInt(4));
             }
 
             if (par2Random.nextInt(100) == 0)
             {
-                createTreasureChestAtCurrentPosition(par1World, par3StructureBoundingBox, par2Random, 0, 0, i1 + 1, StructureMineshaftPieces.getTreasurePieces(), 3 + par2Random.nextInt(4));
+                func_56289_a(par1World, par3StructureBoundingBox, par2Random, 0, 0, i1 + 1, StructureMineshaftPieces.func_55183_a(), 3 + par2Random.nextInt(4));
             }
 
             if (!hasSpiders || spawnerPlaced)

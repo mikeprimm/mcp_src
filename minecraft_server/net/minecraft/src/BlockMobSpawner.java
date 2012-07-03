@@ -9,10 +9,7 @@ public class BlockMobSpawner extends BlockContainer
         super(par1, par2, Material.rock);
     }
 
-    /**
-     * Returns the TileEntity used by this block.
-     */
-    public TileEntity getBlockEntity()
+    public TileEntity func_56351_a(World par1World)
     {
         return new TileEntityMobSpawner();
     }
@@ -31,6 +28,16 @@ public class BlockMobSpawner extends BlockContainer
     public int quantityDropped(Random par1Random)
     {
         return 0;
+    }
+
+    /**
+     * Drops the block items with a specified chance of dropping the specified items
+     */
+    public void dropBlockAsItemWithChance(World par1World, int par2, int par3, int par4, int par5, float par6, int par7)
+    {
+        super.dropBlockAsItemWithChance(par1World, par2, par3, par4, par5, par6, par7);
+        int i = 15 + par1World.rand.nextInt(15) + par1World.rand.nextInt(15);
+        func_56328_f(par1World, par2, par3, par4, i);
     }
 
     /**

@@ -19,7 +19,7 @@ public abstract class GenLayer
 
     public static GenLayer[] func_48391_a(long par0, WorldType par2WorldType)
     {
-        GenLayer obj = new GenLayerIsland(1L);
+        Object obj = new GenLayerIsland(1L);
         obj = new GenLayerFuzzyZoom(2000L, ((GenLayer)(obj)));
         obj = new GenLayerAddIsland(1L, ((GenLayer)(obj)));
         obj = new GenLayerZoom(2001L, ((GenLayer)(obj)));
@@ -31,13 +31,19 @@ public abstract class GenLayer
         obj = new GenLayerAddIsland(4L, ((GenLayer)(obj)));
         obj = new GenLayerAddMushroomIsland(5L, ((GenLayer)(obj)));
         byte byte0 = 4;
-        GenLayer obj1 = obj;
+
+        if (par2WorldType == WorldType.field_56782_d)
+        {
+            byte0 = 6;
+        }
+
+        Object obj1 = obj;
         obj1 = GenLayerZoom.func_35025_a(1000L, ((GenLayer)(obj1)), 0);
         obj1 = new GenLayerRiverInit(100L, ((GenLayer)(obj1)));
         obj1 = GenLayerZoom.func_35025_a(1000L, ((GenLayer)(obj1)), byte0 + 2);
         obj1 = new GenLayerRiver(1L, ((GenLayer)(obj1)));
         obj1 = new GenLayerSmooth(1000L, ((GenLayer)(obj1)));
-        GenLayer obj2 = obj;
+        Object obj2 = obj;
         obj2 = GenLayerZoom.func_35025_a(1000L, ((GenLayer)(obj2)), 0);
         obj2 = new GenLayerBiome(200L, ((GenLayer)(obj2)), par2WorldType);
         obj2 = GenLayerZoom.func_35025_a(1000L, ((GenLayer)(obj2)), 2);
@@ -71,7 +77,7 @@ public abstract class GenLayer
         genlayervoronoizoom.initWorldGenSeed(par0);
         return (new GenLayer[]
                 {
-                    obj2, genlayervoronoizoom, genlayerrivermix
+                    (GenLayer)obj2, genlayervoronoizoom, genlayerrivermix
                 });
     }
 

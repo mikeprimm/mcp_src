@@ -1,6 +1,6 @@
 package net.minecraft.src;
 
-public class RConConsoleSource implements ICommandListener
+public class RConConsoleSource implements ICommandSender
 {
     /** Single instance of RConConsoleSource */
     public static final RConConsoleSource instance = new RConConsoleSource();
@@ -29,19 +29,23 @@ public class RConConsoleSource implements ICommandListener
         return buffer.toString();
     }
 
-    /**
-     * Logs the message with a level of INFO.
-     */
-    public void log(String par1Str)
+    public String func_55070_y_()
+    {
+        return "Rcon";
+    }
+
+    public void func_55072_b(String par1Str)
     {
         buffer.append(par1Str);
     }
 
-    /**
-     * Gets the players username.
-     */
-    public String getUsername()
+    public boolean func_55071_c(String par1Str)
     {
-        return "Rcon";
+        return true;
+    }
+
+    public String func_55069_a(String par1Str, Object par2ArrayOfObj[])
+    {
+        return StringTranslate.getInstance().translateKeyFormat(par1Str, par2ArrayOfObj);
     }
 }

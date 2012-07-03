@@ -27,19 +27,19 @@ public class ContainerEnchantment extends Container
         posX = par3;
         posY = par4;
         posZ = par5;
-        addSlot(new SlotEnchantment(this, tableInventory, 0, 25, 47));
+        func_55143_a(new SlotEnchantment(this, tableInventory, 0, 25, 47));
 
         for (int i = 0; i < 3; i++)
         {
             for (int k = 0; k < 9; k++)
             {
-                addSlot(new Slot(par1InventoryPlayer, k + i * 9 + 9, 8 + k * 18, 84 + i * 18));
+                func_55143_a(new Slot(par1InventoryPlayer, k + i * 9 + 9, 8 + k * 18, 84 + i * 18));
             }
         }
 
         for (int j = 0; j < 9; j++)
         {
-            addSlot(new Slot(par1InventoryPlayer, j, 8 + j * 18, 142));
+            func_55143_a(new Slot(par1InventoryPlayer, j, 8 + j * 18, 142));
         }
     }
 
@@ -57,13 +57,13 @@ public class ContainerEnchantment extends Container
     public void updateCraftingResults()
     {
         super.updateCraftingResults();
+        ICrafting icrafting;
 
-        for (int i = 0; i < crafters.size(); i++)
+        for (Iterator iterator = crafters.iterator(); iterator.hasNext(); icrafting.updateCraftingInventoryInfo(this, 2, enchantLevels[2]))
         {
-            ICrafting icrafting = (ICrafting)crafters.get(i);
+            icrafting = (ICrafting)iterator.next();
             icrafting.updateCraftingInventoryInfo(this, 0, enchantLevels[0]);
             icrafting.updateCraftingInventoryInfo(this, 1, enchantLevels[1]);
-            icrafting.updateCraftingInventoryInfo(this, 2, enchantLevels[2]);
         }
     }
 
@@ -233,6 +233,19 @@ public class ContainerEnchantment extends Container
                     return null;
                 }
             }
+            else if (!((Slot)inventorySlots.get(0)).getHasStack() && ((Slot)inventorySlots.get(0)).isItemValid(itemstack1))
+            {
+                if (itemstack1.hasTagCompound() && itemstack1.stackSize == 1)
+                {
+                    ((Slot)inventorySlots.get(0)).putStack(itemstack1.copy());
+                    itemstack1.stackSize = 0;
+                }
+                else if (itemstack1.stackSize >= 1)
+                {
+                    ((Slot)inventorySlots.get(0)).putStack(new ItemStack(itemstack1.itemID, 1, itemstack1.getItemDamage()));
+                    itemstack1.stackSize--;
+                }
+            }
             else
             {
                 return null;
@@ -247,14 +260,12 @@ public class ContainerEnchantment extends Container
                 slot.onSlotChanged();
             }
 
-            if (itemstack1.stackSize != itemstack.stackSize)
-            {
-                slot.onPickupFromSlot(itemstack1);
-            }
-            else
+            if (itemstack1.stackSize == itemstack.stackSize)
             {
                 return null;
             }
+
+            slot.onPickupFromSlot(itemstack1);
         }
 
         return itemstack;

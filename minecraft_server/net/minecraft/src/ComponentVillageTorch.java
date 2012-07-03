@@ -7,29 +7,19 @@ public class ComponentVillageTorch extends ComponentVillage
 {
     private int averageGroundLevel;
 
-    public ComponentVillageTorch(int par1, Random par2Random, StructureBoundingBox par3StructureBoundingBox, int par4)
+    public ComponentVillageTorch(ComponentVillageStartPiece par1ComponentVillageStartPiece, int par2, Random par3Random, StructureBoundingBox par4StructureBoundingBox, int par5)
     {
-        super(par1);
+        super(par1ComponentVillageStartPiece, par2);
         averageGroundLevel = -1;
-        coordBaseMode = par4;
-        boundingBox = par3StructureBoundingBox;
+        coordBaseMode = par5;
+        boundingBox = par4StructureBoundingBox;
     }
 
-    /**
-     * 'Initiates construction of the Structure Component picked, at the current Location of StructGen'
-     */
-    public void buildComponent(StructureComponent structurecomponent, List list, Random random)
+    public static StructureBoundingBox func_56316_a(ComponentVillageStartPiece par0ComponentVillageStartPiece, List par1List, Random par2Random, int par3, int par4, int par5, int par6)
     {
-    }
+        StructureBoundingBox structureboundingbox = StructureBoundingBox.getComponentToAddBoundingBox(par3, par4, par5, 0, 0, 0, 3, 4, 2, par6);
 
-    /**
-     * Trys to find a valid place to put this component.
-     */
-    public static StructureBoundingBox findValidPlacement(List par0List, Random par1Random, int par2, int par3, int par4, int par5)
-    {
-        StructureBoundingBox structureboundingbox = StructureBoundingBox.getComponentToAddBoundingBox(par2, par3, par4, 0, 0, 0, 3, 4, 2, par5);
-
-        if (StructureComponent.findIntersecting(par0List, structureboundingbox) != null)
+        if (StructureComponent.findIntersecting(par1List, structureboundingbox) != null)
         {
             return null;
         }
@@ -40,8 +30,8 @@ public class ComponentVillageTorch extends ComponentVillage
     }
 
     /**
-     * 'second Part of Structure generating, this for example places Spiderwebs, Mob Spawners, it closes Mineshafts at
-     * the end, it adds Fences...'
+     * second Part of Structure generating, this for example places Spiderwebs, Mob Spawners, it closes Mineshafts at
+     * the end, it adds Fences...
      */
     public boolean addComponentParts(World par1World, Random par2Random, StructureBoundingBox par3StructureBoundingBox)
     {

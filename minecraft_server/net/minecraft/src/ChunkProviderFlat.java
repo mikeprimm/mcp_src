@@ -134,6 +134,11 @@ public class ChunkProviderFlat implements IChunkProvider
         return true;
     }
 
+    public String func_46040_d()
+    {
+        return "FlatLevelSource";
+    }
+
     /**
      * Returns a list of creatures of the specified type that can spawn at the given location.
      */
@@ -157,5 +162,10 @@ public class ChunkProviderFlat implements IChunkProvider
     public ChunkPosition findClosestStructure(World par1World, String par2Str, int par3, int i, int j)
     {
         return null;
+    }
+
+    public int func_56538_d()
+    {
+        return 0;
     }
 }

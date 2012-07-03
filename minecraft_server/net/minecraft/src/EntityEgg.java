@@ -26,7 +26,7 @@ public class EntityEgg extends EntityThrowable
     {
         if (par1MovingObjectPosition.entityHit != null)
         {
-            if (!par1MovingObjectPosition.entityHit.attackEntityFrom(DamageSource.causeThrownDamage(this, thrower), 0));
+            par1MovingObjectPosition.entityHit.attackEntityFrom(DamageSource.causeThrownDamage(this, thrower), 0);
         }
 
         if (!worldObj.isRemote && rand.nextInt(8) == 0)

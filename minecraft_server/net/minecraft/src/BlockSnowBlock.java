@@ -8,6 +8,7 @@ public class BlockSnowBlock extends Block
     {
         super(par1, par2, Material.craftedSnow);
         setTickRandomly(true);
+        func_56326_a(CreativeTabs.field_56387_b);
     }
 
     /**

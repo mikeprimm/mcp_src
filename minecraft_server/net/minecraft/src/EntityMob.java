@@ -127,22 +127,6 @@ public abstract class EntityMob extends EntityCreature implements IMob
     }
 
     /**
-     * (abstract) Protected helper method to write subclass entity data to NBT.
-     */
-    public void writeEntityToNBT(NBTTagCompound par1NBTTagCompound)
-    {
-        super.writeEntityToNBT(par1NBTTagCompound);
-    }
-
-    /**
-     * (abstract) Protected helper method to read subclass entity data from NBT.
-     */
-    public void readEntityFromNBT(NBTTagCompound par1NBTTagCompound)
-    {
-        super.readEntityFromNBT(par1NBTTagCompound);
-    }
-
-    /**
      * Checks to make sure the light is not too bright where the mob is spawning
      */
     protected boolean isValidLightLevel()

@@ -7,7 +7,7 @@ public class EntityAIWatchClosest extends EntityAIBase
     private EntityLiving field_46110_a;
 
     /** The closest entity which is being watched by this one. */
-    private Entity closestEntity;
+    protected Entity closestEntity;
     private float field_46106_d;
     private int field_46107_e;
     private float field_48241_e;

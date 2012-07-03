@@ -42,6 +42,8 @@ public interface IChunkProvider
      */
     public abstract boolean canSave();
 
+    public abstract String func_46040_d();
+
     /**
      * Returns a list of creatures of the specified type that can spawn at the given location.
      */
@@ -51,4 +53,6 @@ public interface IChunkProvider
      * Returns the location of the closest structure of the specified type. If not found returns null.
      */
     public abstract ChunkPosition findClosestStructure(World world, String s, int i, int j, int k);
+
+    public abstract int func_56538_d();
 }

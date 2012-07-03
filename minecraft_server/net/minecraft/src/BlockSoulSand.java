@@ -5,6 +5,7 @@ public class BlockSoulSand extends Block
     public BlockSoulSand(int par1, int par2)
     {
         super(par1, par2, Material.sand);
+        func_56326_a(CreativeTabs.field_56387_b);
     }
 
     /**
@@ -14,7 +15,7 @@ public class BlockSoulSand extends Block
     public AxisAlignedBB getCollisionBoundingBoxFromPool(World par1World, int par2, int par3, int par4)
     {
         float f = 0.125F;
-        return AxisAlignedBB.getBoundingBoxFromPool(par2, par3, par4, par2 + 1, (float)(par3 + 1) - f, par4 + 1);
+        return AxisAlignedBB.func_58089_a().func_58067_a(par2, par3, par4, par2 + 1, (float)(par3 + 1) - f, par4 + 1);
     }
 
     /**

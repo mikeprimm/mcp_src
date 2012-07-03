@@ -1,6 +1,6 @@
 package net.minecraft.src;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class BlockEndPortal extends BlockContainer
@@ -16,10 +16,7 @@ public class BlockEndPortal extends BlockContainer
         setLightValue(1.0F);
     }
 
-    /**
-     * Returns the TileEntity used by this block.
-     */
-    public TileEntity getBlockEntity()
+    public TileEntity func_56351_a(World par1World)
     {
         return new TileEntityEndPortal();
     }
@@ -33,11 +30,7 @@ public class BlockEndPortal extends BlockContainer
         setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, f, 1.0F);
     }
 
-    /**
-     * Adds to the supplied array any colliding bounding boxes with the passed in bounding box. Args: world, x, y, z,
-     * axisAlignedBB, arrayList
-     */
-    public void getCollidingBoundingBoxes(World world, int i, int j, int k, AxisAlignedBB axisalignedbb, ArrayList arraylist)
+    public void func_56330_a(World world, int i, int j, int k, AxisAlignedBB axisalignedbb, List list, Entity entity)
     {
     }
 
@@ -98,11 +91,6 @@ public class BlockEndPortal extends BlockContainer
         if (par1World.worldProvider.worldType != 0)
         {
             par1World.setBlockWithNotify(par2, par3, par4, 0);
-            return;
-        }
-        else
-        {
-            return;
         }
     }
 }

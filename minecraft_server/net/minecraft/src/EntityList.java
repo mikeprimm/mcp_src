@@ -2,8 +2,7 @@ package net.minecraft.src;
 
 import java.io.PrintStream;
 import java.lang.reflect.Constructor;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class EntityList
 {
@@ -23,7 +22,7 @@ public class EntityList
     private static Map stringToIDMapping = new HashMap();
 
     /** This is a HashMap of the Creative Entity Eggs/Spawners. */
-    public static HashMap entityEggs = new HashMap();
+    public static HashMap entityEggs = new LinkedHashMap();
 
     public EntityList()
     {
@@ -159,7 +158,8 @@ public class EntityList
      */
     public static int getEntityID(Entity par0Entity)
     {
-        return ((Integer)classToIDMapping.get(par0Entity.getClass())).intValue();
+        Class class1 = par0Entity.getClass();
+        return classToIDMapping.containsKey(class1) ? ((Integer)classToIDMapping.get(class1)).intValue() : 0;
     }
 
     /**

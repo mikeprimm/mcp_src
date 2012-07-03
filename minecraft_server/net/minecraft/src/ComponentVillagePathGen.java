@@ -7,16 +7,16 @@ public class ComponentVillagePathGen extends ComponentVillageRoadPiece
 {
     private int averageGroundLevel;
 
-    public ComponentVillagePathGen(int par1, Random par2Random, StructureBoundingBox par3StructureBoundingBox, int par4)
+    public ComponentVillagePathGen(ComponentVillageStartPiece par1ComponentVillageStartPiece, int par2, Random par3Random, StructureBoundingBox par4StructureBoundingBox, int par5)
     {
-        super(par1);
-        coordBaseMode = par4;
-        boundingBox = par3StructureBoundingBox;
-        averageGroundLevel = Math.max(par3StructureBoundingBox.getXSize(), par3StructureBoundingBox.getZSize());
+        super(par1ComponentVillageStartPiece, par2);
+        coordBaseMode = par5;
+        boundingBox = par4StructureBoundingBox;
+        averageGroundLevel = Math.max(par4StructureBoundingBox.getXSize(), par4StructureBoundingBox.getZSize());
     }
 
     /**
-     * 'Initiates construction of the Structure Component picked, at the current Location of StructGen'
+     * Initiates construction of the Structure Component picked, at the current Location of StructGen
      */
     public void buildComponent(StructureComponent par1StructureComponent, List par2List, Random par3Random)
     {
@@ -105,19 +105,21 @@ public class ComponentVillagePathGen extends ComponentVillageRoadPiece
     }
 
     /**
-     * 'second Part of Structure generating, this for example places Spiderwebs, Mob Spawners, it closes Mineshafts at
-     * the end, it adds Fences...'
+     * second Part of Structure generating, this for example places Spiderwebs, Mob Spawners, it closes Mineshafts at
+     * the end, it adds Fences...
      */
     public boolean addComponentParts(World par1World, Random par2Random, StructureBoundingBox par3StructureBoundingBox)
     {
-        for (int i = boundingBox.minX; i <= boundingBox.maxX; i++)
+        int i = func_56307_d(Block.gravel.blockID, 0);
+
+        for (int j = boundingBox.minX; j <= boundingBox.maxX; j++)
         {
-            for (int j = boundingBox.minZ; j <= boundingBox.maxZ; j++)
+            for (int k = boundingBox.minZ; k <= boundingBox.maxZ; k++)
             {
-                if (par3StructureBoundingBox.isVecInside(i, 64, j))
+                if (par3StructureBoundingBox.isVecInside(j, 64, k))
                 {
-                    int k = par1World.getTopSolidOrLiquidBlock(i, j) - 1;
-                    par1World.setBlock(i, k, j, Block.gravel.blockID);
+                    int l = par1World.getTopSolidOrLiquidBlock(j, k) - 1;
+                    par1World.setBlock(j, l, k, i);
                 }
             }
         }

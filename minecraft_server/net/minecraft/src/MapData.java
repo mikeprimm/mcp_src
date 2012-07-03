@@ -128,7 +128,7 @@ public class MapData extends WorldSavedData
             byte byte0 = 0;
             byte byte1 = (byte)(int)((double)(f * 2.0F) + 0.5D);
             byte byte2 = (byte)(int)((double)(f1 * 2.0F) + 0.5D);
-            byte byte3 = (byte)(int)((double)((par1EntityPlayer.rotationYaw * 16F) / 360F) + 0.5D);
+            byte byte3 = (byte)(int)(((double)mapinfo1.entityplayerObj.rotationYaw * 16D) / 360D);
 
             if (dimension < 0)
             {
@@ -153,8 +153,7 @@ public class MapData extends WorldSavedData
         }
         else
         {
-            byte abyte0[] = mapinfo.func_28118_a(par1ItemStack);
-            return abyte0;
+            return mapinfo.func_28118_a(par1ItemStack);
         }
     }
 

@@ -6,7 +6,7 @@ public abstract class EntityCreature extends EntityLiving
 {
     private PathEntity pathToEntity;
 
-    /** The Player this EntityCreature will attack next. */
+    /** The Entity this EntityCreature is set to attack. */
     protected Entity entityToAttack;
 
     /**
@@ -53,11 +53,7 @@ public abstract class EntityCreature extends EntityLiving
                 pathToEntity = worldObj.getPathEntityToEntity(this, entityToAttack, f, true, false, false, true);
             }
         }
-        else if (!entityToAttack.isEntityAlive())
-        {
-            entityToAttack = null;
-        }
-        else
+        else if (entityToAttack.isEntityAlive())
         {
             float f1 = entityToAttack.getDistanceToEntity(this);
 
@@ -65,10 +61,10 @@ public abstract class EntityCreature extends EntityLiving
             {
                 attackEntity(entityToAttack, f1);
             }
-            else
-            {
-                attackBlockedEntity(entityToAttack, f1);
-            }
+        }
+        else
+        {
+            entityToAttack = null;
         }
 
         Profiler.endSection();
@@ -95,30 +91,30 @@ public abstract class EntityCreature extends EntityLiving
         }
 
         Profiler.startSection("followpath");
-        Vec3D vec3d = pathToEntity.getPosition(this);
+        Vec3 vec3 = pathToEntity.getPosition(this);
 
-        for (double d = width * 2.0F; vec3d != null && vec3d.squareDistanceTo(posX, vec3d.yCoord, posZ) < d * d;)
+        for (double d = width * 2.0F; vec3 != null && vec3.squareDistanceTo(posX, vec3.yCoord, posZ) < d * d;)
         {
             pathToEntity.incrementPathIndex();
 
             if (pathToEntity.isFinished())
             {
-                vec3d = null;
+                vec3 = null;
                 pathToEntity = null;
             }
             else
             {
-                vec3d = pathToEntity.getPosition(this);
+                vec3 = pathToEntity.getPosition(this);
             }
         }
 
         isJumping = false;
 
-        if (vec3d != null)
+        if (vec3 != null)
         {
-            double d1 = vec3d.xCoord - posX;
-            double d2 = vec3d.zCoord - posZ;
-            double d3 = vec3d.yCoord - (double)i;
+            double d1 = vec3.xCoord - posX;
+            double d2 = vec3.zCoord - posZ;
+            double d3 = vec3.yCoord - (double)i;
             float f2 = (float)((Math.atan2(d2, d1) * 180D) / Math.PI) - 90F;
             float f3 = f2 - rotationYaw;
             moveForward = moveSpeed;
@@ -219,13 +215,6 @@ public abstract class EntityCreature extends EntityLiving
     }
 
     /**
-     * Used when an entity is close enough to attack but cannot be seen (Creeper de-fuse)
-     */
-    protected void attackBlockedEntity(Entity entity, float f)
-    {
-    }
-
-    /**
      * Takes a coordinate in and returns a weight to determine how likely this creature will try to path to the block.
      * Args: x, y, z
      */
@@ -279,7 +268,7 @@ public abstract class EntityCreature extends EntityLiving
     }
 
     /**
-     * sets the target Entity
+     * Sets the entity which is to be attacked.
      */
     public void setTarget(Entity par1Entity)
     {
@@ -287,7 +276,7 @@ public abstract class EntityCreature extends EntityLiving
     }
 
     /**
-     * This method return a value to be applied directly to entity speed, this factor is less than 1 when a slowdown
+     * This method returns a value to be applied directly to entity speed, this factor is less than 1 when a slowdown
      * potion effect is applied, more than 1 when a haste potion effect is applied and 2 for fleeing entities.
      */
     protected float getSpeedModifier()

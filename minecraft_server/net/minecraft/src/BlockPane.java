@@ -1,6 +1,6 @@
 package net.minecraft.src;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class BlockPane extends Block
@@ -21,6 +21,7 @@ public class BlockPane extends Block
         super(par1, par2, par4Material);
         sideTextureIndex = par3;
         canDropItself = par5;
+        func_56326_a(CreativeTabs.field_56388_c);
     }
 
     /**
@@ -63,11 +64,7 @@ public class BlockPane extends Block
         return 18;
     }
 
-    /**
-     * Adds to the supplied array any colliding bounding boxes with the passed in bounding box. Args: world, x, y, z,
-     * axisAlignedBB, arrayList
-     */
-    public void getCollidingBoundingBoxes(World par1World, int par2, int par3, int par4, AxisAlignedBB par5AxisAlignedBB, ArrayList par6ArrayList)
+    public void func_56330_a(World par1World, int par2, int par3, int par4, AxisAlignedBB par5AxisAlignedBB, List par6List, Entity par7Entity)
     {
         boolean flag = canThisPaneConnectToThisBlockID(par1World.getBlockId(par2, par3, par4 - 1));
         boolean flag1 = canThisPaneConnectToThisBlockID(par1World.getBlockId(par2, par3, par4 + 1));
@@ -77,33 +74,33 @@ public class BlockPane extends Block
         if (flag2 && flag3 || !flag2 && !flag3 && !flag && !flag1)
         {
             setBlockBounds(0.0F, 0.0F, 0.4375F, 1.0F, 1.0F, 0.5625F);
-            super.getCollidingBoundingBoxes(par1World, par2, par3, par4, par5AxisAlignedBB, par6ArrayList);
+            super.func_56330_a(par1World, par2, par3, par4, par5AxisAlignedBB, par6List, par7Entity);
         }
         else if (flag2 && !flag3)
         {
             setBlockBounds(0.0F, 0.0F, 0.4375F, 0.5F, 1.0F, 0.5625F);
-            super.getCollidingBoundingBoxes(par1World, par2, par3, par4, par5AxisAlignedBB, par6ArrayList);
+            super.func_56330_a(par1World, par2, par3, par4, par5AxisAlignedBB, par6List, par7Entity);
         }
         else if (!flag2 && flag3)
         {
             setBlockBounds(0.5F, 0.0F, 0.4375F, 1.0F, 1.0F, 0.5625F);
-            super.getCollidingBoundingBoxes(par1World, par2, par3, par4, par5AxisAlignedBB, par6ArrayList);
+            super.func_56330_a(par1World, par2, par3, par4, par5AxisAlignedBB, par6List, par7Entity);
         }
 
         if (flag && flag1 || !flag2 && !flag3 && !flag && !flag1)
         {
             setBlockBounds(0.4375F, 0.0F, 0.0F, 0.5625F, 1.0F, 1.0F);
-            super.getCollidingBoundingBoxes(par1World, par2, par3, par4, par5AxisAlignedBB, par6ArrayList);
+            super.func_56330_a(par1World, par2, par3, par4, par5AxisAlignedBB, par6List, par7Entity);
         }
         else if (flag && !flag1)
         {
             setBlockBounds(0.4375F, 0.0F, 0.0F, 0.5625F, 1.0F, 0.5F);
-            super.getCollidingBoundingBoxes(par1World, par2, par3, par4, par5AxisAlignedBB, par6ArrayList);
+            super.func_56330_a(par1World, par2, par3, par4, par5AxisAlignedBB, par6List, par7Entity);
         }
         else if (!flag && flag1)
         {
             setBlockBounds(0.4375F, 0.0F, 0.5F, 0.5625F, 1.0F, 1.0F);
-            super.getCollidingBoundingBoxes(par1World, par2, par3, par4, par5AxisAlignedBB, par6ArrayList);
+            super.func_56330_a(par1World, par2, par3, par4, par5AxisAlignedBB, par6List, par7Entity);
         }
     }
 
@@ -167,5 +164,22 @@ public class BlockPane extends Block
     public final boolean canThisPaneConnectToThisBlockID(int par1)
     {
         return Block.opaqueCubeLookup[par1] || par1 == blockID || par1 == Block.glass.blockID;
+    }
+
+    /**
+     * Return true if a player with SlikTouch can harvest this block directly, and not it's normal drops.
+     */
+    protected boolean canSilkHarvest()
+    {
+        return true;
+    }
+
+    /**
+     * Returns an item stack containing a single instance of the current block type. 'i' is the block's subtype/damage
+     * and is ignored for blocks which do not support subtypes. Blocks which cannot be harvested should return null.
+     */
+    protected ItemStack createStackedBlock(int par1)
+    {
+        return new ItemStack(blockID, 1, par1);
     }
 }

@@ -6,7 +6,7 @@ public abstract class StructureComponent
 {
     protected StructureBoundingBox boundingBox;
 
-    /** 'switches the Coordinate System base off the Bounding Box' */
+    /** switches the Coordinate System base off the Bounding Box */
     protected int coordBaseMode;
 
     /** The type ID of this component. */
@@ -19,15 +19,15 @@ public abstract class StructureComponent
     }
 
     /**
-     * 'Initiates construction of the Structure Component picked, at the current Location of StructGen'
+     * Initiates construction of the Structure Component picked, at the current Location of StructGen
      */
     public void buildComponent(StructureComponent structurecomponent, List list, Random random)
     {
     }
 
     /**
-     * 'second Part of Structure generating, this for example places Spiderwebs, Mob Spawners, it closes Mineshafts at
-     * the end, it adds Fences...'
+     * second Part of Structure generating, this for example places Spiderwebs, Mob Spawners, it closes Mineshafts at
+     * the end, it adds Fences...
      */
     public abstract boolean addComponentParts(World world, Random random, StructureBoundingBox structureboundingbox);
 
@@ -68,7 +68,7 @@ public abstract class StructureComponent
     }
 
     /**
-     * 'checks the entire StructureBoundingBox for Liquids'
+     * checks the entire StructureBoundingBox for Liquids
      */
     protected boolean isLiquidInStructureBoundingBox(World par1World, StructureBoundingBox par2StructureBoundingBox)
     {
@@ -230,7 +230,7 @@ public abstract class StructureComponent
                 }
             }
         }
-        else if (par1 == Block.stairCompactCobblestone.blockID || par1 == Block.stairCompactPlanks.blockID || par1 == Block.stairsNetherBrick.blockID || par1 == Block.stairsStoneBrickSmooth.blockID)
+        else if (par1 == Block.stairCompactCobblestone.blockID || par1 == Block.stairCompactPlanks.blockID || par1 == Block.stairsNetherBrick.blockID || par1 == Block.stairsStoneBrickSmooth.blockID || par1 == Block.field_56339_bQ.blockID)
         {
             if (coordBaseMode == 0)
             {
@@ -407,6 +407,114 @@ public abstract class StructureComponent
                 }
             }
         }
+        else if (par1 == Block.field_56334_bT.blockID || Block.blocksList[par1] != null && (Block.blocksList[par1] instanceof BlockDirectional))
+        {
+            if (coordBaseMode == 0)
+            {
+                if (par2 == 0 || par2 == 2)
+                {
+                    return Direction.footInvisibleFaceRemap[par2];
+                }
+            }
+            else if (coordBaseMode == 1)
+            {
+                if (par2 == 2)
+                {
+                    return 1;
+                }
+
+                if (par2 == 0)
+                {
+                    return 3;
+                }
+
+                if (par2 == 1)
+                {
+                    return 2;
+                }
+
+                if (par2 == 3)
+                {
+                    return 0;
+                }
+            }
+            else if (coordBaseMode == 3)
+            {
+                if (par2 == 2)
+                {
+                    return 3;
+                }
+
+                if (par2 == 0)
+                {
+                    return 1;
+                }
+
+                if (par2 == 1)
+                {
+                    return 2;
+                }
+
+                if (par2 == 3)
+                {
+                    return 0;
+                }
+            }
+        }
+        else if (par1 == Block.pistonBase.blockID || par1 == Block.pistonStickyBase.blockID || par1 == Block.lever.blockID || par1 == Block.dispenser.blockID)
+        {
+            if (coordBaseMode == 0)
+            {
+                if (par2 == 2 || par2 == 3)
+                {
+                    return Facing.faceToSide[par2];
+                }
+            }
+            else if (coordBaseMode == 1)
+            {
+                if (par2 == 2)
+                {
+                    return 4;
+                }
+
+                if (par2 == 3)
+                {
+                    return 5;
+                }
+
+                if (par2 == 4)
+                {
+                    return 2;
+                }
+
+                if (par2 == 5)
+                {
+                    return 3;
+                }
+            }
+            else if (coordBaseMode == 3)
+            {
+                if (par2 == 2)
+                {
+                    return 5;
+                }
+
+                if (par2 == 3)
+                {
+                    return 4;
+                }
+
+                if (par2 == 4)
+                {
+                    return 2;
+                }
+
+                if (par2 == 5)
+                {
+                    return 3;
+                }
+            }
+        }
 
         return par2;
     }
@@ -424,10 +532,10 @@ public abstract class StructureComponent
         {
             return;
         }
-        else
+
+        if (par1World.setBlockAndMetadata(i, j, k, par2, par3))
         {
-            par1World.setBlockAndMetadata(i, j, k, par2, par3);
-            return;
+            par1World.markBlockNeedsUpdate(i, j, k);
         }
     }
 
@@ -447,9 +555,23 @@ public abstract class StructureComponent
         }
     }
 
+    protected void func_56292_a(World par1World, StructureBoundingBox par2StructureBoundingBox, int par3, int par4, int par5, int par6, int par7, int par8)
+    {
+        for (int i = par4; i <= par7; i++)
+        {
+            for (int j = par3; j <= par6; j++)
+            {
+                for (int k = par5; k <= par8; k++)
+                {
+                    placeBlockAtCurrentPosition(par1World, 0, 0, j, i, k, par2StructureBoundingBox);
+                }
+            }
+        }
+    }
+
     /**
-     * 'arguments: (World worldObj, StructureBoundingBox structBB, int minX, int minY, int minZ, int maxX, int maxY, int
-     * maxZ, int placeBlockId, int replaceBlockId, boolean alwaysreplace)'
+     * arguments: (World worldObj, StructureBoundingBox structBB, int minX, int minY, int minZ, int maxX, int maxY, int
+     * maxZ, int placeBlockId, int replaceBlockId, boolean alwaysreplace)
      */
     protected void fillWithBlocks(World par1World, StructureBoundingBox par2StructureBoundingBox, int par3, int par4, int par5, int par6, int par7, int par8, int par9, int par10, boolean par11)
     {
@@ -471,6 +593,32 @@ public abstract class StructureComponent
                     else
                     {
                         placeBlockAtCurrentPosition(par1World, par10, 0, j, i, k, par2StructureBoundingBox);
+                    }
+                }
+            }
+        }
+    }
+
+    protected void func_56290_a(World par1World, StructureBoundingBox par2StructureBoundingBox, int par3, int par4, int par5, int par6, int par7, int par8, int par9, int par10, int par11, int par12, boolean par13)
+    {
+        for (int i = par4; i <= par7; i++)
+        {
+            for (int j = par3; j <= par6; j++)
+            {
+                for (int k = par5; k <= par8; k++)
+                {
+                    if (par13 && getBlockIdAtCurrentPosition(par1World, j, i, k, par2StructureBoundingBox) == 0)
+                    {
+                        continue;
+                    }
+
+                    if (i == par4 || i == par7 || j == par3 || j == par6 || k == par5 || k == par8)
+                    {
+                        placeBlockAtCurrentPosition(par1World, par9, par10, j, i, k, par2StructureBoundingBox);
+                    }
+                    else
+                    {
+                        placeBlockAtCurrentPosition(par1World, par11, par12, j, i, k, par2StructureBoundingBox);
                     }
                 }
             }
@@ -500,8 +648,8 @@ public abstract class StructureComponent
     }
 
     /**
-     * 'arguments: World worldObj, StructureBoundingBox structBB, Random rand, float randLimit, int minX, int minY, int
-     * minZ, int maxX, int maxY, int maxZ, int olaceBlockId, int replaceBlockId, boolean alwaysreplace'
+     * arguments: World worldObj, StructureBoundingBox structBB, Random rand, float randLimit, int minX, int minY, int
+     * minZ, int maxX, int maxY, int maxZ, int olaceBlockId, int replaceBlockId, boolean alwaysreplace
      */
     protected void randomlyFillWithBlocks(World par1World, StructureBoundingBox par2StructureBoundingBox, Random par3Random, float par4, int par5, int par6, int par7, int par8, int par9, int par10, int par11, int par12, boolean par13)
     {
@@ -530,7 +678,7 @@ public abstract class StructureComponent
     }
 
     /**
-     * 'Randomly decides if placing or not. Used for Decoration such as Torches and Spiderwebs'
+     * Randomly decides if placing or not. Used for Decoration such as Torches and Spiderwebs
      */
     protected void randomlyPlaceBlock(World par1World, StructureBoundingBox par2StructureBoundingBox, Random par3Random, float par4, int par5, int par6, int par7, int par8, int par9)
     {
@@ -581,7 +729,7 @@ public abstract class StructureComponent
     }
 
     /**
-     * Deletes all continuous Blocks from selected position upwards. Stops at hitting air
+     * Deletes all continuous blocks from selected position upwards. Stops at hitting air.
      */
     protected void clearCurrentPositionBlocksUpwards(World par1World, int par2, int par3, int par4, StructureBoundingBox par5StructureBoundingBox)
     {
@@ -601,7 +749,7 @@ public abstract class StructureComponent
     }
 
     /**
-     * Overwrites Air and Liquids from selected Position downwards, stops at hitting anything else
+     * Overwrites air and liquids from selected position downwards, stops at hitting anything else.
      */
     protected void fillCurrentPositionBlocksDownwards(World par1World, int par2, int par3, int par4, int par5, int par6, StructureBoundingBox par7StructureBoundingBox)
     {
@@ -620,7 +768,7 @@ public abstract class StructureComponent
         }
     }
 
-    protected void createTreasureChestAtCurrentPosition(World par1World, StructureBoundingBox par2StructureBoundingBox, Random par3Random, int par4, int par5, int par6, StructurePieceTreasure par7ArrayOfStructurePieceTreasure[], int par8)
+    protected boolean func_56289_a(World par1World, StructureBoundingBox par2StructureBoundingBox, Random par3Random, int par4, int par5, int par6, WeightedRandomChestContent par7ArrayOfWeightedRandomChestContent[], int par8)
     {
         int i = getXWithOffset(par4, par6);
         int j = getYWithOffset(par5);
@@ -633,28 +781,38 @@ public abstract class StructureComponent
 
             if (tileentitychest != null)
             {
-                fillTreasureChestWithLoot(par3Random, par7ArrayOfStructurePieceTreasure, tileentitychest, par8);
+                WeightedRandomChestContent.func_55216_a(par3Random, par7ArrayOfWeightedRandomChestContent, tileentitychest, par8);
             }
+
+            return true;
+        }
+        else
+        {
+            return false;
         }
     }
 
-    private static void fillTreasureChestWithLoot(Random par0Random, StructurePieceTreasure par1ArrayOfStructurePieceTreasure[], TileEntityChest par2TileEntityChest, int par3)
+    protected boolean func_56291_a(World par1World, StructureBoundingBox par2StructureBoundingBox, Random par3Random, int par4, int par5, int par6, int par7, WeightedRandomChestContent par8ArrayOfWeightedRandomChestContent[], int par9)
     {
-        for (int i = 0; i < par3; i++)
+        int i = getXWithOffset(par4, par6);
+        int j = getYWithOffset(par5);
+        int k = getZWithOffset(par4, par6);
+
+        if (par2StructureBoundingBox.isVecInside(i, j, k) && par1World.getBlockId(i, j, k) != Block.dispenser.blockID)
         {
-            StructurePieceTreasure structurepiecetreasure = (StructurePieceTreasure)WeightedRandom.getRandomItem(par0Random, par1ArrayOfStructurePieceTreasure);
-            int j = structurepiecetreasure.minItemStack + par0Random.nextInt((structurepiecetreasure.maxItemStack - structurepiecetreasure.minItemStack) + 1);
+            par1World.setBlockAndMetadataWithNotify(i, j, k, Block.dispenser.blockID, getMetadataWithOffset(Block.dispenser.blockID, par7));
+            TileEntityDispenser tileentitydispenser = (TileEntityDispenser)par1World.getBlockTileEntity(i, j, k);
 
-            if (Item.itemsList[structurepiecetreasure.itemID].getItemStackLimit() >= j)
+            if (tileentitydispenser != null)
             {
-                par2TileEntityChest.setInventorySlotContents(par0Random.nextInt(par2TileEntityChest.getSizeInventory()), new ItemStack(structurepiecetreasure.itemID, j, structurepiecetreasure.itemMetadata));
-                continue;
+                WeightedRandomChestContent.func_56542_a(par3Random, par8ArrayOfWeightedRandomChestContent, tileentitydispenser, par9);
             }
 
-            for (int k = 0; k < j; k++)
-            {
-                par2TileEntityChest.setInventorySlotContents(par0Random.nextInt(par2TileEntityChest.getSizeInventory()), new ItemStack(structurepiecetreasure.itemID, 1, structurepiecetreasure.itemMetadata));
-            }
+            return true;
+        }
+        else
+        {
+            return false;
         }
     }
 

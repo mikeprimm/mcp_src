@@ -26,7 +26,7 @@ public class EntityEnderPearl extends EntityThrowable
     {
         if (par1MovingObjectPosition.entityHit != null)
         {
-            if (!par1MovingObjectPosition.entityHit.attackEntityFrom(DamageSource.causeThrownDamage(this, thrower), 0));
+            par1MovingObjectPosition.entityHit.attackEntityFrom(DamageSource.causeThrownDamage(this, thrower), 0);
         }
 
         for (int i = 0; i < 32; i++)
@@ -36,11 +36,16 @@ public class EntityEnderPearl extends EntityThrowable
 
         if (!worldObj.isRemote)
         {
-            if (thrower != null)
+            if (thrower != null && (thrower instanceof EntityPlayerMP))
             {
-                thrower.setPositionAndUpdate(posX, posY, posZ);
-                thrower.fallDistance = 0.0F;
-                thrower.attackEntityFrom(DamageSource.fall, 5);
+                EntityPlayerMP entityplayermp = (EntityPlayerMP)thrower;
+
+                if (!entityplayermp.playerNetServerHandler.connectionClosed && entityplayermp.worldObj == worldObj)
+                {
+                    thrower.setPositionAndUpdate(posX, posY, posZ);
+                    thrower.fallDistance = 0.0F;
+                    thrower.attackEntityFrom(DamageSource.fall, 5);
+                }
             }
 
             setDead();

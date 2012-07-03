@@ -53,11 +53,6 @@ public abstract class NetHandler
         registerPacket(par1Packet53BlockChange);
     }
 
-    public void handlePreChunk(Packet50PreChunk par1Packet50PreChunk)
-    {
-        registerPacket(par1Packet50PreChunk);
-    }
-
     public void handleNamedEntitySpawn(Packet20NamedEntitySpawn par1Packet20NamedEntitySpawn)
     {
         registerPacket(par1Packet20NamedEntitySpawn);
@@ -121,9 +116,19 @@ public abstract class NetHandler
         registerPacket(par1Packet19EntityAction);
     }
 
-    public void handleHandshake(Packet2Handshake par1Packet2Handshake)
+    public void func_55247_a(Packet2ClientProtocol par1Packet2ClientProtocol)
     {
-        registerPacket(par1Packet2Handshake);
+        registerPacket(par1Packet2ClientProtocol);
+    }
+
+    public void func_55246_a(Packet253ServerAuthData par1Packet253ServerAuthData)
+    {
+        registerPacket(par1Packet253ServerAuthData);
+    }
+
+    public void func_55249_a(Packet252SharedKey par1Packet252SharedKey)
+    {
+        registerPacket(par1Packet252SharedKey);
     }
 
     public void handleMobSpawn(Packet24MobSpawn par1Packet24MobSpawn)
@@ -273,9 +278,9 @@ public abstract class NetHandler
         registerPacket(par1Packet17Sleep);
     }
 
-    public void handleBed(Packet70Bed par1Packet70Bed)
+    public void handleBed(Packet70GameEvent par1Packet70GameEvent)
     {
-        registerPacket(par1Packet70Bed);
+        registerPacket(par1Packet70GameEvent);
     }
 
     /**
@@ -381,8 +386,35 @@ public abstract class NetHandler
         registerPacket(par1Packet132TileEntityData);
     }
 
-    public void func_50003_a(Packet202PlayerAbilities par1Packet202PlayerAbilities)
+    /**
+     * Handle a player abilities packet.
+     */
+    public void handlePlayerAbilities(Packet202PlayerAbilities par1Packet202PlayerAbilities)
     {
         registerPacket(par1Packet202PlayerAbilities);
+    }
+
+    public void func_55248_a(Packet203AutoComplete par1Packet203AutoComplete)
+    {
+        registerPacket(par1Packet203AutoComplete);
+    }
+
+    public void func_55245_a(Packet204ClientInfo par1Packet204ClientInfo)
+    {
+        registerPacket(par1Packet204ClientInfo);
+    }
+
+    public void func_56679_a(Packet62LevelSound par1Packet62LevelSound)
+    {
+        registerPacket(par1Packet62LevelSound);
+    }
+
+    public void func_56680_a(Packet55BlockDestroy par1Packet55BlockDestroy)
+    {
+        registerPacket(par1Packet55BlockDestroy);
+    }
+
+    public void func_56678_a(Packet205ClientCommand packet205clientcommand)
+    {
     }
 }

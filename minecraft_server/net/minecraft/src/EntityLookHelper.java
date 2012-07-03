@@ -25,7 +25,7 @@ public class EntityLookHelper
 
         if (par1Entity instanceof EntityLiving)
         {
-            posY = par1Entity.posY + (double)((EntityLiving)par1Entity).getEyeHeight();
+            posY = par1Entity.posY + (double)par1Entity.getEyeHeight();
         }
         else
         {

@@ -15,13 +15,6 @@ public class ComponentNetherBridgeEnd extends ComponentNetherBridgePiece
         fillSeed = par2Random.nextInt();
     }
 
-    /**
-     * 'Initiates construction of the Structure Component picked, at the current Location of StructGen'
-     */
-    public void buildComponent(StructureComponent structurecomponent, List list, Random random)
-    {
-    }
-
     public static ComponentNetherBridgeEnd func_40301_a(List par0List, Random par1Random, int par2, int par3, int par4, int par5, int par6)
     {
         StructureBoundingBox structureboundingbox = StructureBoundingBox.getComponentToAddBoundingBox(par2, par3, par4, -1, -3, 0, 5, 10, 8, par5);
@@ -37,8 +30,8 @@ public class ComponentNetherBridgeEnd extends ComponentNetherBridgePiece
     }
 
     /**
-     * 'second Part of Structure generating, this for example places Spiderwebs, Mob Spawners, it closes Mineshafts at
-     * the end, it adds Fences...'
+     * second Part of Structure generating, this for example places Spiderwebs, Mob Spawners, it closes Mineshafts at
+     * the end, it adds Fences...
      */
     public boolean addComponentParts(World par1World, Random par2Random, StructureBoundingBox par3StructureBoundingBox)
     {

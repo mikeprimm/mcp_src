@@ -17,7 +17,7 @@ public class TileEntity
     private static Map classToNameMap = new HashMap();
 
     /** The reference to the world. */
-    public World worldObj;
+    protected World worldObj;
 
     /** The x coordinate of the tile entity. */
     public int xCoord;
@@ -53,6 +53,16 @@ public class TileEntity
             classToNameMap.put(par0Class, par1Str);
             return;
         }
+    }
+
+    public void func_56108_a(World par1World)
+    {
+        worldObj = par1World;
+    }
+
+    public boolean func_56109_j()
+    {
+        return worldObj != null;
     }
 
     /**
@@ -202,6 +212,7 @@ public class TileEntity
     {
         addMapping(net.minecraft.src.TileEntityFurnace.class, "Furnace");
         addMapping(net.minecraft.src.TileEntityChest.class, "Chest");
+        addMapping(net.minecraft.src.TileEntityEnderChest.class, "EnderChest");
         addMapping(net.minecraft.src.TileEntityRecordPlayer.class, "RecordPlayer");
         addMapping(net.minecraft.src.TileEntityDispenser.class, "Trap");
         addMapping(net.minecraft.src.TileEntitySign.class, "Sign");

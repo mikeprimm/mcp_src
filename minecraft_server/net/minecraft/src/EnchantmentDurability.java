@@ -13,7 +13,7 @@ public class EnchantmentDurability extends Enchantment
      */
     public int getMinEnchantability(int par1)
     {
-        return 5 + (par1 - 1) * 10;
+        return 5 + (par1 - 1) * 8;
     }
 
     /**

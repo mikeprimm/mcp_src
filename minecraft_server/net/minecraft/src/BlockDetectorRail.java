@@ -104,9 +104,9 @@ public class BlockDetectorRail extends BlockRail
         boolean flag = (par5 & 8) != 0;
         boolean flag1 = false;
         float f = 0.125F;
-        List list = par1World.getEntitiesWithinAABB(net.minecraft.src.EntityMinecart.class, AxisAlignedBB.getBoundingBoxFromPool((float)par2 + f, par3, (float)par4 + f, (float)(par2 + 1) - f, (float)(par3 + 1) - f, (float)(par4 + 1) - f));
+        List list = par1World.getEntitiesWithinAABB(net.minecraft.src.EntityMinecart.class, AxisAlignedBB.func_58089_a().func_58067_a((float)par2 + f, par3, (float)par4 + f, (float)(par2 + 1) - f, (float)(par3 + 1) - f, (float)(par4 + 1) - f));
 
-        if (list.size() > 0)
+        if (!list.isEmpty())
         {
             flag1 = true;
         }

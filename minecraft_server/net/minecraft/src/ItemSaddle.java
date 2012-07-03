@@ -6,12 +6,10 @@ public class ItemSaddle extends Item
     {
         super(par1);
         maxStackSize = 1;
+        func_56455_a(CreativeTabs.field_56386_e);
     }
 
-    /**
-     * Called when a player right clicks a entity with a item.
-     */
-    public void useItemOnEntity(ItemStack par1ItemStack, EntityLiving par2EntityLiving)
+    public boolean func_56452_a(ItemStack par1ItemStack, EntityLiving par2EntityLiving)
     {
         if (par2EntityLiving instanceof EntityPig)
         {
@@ -22,6 +20,12 @@ public class ItemSaddle extends Item
                 entitypig.setSaddled(true);
                 par1ItemStack.stackSize--;
             }
+
+            return true;
+        }
+        else
+        {
+            return false;
         }
     }
 
@@ -31,7 +35,7 @@ public class ItemSaddle extends Item
      */
     public boolean hitEntity(ItemStack par1ItemStack, EntityLiving par2EntityLiving, EntityLiving par3EntityLiving)
     {
-        useItemOnEntity(par1ItemStack, par2EntityLiving);
+        func_56452_a(par1ItemStack, par2EntityLiving);
         return true;
     }
 }

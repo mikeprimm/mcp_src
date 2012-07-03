@@ -10,6 +10,7 @@ public class BlockSand extends Block
     public BlockSand(int par1, int par2)
     {
         super(par1, par2, Material.sand);
+        func_56326_a(CreativeTabs.field_56387_b);
     }
 
     /**
@@ -34,7 +35,10 @@ public class BlockSand extends Block
      */
     public void updateTick(World par1World, int par2, int par3, int par4, Random par5Random)
     {
-        tryToFall(par1World, par2, par3, par4);
+        if (!par1World.isRemote)
+        {
+            tryToFall(par1World, par2, par3, par4);
+        }
     }
 
     /**

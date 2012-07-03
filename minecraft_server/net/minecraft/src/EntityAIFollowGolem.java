@@ -33,7 +33,7 @@ public class EntityAIFollowGolem extends EntityAIBase
 
         List list = theVillager.worldObj.getEntitiesWithinAABB(net.minecraft.src.EntityIronGolem.class, theVillager.boundingBox.expand(6D, 2D, 6D));
 
-        if (list.size() == 0)
+        if (list.isEmpty())
         {
             return false;
         }
@@ -47,8 +47,7 @@ public class EntityAIFollowGolem extends EntityAIBase
                 break;
             }
 
-            Entity entity = (Entity)iterator.next();
-            EntityIronGolem entityirongolem = (EntityIronGolem)entity;
+            EntityIronGolem entityirongolem = (EntityIronGolem)iterator.next();
 
             if (entityirongolem.func_48382_m_() <= 0)
             {

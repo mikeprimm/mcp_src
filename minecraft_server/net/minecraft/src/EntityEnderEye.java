@@ -100,11 +100,11 @@ public class EntityEnderEye extends Entity
 
             if (posY < field_40061_c)
             {
-                motionY = motionY + (1.0D - motionY) * 0.014999999664723873D;
+                motionY += (1.0D - motionY) * 0.014999999664723873D;
             }
             else
             {
-                motionY = motionY + (-1D - motionY) * 0.014999999664723873D;
+                motionY += (-1D - motionY) * 0.014999999664723873D;
             }
         }
 
@@ -154,13 +154,6 @@ public class EntityEnderEye extends Entity
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
     public void readEntityFromNBT(NBTTagCompound nbttagcompound)
-    {
-    }
-
-    /**
-     * Called by a player entity when they collide with an entity
-     */
-    public void onCollideWithPlayer(EntityPlayer entityplayer)
     {
     }
 

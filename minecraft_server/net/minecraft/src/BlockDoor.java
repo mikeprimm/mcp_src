@@ -91,62 +91,74 @@ public class BlockDoor extends Block
 
         if (i == 0)
         {
-            if (!flag)
+            if (flag)
             {
-                setBlockBounds(0.0F, 0.0F, 0.0F, f, 1.0F, 1.0F);
-            }
-            else if (!flag1)
-            {
-                setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, f);
+                if (!flag1)
+                {
+                    setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, f);
+                }
+                else
+                {
+                    setBlockBounds(0.0F, 0.0F, 1.0F - f, 1.0F, 1.0F, 1.0F);
+                }
             }
             else
             {
-                setBlockBounds(0.0F, 0.0F, 1.0F - f, 1.0F, 1.0F, 1.0F);
+                setBlockBounds(0.0F, 0.0F, 0.0F, f, 1.0F, 1.0F);
             }
         }
         else if (i == 1)
         {
-            if (!flag)
+            if (flag)
             {
-                setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, f);
-            }
-            else if (!flag1)
-            {
-                setBlockBounds(1.0F - f, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
+                if (!flag1)
+                {
+                    setBlockBounds(1.0F - f, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
+                }
+                else
+                {
+                    setBlockBounds(0.0F, 0.0F, 0.0F, f, 1.0F, 1.0F);
+                }
             }
             else
             {
-                setBlockBounds(0.0F, 0.0F, 0.0F, f, 1.0F, 1.0F);
+                setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, f);
             }
         }
         else if (i == 2)
         {
-            if (!flag)
+            if (flag)
             {
-                setBlockBounds(1.0F - f, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
-            }
-            else if (!flag1)
-            {
-                setBlockBounds(0.0F, 0.0F, 1.0F - f, 1.0F, 1.0F, 1.0F);
+                if (!flag1)
+                {
+                    setBlockBounds(0.0F, 0.0F, 1.0F - f, 1.0F, 1.0F, 1.0F);
+                }
+                else
+                {
+                    setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, f);
+                }
             }
             else
             {
-                setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, f);
+                setBlockBounds(1.0F - f, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
             }
         }
         else if (i == 3)
         {
-            if (!flag)
+            if (flag)
             {
-                setBlockBounds(0.0F, 0.0F, 1.0F - f, 1.0F, 1.0F, 1.0F);
-            }
-            else if (!flag1)
-            {
-                setBlockBounds(0.0F, 0.0F, 0.0F, f, 1.0F, 1.0F);
+                if (!flag1)
+                {
+                    setBlockBounds(0.0F, 0.0F, 0.0F, f, 1.0F, 1.0F);
+                }
+                else
+                {
+                    setBlockBounds(1.0F - f, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
+                }
             }
             else
             {
-                setBlockBounds(1.0F - f, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
+                setBlockBounds(0.0F, 0.0F, 1.0F - f, 1.0F, 1.0F, 1.0F);
             }
         }
     }
@@ -156,14 +168,10 @@ public class BlockDoor extends Block
      */
     public void onBlockClicked(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer)
     {
-        blockActivated(par1World, par2, par3, par4, par5EntityPlayer);
+        func_56323_a(par1World, par2, par3, par4, par5EntityPlayer, 0, 0.0F, 0.0F, 0.0F);
     }
 
-    /**
-     * Called upon block activation (left or right click on the block.). The three integers represent x,y,z of the
-     * block.
-     */
-    public boolean blockActivated(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer)
+    public boolean func_56323_a(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer, int par6, float par7, float par8, float par9)
     {
         if (blockMaterial == Material.iron)
         {
@@ -174,15 +182,15 @@ public class BlockDoor extends Block
         int j = i & 7;
         j ^= 4;
 
-        if ((i & 8) != 0)
-        {
-            par1World.setBlockMetadataWithNotify(par2, par3 - 1, par4, j);
-            par1World.markBlocksDirty(par2, par3 - 1, par4, par2, par3, par4);
-        }
-        else
+        if ((i & 8) == 0)
         {
             par1World.setBlockMetadataWithNotify(par2, par3, par4, j);
             par1World.markBlocksDirty(par2, par3, par4, par2, par3, par4);
+        }
+        else
+        {
+            par1World.setBlockMetadataWithNotify(par2, par3 - 1, par4, j);
+            par1World.markBlocksDirty(par2, par3 - 1, par4, par2, par3, par4);
         }
 
         par1World.playAuxSFXAtEntity(par5EntityPlayer, 1003, par2, par3, par4, 0);
@@ -205,15 +213,15 @@ public class BlockDoor extends Block
         int j = i & 7;
         j ^= 4;
 
-        if ((i & 8) != 0)
-        {
-            par1World.setBlockMetadataWithNotify(par2, par3 - 1, par4, j);
-            par1World.markBlocksDirty(par2, par3 - 1, par4, par2, par3, par4);
-        }
-        else
+        if ((i & 8) == 0)
         {
             par1World.setBlockMetadataWithNotify(par2, par3, par4, j);
             par1World.markBlocksDirty(par2, par3, par4, par2, par3, par4);
+        }
+        else
+        {
+            par1World.setBlockMetadataWithNotify(par2, par3 - 1, par4, j);
+            par1World.markBlocksDirty(par2, par3 - 1, par4, par2, par3, par4);
         }
 
         par1World.playAuxSFXAtEntity(null, 1003, par2, par3, par4, 0);
@@ -227,19 +235,7 @@ public class BlockDoor extends Block
     {
         int i = par1World.getBlockMetadata(par2, par3, par4);
 
-        if ((i & 8) != 0)
-        {
-            if (par1World.getBlockId(par2, par3 - 1, par4) != blockID)
-            {
-                par1World.setBlockWithNotify(par2, par3, par4, 0);
-            }
-
-            if (par5 > 0 && par5 != blockID)
-            {
-                onNeighborBlockChange(par1World, par2, par3 - 1, par4, par5);
-            }
-        }
-        else
+        if ((i & 8) == 0)
         {
             boolean flag = false;
 
@@ -249,7 +245,7 @@ public class BlockDoor extends Block
                 flag = true;
             }
 
-            if (!par1World.isBlockNormalCube(par2, par3 - 1, par4))
+            if (!par1World.func_58038_s(par2, par3 - 1, par4))
             {
                 par1World.setBlockWithNotify(par2, par3, par4, 0);
                 flag = true;
@@ -275,6 +271,18 @@ public class BlockDoor extends Block
                 {
                     onPoweredBlockChange(par1World, par2, par3, par4, flag1);
                 }
+            }
+        }
+        else
+        {
+            if (par1World.getBlockId(par2, par3 - 1, par4) != blockID)
+            {
+                par1World.setBlockWithNotify(par2, par3, par4, 0);
+            }
+
+            if (par5 > 0 && par5 != blockID)
+            {
+                onNeighborBlockChange(par1World, par2, par3 - 1, par4, par5);
             }
         }
     }
@@ -303,10 +311,10 @@ public class BlockDoor extends Block
      * Ray traces through the blocks collision from start vector to end vector returning a ray trace hit. Args: world,
      * x, y, z, startVec, endVec
      */
-    public MovingObjectPosition collisionRayTrace(World par1World, int par2, int par3, int par4, Vec3D par5Vec3D, Vec3D par6Vec3D)
+    public MovingObjectPosition collisionRayTrace(World par1World, int par2, int par3, int par4, Vec3 par5Vec3, Vec3 par6Vec3)
     {
         setBlockBoundsBasedOnState(par1World, par2, par3, par4);
-        return super.collisionRayTrace(par1World, par2, par3, par4, par5Vec3D, par6Vec3D);
+        return super.collisionRayTrace(par1World, par2, par3, par4, par5Vec3, par6Vec3);
     }
 
     /**
@@ -320,7 +328,7 @@ public class BlockDoor extends Block
         }
         else
         {
-            return par1World.isBlockNormalCube(par2, par3 - 1, par4) && super.canPlaceBlockAt(par1World, par2, par3, par4) && super.canPlaceBlockAt(par1World, par2, par3 + 1, par4);
+            return par1World.func_58038_s(par2, par3 - 1, par4) && super.canPlaceBlockAt(par1World, par2, par3, par4) && super.canPlaceBlockAt(par1World, par2, par3 + 1, par4);
         }
     }
 
@@ -355,7 +363,6 @@ public class BlockDoor extends Block
         }
 
         boolean flag1 = (k & 1) != 0;
-        int l = j & 7 | (flag ? 8 : 0) | (flag1 ? 0x10 : 0);
-        return l;
+        return j & 7 | (flag ? 8 : 0) | (flag1 ? 0x10 : 0);
     }
 }

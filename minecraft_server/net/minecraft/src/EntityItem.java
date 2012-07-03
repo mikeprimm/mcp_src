@@ -1,6 +1,6 @@
 package net.minecraft.src;
 
-import java.util.Random;
+import java.util.*;
 
 public class EntityItem extends Entity
 {
@@ -72,17 +72,28 @@ public class EntityItem extends Entity
         prevPosY = posY;
         prevPosZ = posZ;
         motionY -= 0.039999999105930328D;
-
-        if (worldObj.getBlockMaterial(MathHelper.floor_double(posX), MathHelper.floor_double(posY), MathHelper.floor_double(posZ)) == Material.lava)
-        {
-            motionY = 0.20000000298023224D;
-            motionX = (rand.nextFloat() - rand.nextFloat()) * 0.2F;
-            motionZ = (rand.nextFloat() - rand.nextFloat()) * 0.2F;
-            worldObj.playSoundAtEntity(this, "random.fizz", 0.4F, 2.0F + rand.nextFloat() * 0.4F);
-        }
-
         pushOutOfBlocks(posX, (boundingBox.minY + boundingBox.maxY) / 2D, posZ);
         moveEntity(motionX, motionY, motionZ);
+        boolean flag = (int)prevPosX != (int)posX || (int)prevPosY != (int)posY || (int)prevPosZ != (int)posZ;
+
+        if (flag)
+        {
+            if (worldObj.getBlockMaterial(MathHelper.floor_double(posX), MathHelper.floor_double(posY), MathHelper.floor_double(posZ)) == Material.lava)
+            {
+                motionY = 0.20000000298023224D;
+                motionX = (rand.nextFloat() - rand.nextFloat()) * 0.2F;
+                motionZ = (rand.nextFloat() - rand.nextFloat()) * 0.2F;
+                worldObj.playSoundAtEntity(this, "random.fizz", 0.4F, 2.0F + rand.nextFloat() * 0.4F);
+            }
+
+            EntityItem entityitem;
+
+            for (Iterator iterator = worldObj.getEntitiesWithinAABB(net.minecraft.src.EntityItem.class, boundingBox.expand(0.5D, 0.0D, 0.5D)).iterator(); iterator.hasNext(); func_55075_a(entityitem))
+            {
+                entityitem = (EntityItem)iterator.next();
+            }
+        }
+
         float f = 0.98F;
 
         if (onGround)
@@ -110,6 +121,47 @@ public class EntityItem extends Entity
         if (age >= 6000)
         {
             setDead();
+        }
+    }
+
+    public boolean func_55075_a(EntityItem par1EntityItem)
+    {
+        if (par1EntityItem == this)
+        {
+            return false;
+        }
+
+        if (!par1EntityItem.isEntityAlive() || !isEntityAlive())
+        {
+            return false;
+        }
+
+        if (par1EntityItem.item.getItem() != item.getItem())
+        {
+            return false;
+        }
+
+        if (par1EntityItem.item.getItem().getHasSubtypes() && par1EntityItem.item.getItemDamage() != item.getItemDamage())
+        {
+            return false;
+        }
+
+        if (par1EntityItem.item.stackSize < item.stackSize)
+        {
+            return par1EntityItem.func_55075_a(this);
+        }
+
+        if (par1EntityItem.item.stackSize + item.stackSize > par1EntityItem.item.getMaxStackSize())
+        {
+            return false;
+        }
+        else
+        {
+            par1EntityItem.item.stackSize += item.stackSize;
+            par1EntityItem.delayBeforeCanPickup = Math.max(par1EntityItem.delayBeforeCanPickup, delayBeforeCanPickup);
+            par1EntityItem.age = Math.min(par1EntityItem.age, age);
+            setDead();
+            return true;
         }
     }
 
@@ -201,7 +253,7 @@ public class EntityItem extends Entity
                 par1EntityPlayer.triggerAchievement(AchievementList.killCow);
             }
 
-            if (item.itemID == Item.diamond.shiftedIndex)
+            if (item.itemID == Item.field_56457_n.shiftedIndex)
             {
                 par1EntityPlayer.triggerAchievement(AchievementList.diamonds);
             }

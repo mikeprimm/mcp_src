@@ -53,21 +53,20 @@ public class GenLayerHills extends GenLayer
                         l = BiomeGenBase.jungleHills.biomeID;
                     }
 
-                    if (l != k)
+                    if (l == k)
                     {
-                        int i1 = ai[j + 1 + ((i + 1) - 1) * (par3 + 2)];
-                        int j1 = ai[j + 1 + 1 + (i + 1) * (par3 + 2)];
-                        int k1 = ai[((j + 1) - 1) + (i + 1) * (par3 + 2)];
-                        int l1 = ai[j + 1 + (i + 1 + 1) * (par3 + 2)];
+                        ai1[j + i * par3] = k;
+                        continue;
+                    }
 
-                        if (i1 == k && j1 == k && k1 == k && l1 == k)
-                        {
-                            ai1[j + i * par3] = l;
-                        }
-                        else
-                        {
-                            ai1[j + i * par3] = k;
-                        }
+                    int i1 = ai[j + 1 + ((i + 1) - 1) * (par3 + 2)];
+                    int j1 = ai[j + 1 + 1 + (i + 1) * (par3 + 2)];
+                    int k1 = ai[((j + 1) - 1) + (i + 1) * (par3 + 2)];
+                    int l1 = ai[j + 1 + (i + 1 + 1) * (par3 + 2)];
+
+                    if (i1 == k && j1 == k && k1 == k && l1 == k)
+                    {
+                        ai1[j + i * par3] = l;
                     }
                     else
                     {

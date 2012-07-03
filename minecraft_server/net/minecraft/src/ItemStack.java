@@ -97,13 +97,9 @@ public final class ItemStack
         return Item.itemsList[itemID];
     }
 
-    /**
-     * Uses the item stack by the player. Gives the coordinates of the block its being used against and the side. Args:
-     * player, world, x, y, z, side
-     */
-    public boolean useItem(EntityPlayer par1EntityPlayer, World par2World, int par3, int par4, int par5, int par6)
+    public boolean func_56775_a(EntityPlayer par1EntityPlayer, World par2World, int par3, int par4, int par5, int par6, float par7, float par8, float par9)
     {
-        boolean flag = getItem().onItemUse(this, par1EntityPlayer, par2World, par3, par4, par5, par6);
+        boolean flag = getItem().func_56454_a(this, par1EntityPlayer, par2World, par3, par4, par5, par6, par7, par8, par9);
 
         if (flag)
         {
@@ -237,7 +233,7 @@ public final class ItemStack
     }
 
     /**
-     * damages the item in an itemstack.
+     * Damages the item in the ItemStack
      */
     public void damageItem(int par1, EntityLiving par2EntityLiving)
     {
@@ -256,7 +252,10 @@ public final class ItemStack
             }
         }
 
-        itemDamage += par1;
+        if (!(par2EntityLiving instanceof EntityPlayer) || !((EntityPlayer)par2EntityLiving).capabilities.isCreativeMode)
+        {
+            itemDamage += par1;
+        }
 
         if (itemDamage > getMaxDamage())
         {
@@ -291,13 +290,13 @@ public final class ItemStack
         }
     }
 
-    public void onDestroyBlock(int par1, int par2, int par3, int par4, EntityPlayer par5EntityPlayer)
+    public void func_58088_a(World par1World, int par2, int par3, int par4, int par5, EntityPlayer par6EntityPlayer)
     {
-        boolean flag = Item.itemsList[itemID].onBlockDestroyed(this, par1, par2, par3, par4, par5EntityPlayer);
+        boolean flag = Item.itemsList[itemID].func_58049_a(this, par1World, par2, par3, par4, par5, par6EntityPlayer);
 
         if (flag)
         {
-            par5EntityPlayer.addStat(StatList.objectUseStats[itemID], 1);
+            par6EntityPlayer.addStat(StatList.objectUseStats[itemID], 1);
         }
     }
 
@@ -317,20 +316,9 @@ public final class ItemStack
         return Item.itemsList[itemID].canHarvestBlock(par1Block);
     }
 
-    /**
-     * Called when a given item stack is about to be destroyed due to its damage level expiring when used on a block or
-     * entity. Typically used by tools.
-     */
-    public void onItemDestroyedByUse(EntityPlayer entityplayer)
+    public boolean func_56776_a(EntityLiving par1EntityLiving)
     {
-    }
-
-    /**
-     * Uses the stack on the entity.
-     */
-    public void useItemOnEntity(EntityLiving par1EntityLiving)
-    {
-        Item.itemsList[itemID].useItemOnEntity(this, par1EntityLiving);
+        return Item.itemsList[itemID].func_56452_a(this, par1EntityLiving);
     }
 
     /**
@@ -343,11 +331,6 @@ public final class ItemStack
         if (stackTagCompound != null)
         {
             itemstack.stackTagCompound = (NBTTagCompound)stackTagCompound.copy();
-
-            if (!itemstack.stackTagCompound.equals(stackTagCompound))
-            {
-                return itemstack;
-            }
         }
 
         return itemstack;

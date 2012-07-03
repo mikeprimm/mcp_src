@@ -18,9 +18,9 @@ public class ChunkPosition
         z = par3;
     }
 
-    public ChunkPosition(Vec3D par1Vec3D)
+    public ChunkPosition(Vec3 par1Vec3)
     {
-        this(MathHelper.floor_double(par1Vec3D.xCoord), MathHelper.floor_double(par1Vec3D.yCoord), MathHelper.floor_double(par1Vec3D.zCoord));
+        this(MathHelper.floor_double(par1Vec3.xCoord), MathHelper.floor_double(par1Vec3.yCoord), MathHelper.floor_double(par1Vec3.zCoord));
     }
 
     public boolean equals(Object par1Obj)

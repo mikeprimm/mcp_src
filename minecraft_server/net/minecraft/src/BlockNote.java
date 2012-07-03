@@ -5,6 +5,7 @@ public class BlockNote extends BlockContainer
     public BlockNote(int par1)
     {
         super(par1, 74, Material.wood);
+        func_56326_a(CreativeTabs.field_56385_d);
     }
 
     /**
@@ -38,11 +39,7 @@ public class BlockNote extends BlockContainer
         }
     }
 
-    /**
-     * Called upon block activation (left or right click on the block.). The three integers represent x,y,z of the
-     * block.
-     */
-    public boolean blockActivated(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer)
+    public boolean func_56323_a(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer, int par6, float par7, float par8, float par9)
     {
         if (par1World.isRemote)
         {
@@ -78,10 +75,7 @@ public class BlockNote extends BlockContainer
         }
     }
 
-    /**
-     * Returns the TileEntity used by this block.
-     */
-    public TileEntity getBlockEntity()
+    public TileEntity func_56351_a(World par1World)
     {
         return new TileEntityNote();
     }

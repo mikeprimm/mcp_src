@@ -44,6 +44,7 @@ public class ChunkProviderGenerate implements IChunkProvider
 
     /** Holds Mineshaft Generator */
     private MapGenMineshaft mineshaftGenerator;
+    private MapGenScatteredFeature field_56539_x;
 
     /** Holds ravine generator */
     private MapGenBase ravineGenerator;
@@ -63,6 +64,7 @@ public class ChunkProviderGenerate implements IChunkProvider
         strongholdGenerator = new MapGenStronghold();
         villageGenerator = new MapGenVillage(0);
         mineshaftGenerator = new MapGenMineshaft();
+        field_56539_x = new MapGenScatteredFeature();
         ravineGenerator = new MapGenRavine();
         field_707_i = new int[32][32];
         worldObj = par1World;
@@ -285,6 +287,7 @@ public class ChunkProviderGenerate implements IChunkProvider
             mineshaftGenerator.generate(this, worldObj, par1, par2, abyte0);
             villageGenerator.generate(this, worldObj, par1, par2, abyte0);
             strongholdGenerator.generate(this, worldObj, par1, par2, abyte0);
+            field_56539_x.generate(this, worldObj, par1, par2, abyte0);
         }
 
         Chunk chunk = new Chunk(worldObj, abyte0, par1, par2);
@@ -477,6 +480,7 @@ public class ChunkProviderGenerate implements IChunkProvider
             mineshaftGenerator.generateStructuresInChunk(worldObj, rand, par2, par3);
             flag = villageGenerator.generateStructuresInChunk(worldObj, rand, par2, par3);
             strongholdGenerator.generateStructuresInChunk(worldObj, rand, par2, par3);
+            field_56539_x.generateStructuresInChunk(worldObj, rand, par2, par3);
         }
 
         if (!flag && rand.nextInt(4) == 0)
@@ -519,7 +523,7 @@ public class ChunkProviderGenerate implements IChunkProvider
             {
                 int l3 = worldObj.getPrecipitationHeight(i + k1, j + l2);
 
-                if (worldObj.isBlockHydratedDirectly(k1 + i, l3 - 1, l2 + j))
+                if (worldObj.isBlockFreezable(k1 + i, l3 - 1, l2 + j))
                 {
                     worldObj.setBlockWithNotify(k1 + i, l3 - 1, l2 + j, Block.ice.blockID);
                 }
@@ -560,6 +564,11 @@ public class ChunkProviderGenerate implements IChunkProvider
         return true;
     }
 
+    public String func_46040_d()
+    {
+        return "RandomLevelSource";
+    }
+
     /**
      * Returns a list of creatures of the specified type that can spawn at the given location.
      */
@@ -590,5 +599,10 @@ public class ChunkProviderGenerate implements IChunkProvider
         {
             return null;
         }
+    }
+
+    public int func_56538_d()
+    {
+        return 0;
     }
 }

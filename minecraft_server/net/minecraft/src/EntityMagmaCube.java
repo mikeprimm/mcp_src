@@ -18,7 +18,7 @@ public class EntityMagmaCube extends EntitySlime
      */
     public boolean getCanSpawnHere()
     {
-        return worldObj.difficultySetting > 0 && worldObj.checkIfAABBIsClear(boundingBox) && worldObj.getCollidingBoundingBoxes(this, boundingBox).size() == 0 && !worldObj.isAnyLiquid(boundingBox);
+        return worldObj.difficultySetting > 0 && worldObj.checkIfAABBIsClear(boundingBox) && worldObj.getCollidingBoundingBoxes(this, boundingBox).isEmpty() && !worldObj.isAnyLiquid(boundingBox);
     }
 
     /**
@@ -96,11 +96,11 @@ public class EntityMagmaCube extends EntitySlime
 
     protected void func_40116_B()
     {
-        field_40122_a = field_40122_a * 0.9F;
+        field_40122_a *= 0.9F;
     }
 
     /**
-     * causes this entity to jump (or at least move upwards)
+     * Causes this entity to do an upwards motion (jumping).
      */
     protected void jump()
     {

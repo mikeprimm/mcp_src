@@ -5,19 +5,13 @@ public class BlockFence extends Block
     public BlockFence(int par1, int par2)
     {
         super(par1, par2, Material.wood);
+        func_56326_a(CreativeTabs.field_56388_c);
     }
 
     public BlockFence(int par1, int par2, Material par3Material)
     {
         super(par1, par2, par3Material);
-    }
-
-    /**
-     * Checks to see if its valid to put this block at the specified coordinates. Args: world, x, y, z
-     */
-    public boolean canPlaceBlockAt(World par1World, int par2, int par3, int par4)
-    {
-        return super.canPlaceBlockAt(par1World, par2, par3, par4);
+        func_56326_a(CreativeTabs.field_56388_c);
     }
 
     /**
@@ -55,7 +49,7 @@ public class BlockFence extends Block
             f1 = 1.0F;
         }
 
-        return AxisAlignedBB.getBoundingBoxFromPool((float)par2 + f, par3, (float)par4 + f2, (float)par2 + f1, (float)par3 + 1.5F, (float)par4 + f3);
+        return AxisAlignedBB.func_58089_a().func_58067_a((float)par2 + f, par3, (float)par4 + f2, (float)par2 + f1, (float)par3 + 1.5F, (float)par4 + f3);
     }
 
     /**
@@ -147,5 +141,10 @@ public class BlockFence extends Block
         {
             return false;
         }
+    }
+
+    public static boolean func_56355_d(int par0)
+    {
+        return par0 == Block.fence.blockID || par0 == Block.netherFence.blockID;
     }
 }

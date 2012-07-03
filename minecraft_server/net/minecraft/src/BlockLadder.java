@@ -7,6 +7,7 @@ public class BlockLadder extends Block
     protected BlockLadder(int par1, int par2)
     {
         super(par1, par2, Material.circuits);
+        func_56326_a(CreativeTabs.field_56388_c);
     }
 
     /**
@@ -89,11 +90,7 @@ public class BlockLadder extends Block
         return par1World.isBlockNormalCube(par2, par3, par4 + 1);
     }
 
-    /**
-     * Called when a block is placed using an item. Used often for taking the facing and figuring out how to position
-     * the item. Args: x, y, z, facing
-     */
-    public void onBlockPlaced(World par1World, int par2, int par3, int par4, int par5)
+    public void func_56327_a(World par1World, int par2, int par3, int par4, int par5, float par6, float par7, float par8)
     {
         int i = par1World.getBlockMetadata(par2, par3, par4);
 

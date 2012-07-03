@@ -4,15 +4,10 @@ import java.io.*;
 
 public class Packet1Login extends Packet
 {
-    /** The protocol version in use. Current version is 2. */
-    public int protocolVersion;
-
-    /** The name of the user attempting to login. */
-    public String username;
+    public int field_55124_a;
     public WorldType terrainType;
-
-    /** 0 for survival, 1 for creative */
-    public int serverMode;
+    public boolean field_56257_c;
+    public EnumGameType field_56256_d;
     public int field_48112_e;
 
     /** The difficulty setting byte. */
@@ -26,18 +21,20 @@ public class Packet1Login extends Packet
 
     public Packet1Login()
     {
+        field_55124_a = 0;
     }
 
-    public Packet1Login(String par1Str, int par2, WorldType par3WorldType, int par4, int par5, byte par6, byte par7, byte par8)
+    public Packet1Login(int par1, WorldType par2WorldType, EnumGameType par3EnumGameType, boolean par4, int par5, int par6, int par7, int par8)
     {
-        username = par1Str;
-        protocolVersion = par2;
-        terrainType = par3WorldType;
+        field_55124_a = 0;
+        field_55124_a = par1;
+        terrainType = par2WorldType;
         field_48112_e = par5;
-        difficultySetting = par6;
-        serverMode = par4;
-        worldHeight = par7;
-        maxPlayers = par8;
+        difficultySetting = (byte)par6;
+        field_56256_d = par3EnumGameType;
+        worldHeight = (byte)par7;
+        maxPlayers = (byte)par8;
+        field_56257_c = par4;
     }
 
     /**
@@ -45,8 +42,7 @@ public class Packet1Login extends Packet
      */
     public void readPacketData(DataInputStream par1DataInputStream) throws IOException
     {
-        protocolVersion = par1DataInputStream.readInt();
-        username = readString(par1DataInputStream, 16);
+        field_55124_a = par1DataInputStream.readInt();
         String s = readString(par1DataInputStream, 16);
         terrainType = WorldType.parseWorldType(s);
 
@@ -55,8 +51,11 @@ public class Packet1Login extends Packet
             terrainType = WorldType.DEFAULT;
         }
 
-        serverMode = par1DataInputStream.readInt();
-        field_48112_e = par1DataInputStream.readInt();
+        int i = par1DataInputStream.readByte();
+        field_56257_c = (i & 8) == 8;
+        i &= -9;
+        field_56256_d = EnumGameType.func_56604_a(i);
+        field_48112_e = par1DataInputStream.readByte();
         difficultySetting = par1DataInputStream.readByte();
         worldHeight = par1DataInputStream.readByte();
         maxPlayers = par1DataInputStream.readByte();
@@ -67,20 +66,17 @@ public class Packet1Login extends Packet
      */
     public void writePacketData(DataOutputStream par1DataOutputStream) throws IOException
     {
-        par1DataOutputStream.writeInt(protocolVersion);
-        writeString(username, par1DataOutputStream);
+        par1DataOutputStream.writeInt(field_55124_a);
+        writeString(terrainType != null ? terrainType.func_48449_a() : "", par1DataOutputStream);
+        int i = field_56256_d.func_56607_a();
 
-        if (terrainType == null)
+        if (field_56257_c)
         {
-            writeString("", par1DataOutputStream);
-        }
-        else
-        {
-            writeString(terrainType.func_48449_a(), par1DataOutputStream);
+            i |= 8;
         }
 
-        par1DataOutputStream.writeInt(serverMode);
-        par1DataOutputStream.writeInt(field_48112_e);
+        par1DataOutputStream.writeByte(i);
+        par1DataOutputStream.writeByte(field_48112_e);
         par1DataOutputStream.writeByte(difficultySetting);
         par1DataOutputStream.writeByte(worldHeight);
         par1DataOutputStream.writeByte(maxPlayers);
@@ -106,6 +102,6 @@ public class Packet1Login extends Packet
             i = terrainType.func_48449_a().length();
         }
 
-        return 4 + username.length() + 4 + 7 + 7 + i;
+        return 6 + 2 * i + 4 + 4 + 1 + 1 + 1;
     }
 }

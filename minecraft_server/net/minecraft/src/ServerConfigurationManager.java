@@ -1,48 +1,32 @@
 package net.minecraft.src;
 
-import java.io.*;
+import java.io.File;
+import java.net.SocketAddress;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.logging.Logger;
 import net.minecraft.server.MinecraftServer;
 
-public class ServerConfigurationManager
+public abstract class ServerConfigurationManager
 {
-    /** Reference to the logger. */
-    public static Logger logger = Logger.getLogger("Minecraft");
+    private static final SimpleDateFormat field_56436_e = new SimpleDateFormat("yyyy-MM-dd 'at' HH:mm:ss z");
 
-    /** A list of player entities that exist on this server. */
-    public List playerEntities;
+    /** Reference to the logger. */
+    public static final Logger logger = Logger.getLogger("Minecraft");
 
     /** Reference to the MinecraftServer object. */
-    private MinecraftServer mcServer;
-    private PlayerManager playerManagerObj[];
+    private final MinecraftServer mcServer;
 
-    /** the maximum amount of players that can be connected */
-    private int maxPlayers;
-
-    /** the set of all banned players names */
-    private Set bannedPlayers;
-
-    /** A set containing the banned IPs. */
-    private Set bannedIPs;
+    /** A list of player entities that exist on this server. */
+    public final List playerEntities = new ArrayList();
+    private final BanList field_56434_g = new BanList(new File("banned-players.txt"));
+    private final BanList field_56437_h = new BanList(new File("banned-ips.txt"));
 
     /** A set containing the OPs. */
     private Set ops;
 
     /** the set of all white listed IP addresses */
     private Set whiteListedIPs;
-
-    /** The file that contains the banned players. */
-    private File bannedPlayersFile;
-
-    /** the file which contains the list of banned IPs */
-    private File ipBanFile;
-
-    /** the file which contains the list of ops */
-    private File opFile;
-
-    /** File containing list of whitelisted players */
-    private File whitelistPlayersFile;
 
     /** Reference to the PlayerNBTManager object. */
     private IPlayerFileData playerNBTManagerObj;
@@ -51,36 +35,58 @@ public class ServerConfigurationManager
      * Server setting to only allow OP's and whitelisted players to join the server
      */
     private boolean whiteListEnforced;
+
+    /** the maximum amount of players that can be connected */
+    protected int maxPlayers;
+    protected int field_56435_d;
+    private EnumGameType field_58048_m;
+    private boolean field_58047_n;
     private int field_35482_p;
 
     public ServerConfigurationManager(MinecraftServer par1MinecraftServer)
     {
-        playerEntities = new ArrayList();
-        bannedPlayers = new HashSet();
-        bannedIPs = new HashSet();
         ops = new HashSet();
         whiteListedIPs = new HashSet();
         field_35482_p = 0;
-        playerManagerObj = new PlayerManager[3];
         mcServer = par1MinecraftServer;
-        bannedPlayersFile = par1MinecraftServer.getFile("banned-players.txt");
-        ipBanFile = par1MinecraftServer.getFile("banned-ips.txt");
-        opFile = par1MinecraftServer.getFile("ops.txt");
-        whitelistPlayersFile = par1MinecraftServer.getFile("white-list.txt");
-        int i = par1MinecraftServer.propertyManagerObj.getIntProperty("view-distance", 10);
-        playerManagerObj[0] = new PlayerManager(par1MinecraftServer, 0, i);
-        playerManagerObj[1] = new PlayerManager(par1MinecraftServer, -1, i);
-        playerManagerObj[2] = new PlayerManager(par1MinecraftServer, 1, i);
-        maxPlayers = par1MinecraftServer.propertyManagerObj.getIntProperty("max-players", 20);
-        whiteListEnforced = par1MinecraftServer.propertyManagerObj.getBooleanProperty("white-list", false);
-        readBannedPlayers();
-        loadBannedList();
-        loadOps();
-        loadWhiteList();
-        writeBannedPlayers();
-        saveBannedList();
-        saveOps();
-        saveWhiteList();
+        field_56434_g.func_56744_a(false);
+        field_56437_h.func_56744_a(false);
+        maxPlayers = 8;
+    }
+
+    public void func_56432_a(NetworkManager par1NetworkManager, EntityPlayerMP par2EntityPlayerMP)
+    {
+        readPlayerDataFromFile(par2EntityPlayerMP);
+        par2EntityPlayerMP.setWorld(mcServer.getWorldManager(par2EntityPlayerMP.dimension));
+        par2EntityPlayerMP.itemInWorldManager.setWorld((WorldServer)par2EntityPlayerMP.worldObj);
+        logger.info((new StringBuilder()).append(par2EntityPlayerMP.username).append(" logged in with entity id ").append(par2EntityPlayerMP.entityId).append(" at (").append(par2EntityPlayerMP.posX).append(", ").append(par2EntityPlayerMP.posY).append(", ").append(par2EntityPlayerMP.posZ).append(")").toString());
+        WorldServer worldserver = mcServer.getWorldManager(par2EntityPlayerMP.dimension);
+        ChunkCoordinates chunkcoordinates = worldserver.getSpawnPoint();
+        func_58045_a(par2EntityPlayerMP, null, worldserver);
+        NetServerHandler netserverhandler = new NetServerHandler(mcServer, par1NetworkManager, par2EntityPlayerMP);
+        netserverhandler.sendPacket(new Packet1Login(par2EntityPlayerMP.entityId, worldserver.getWorldInfo().getTerrainType(), par2EntityPlayerMP.itemInWorldManager.func_56695_b(), worldserver.getWorldInfo().isHardcoreModeEnabled(), worldserver.worldProvider.worldType, worldserver.difficultySetting, worldserver.getHeight(), getMaxPlayers()));
+        netserverhandler.sendPacket(new Packet6SpawnPosition(chunkcoordinates.posX, chunkcoordinates.posY, chunkcoordinates.posZ));
+        netserverhandler.sendPacket(new Packet202PlayerAbilities(par2EntityPlayerMP.capabilities));
+        func_28170_a(par2EntityPlayerMP, worldserver);
+        sendPacketToAllPlayers(new Packet3Chat((new StringBuilder()).append("\247e").append(par2EntityPlayerMP.username).append(" joined the game.").toString()));
+        playerLoggedIn(par2EntityPlayerMP);
+        netserverhandler.teleportTo(par2EntityPlayerMP.posX, par2EntityPlayerMP.posY, par2EntityPlayerMP.posZ, par2EntityPlayerMP.rotationYaw, par2EntityPlayerMP.rotationPitch);
+        mcServer.func_56203_Z().addPlayer(netserverhandler);
+        netserverhandler.sendPacket(new Packet4UpdateTime(worldserver.getWorldTime()));
+
+        if (mcServer.func_56159_N().length() > 0)
+        {
+            par2EntityPlayerMP.func_56151_a(mcServer.func_56159_N(), mcServer.func_56165_O());
+        }
+
+        PotionEffect potioneffect;
+
+        for (Iterator iterator = par2EntityPlayerMP.getActivePotionEffects().iterator(); iterator.hasNext(); netserverhandler.sendPacket(new Packet41EntityEffect(par2EntityPlayerMP.entityId, potioneffect)))
+        {
+            potioneffect = (PotionEffect)iterator.next();
+        }
+
+        par2EntityPlayerMP.func_20057_k();
     }
 
     /**
@@ -91,48 +97,22 @@ public class ServerConfigurationManager
         playerNBTManagerObj = par1ArrayOfWorldServer[0].getSaveHandler().getPlayerNBTManager();
     }
 
-    /**
-     * called when a player is teleported to a new dimension in order to clean up old dim refs, send them new dim
-     * chunks, and make sure their new location chunk is loaded and initialized
-     */
-    public void joinNewPlayerManager(EntityPlayerMP par1EntityPlayerMP)
+    public void func_56423_a(EntityPlayerMP par1EntityPlayerMP, WorldServer par2WorldServer)
     {
-        playerManagerObj[0].removePlayer(par1EntityPlayerMP);
-        playerManagerObj[1].removePlayer(par1EntityPlayerMP);
-        playerManagerObj[2].removePlayer(par1EntityPlayerMP);
-        getPlayerManager(par1EntityPlayerMP.dimension).addPlayer(par1EntityPlayerMP);
-        WorldServer worldserver = mcServer.getWorldManager(par1EntityPlayerMP.dimension);
+        WorldServer worldserver = par1EntityPlayerMP.func_55080_H();
+
+        if (par2WorldServer != null)
+        {
+            par2WorldServer.func_56372_E().removePlayer(par1EntityPlayerMP);
+        }
+
+        worldserver.func_56372_E().addPlayer(par1EntityPlayerMP);
         worldserver.chunkProviderServer.loadChunk((int)par1EntityPlayerMP.posX >> 4, (int)par1EntityPlayerMP.posZ >> 4);
     }
 
-    public int getMaxTrackingDistance()
+    public int func_56424_a()
     {
-        return playerManagerObj[0].getMaxTrackingDistance();
-    }
-
-    /**
-     * returns the player manager object for the specified dimension
-     */
-    private PlayerManager getPlayerManager(int par1)
-    {
-        if (par1 == -1)
-        {
-            return playerManagerObj[1];
-        }
-
-        if (par1 == 0)
-        {
-            return playerManagerObj[0];
-        }
-
-        if (par1 == 1)
-        {
-            return playerManagerObj[2];
-        }
-        else
-        {
-            return null;
-        }
+        return PlayerManager.func_55303_a(func_56428_o());
     }
 
     /**
@@ -140,7 +120,21 @@ public class ServerConfigurationManager
      */
     public void readPlayerDataFromFile(EntityPlayerMP par1EntityPlayerMP)
     {
-        playerNBTManagerObj.readPlayerData(par1EntityPlayerMP);
+        NBTTagCompound nbttagcompound = mcServer.worldMngr[0].getWorldInfo().func_56509_g();
+
+        if (par1EntityPlayerMP.func_55070_y_().equals(mcServer.func_56186_G()) && nbttagcompound != null)
+        {
+            par1EntityPlayerMP.readFromNBT(nbttagcompound);
+        }
+        else
+        {
+            playerNBTManagerObj.readPlayerData(par1EntityPlayerMP);
+        }
+    }
+
+    protected void func_56430_b(EntityPlayerMP par1EntityPlayerMP)
+    {
+        playerNBTManagerObj.writePlayerData(par1EntityPlayerMP);
     }
 
     /**
@@ -150,19 +144,17 @@ public class ServerConfigurationManager
     {
         sendPacketToAllPlayers(new Packet201PlayerInfo(par1EntityPlayerMP.username, true, 1000));
         playerEntities.add(par1EntityPlayerMP);
-        WorldServer worldserver = mcServer.getWorldManager(par1EntityPlayerMP.dimension);
-        worldserver.chunkProviderServer.loadChunk((int)par1EntityPlayerMP.posX >> 4, (int)par1EntityPlayerMP.posZ >> 4);
+        WorldServer worldserver;
 
-        for (; worldserver.getCollidingBoundingBoxes(par1EntityPlayerMP, par1EntityPlayerMP.boundingBox).size() != 0; par1EntityPlayerMP.setPosition(par1EntityPlayerMP.posX, par1EntityPlayerMP.posY + 1.0D, par1EntityPlayerMP.posZ)) { }
+        for (worldserver = mcServer.getWorldManager(par1EntityPlayerMP.dimension); !worldserver.getCollidingBoundingBoxes(par1EntityPlayerMP, par1EntityPlayerMP.boundingBox).isEmpty(); par1EntityPlayerMP.setPosition(par1EntityPlayerMP.posX, par1EntityPlayerMP.posY + 1.0D, par1EntityPlayerMP.posZ)) { }
 
         worldserver.spawnEntityInWorld(par1EntityPlayerMP);
-        getPlayerManager(par1EntityPlayerMP.dimension).addPlayer(par1EntityPlayerMP);
-        func_52018_u();
+        func_56423_a(par1EntityPlayerMP, null);
+        EntityPlayerMP entityplayermp;
 
-        for (int i = 0; i < playerEntities.size(); i++)
+        for (Iterator iterator = playerEntities.iterator(); iterator.hasNext(); par1EntityPlayerMP.playerNetServerHandler.sendPacket(new Packet201PlayerInfo(entityplayermp.username, true, entityplayermp.ping)))
         {
-            EntityPlayerMP entityplayermp = (EntityPlayerMP)playerEntities.get(i);
-            par1EntityPlayerMP.playerNetServerHandler.sendPacket(new Packet201PlayerInfo(entityplayermp.username, true, entityplayermp.ping));
+            entityplayermp = (EntityPlayerMP)iterator.next();
         }
     }
 
@@ -171,7 +163,7 @@ public class ServerConfigurationManager
      */
     public void serverUpdateMountedMovingPlayer(EntityPlayerMP par1EntityPlayerMP)
     {
-        getPlayerManager(par1EntityPlayerMP.dimension).updateMountedMovingPlayer(par1EntityPlayerMP);
+        par1EntityPlayerMP.func_55080_H().func_56372_E().updateMountedMovingPlayer(par1EntityPlayerMP);
     }
 
     /**
@@ -179,57 +171,99 @@ public class ServerConfigurationManager
      */
     public void playerLoggedOut(EntityPlayerMP par1EntityPlayerMP)
     {
-        playerNBTManagerObj.writePlayerData(par1EntityPlayerMP);
-        mcServer.getWorldManager(par1EntityPlayerMP.dimension).setEntityDead(par1EntityPlayerMP);
+        func_56430_b(par1EntityPlayerMP);
+        WorldServer worldserver = par1EntityPlayerMP.func_55080_H();
+        worldserver.setEntityDead(par1EntityPlayerMP);
+        worldserver.func_56372_E().removePlayer(par1EntityPlayerMP);
         playerEntities.remove(par1EntityPlayerMP);
-        getPlayerManager(par1EntityPlayerMP.dimension).removePlayer(par1EntityPlayerMP);
         sendPacketToAllPlayers(new Packet201PlayerInfo(par1EntityPlayerMP.username, false, 9999));
     }
 
-    /**
-     * Called when a player tries to login. Checks whether they are banned/server is full etc.
-     */
-    public EntityPlayerMP login(NetLoginHandler par1NetLoginHandler, String par2Str)
+    public String func_56433_a(SocketAddress par1SocketAddress, String par2Str)
     {
-        if (bannedPlayers.contains(par2Str.trim().toLowerCase()))
+        if (field_56434_g.func_56740_a(par2Str))
         {
-            par1NetLoginHandler.kickUser("You are banned from this server!");
-            return null;
+            BanEntry banentry = (BanEntry)field_56434_g.func_56741_b().get(par2Str);
+            String s1 = (new StringBuilder()).append("You are banned from this server!\nReason: ").append(banentry.func_56716_f()).toString();
+
+            if (banentry.func_56709_d() != null)
+            {
+                s1 = (new StringBuilder()).append(s1).append("\nYour ban will be removed on ").append(field_56436_e.format(banentry.func_56709_d())).toString();
+            }
+
+            return s1;
         }
 
         if (!isAllowedToLogin(par2Str))
         {
-            par1NetLoginHandler.kickUser("You are not white-listed on this server!");
-            return null;
+            return "You are not white-listed on this server!";
         }
 
-        String s = par1NetLoginHandler.netManager.getRemoteAddress().toString();
+        String s = par1SocketAddress.toString();
         s = s.substring(s.indexOf("/") + 1);
         s = s.substring(0, s.indexOf(":"));
 
-        if (bannedIPs.contains(s))
+        if (field_56437_h.func_56740_a(s))
         {
-            par1NetLoginHandler.kickUser("Your IP address is banned from this server!");
-            return null;
+            BanEntry banentry1 = (BanEntry)field_56437_h.func_56741_b().get(s);
+            String s2 = (new StringBuilder()).append("Your IP address is banned from this server!\nReason: ").append(banentry1.func_56716_f()).toString();
+
+            if (banentry1.func_56709_d() != null)
+            {
+                s2 = (new StringBuilder()).append(s2).append("\nYour ban will be removed on ").append(field_56436_e.format(banentry1.func_56709_d())).toString();
+            }
+
+            return s2;
         }
 
         if (playerEntities.size() >= maxPlayers)
         {
-            par1NetLoginHandler.kickUser("The server is full!");
+            return "The server is full!";
+        }
+        else
+        {
             return null;
         }
+    }
 
-        for (int i = 0; i < playerEntities.size(); i++)
+    public EntityPlayerMP func_56431_a(String par1Str)
+    {
+        ArrayList arraylist = new ArrayList();
+        Object obj = playerEntities.iterator();
+
+        do
         {
-            EntityPlayerMP entityplayermp = (EntityPlayerMP)playerEntities.get(i);
-
-            if (entityplayermp.username.equalsIgnoreCase(par2Str))
+            if (!((Iterator)(obj)).hasNext())
             {
-                entityplayermp.playerNetServerHandler.kickPlayer("You logged in from another location");
+                break;
+            }
+
+            EntityPlayerMP entityplayermp = (EntityPlayerMP)((Iterator)(obj)).next();
+
+            if (entityplayermp.username.equalsIgnoreCase(par1Str))
+            {
+                arraylist.add(entityplayermp);
             }
         }
+        while (true);
 
-        return new EntityPlayerMP(mcServer, mcServer.getWorldManager(0), par2Str, new ItemInWorldManager(mcServer.getWorldManager(0)));
+        EntityPlayerMP entityplayermp1;
+
+        for (obj = arraylist.iterator(); ((Iterator)(obj)).hasNext(); entityplayermp1.playerNetServerHandler.kickPlayer("You logged in from another location"))
+        {
+            entityplayermp1 = (EntityPlayerMP)((Iterator)(obj)).next();
+        }
+
+        if (mcServer.func_56167_K())
+        {
+            obj = new DemoWorldManager(mcServer.getWorldManager(0));
+        }
+        else
+        {
+            obj = new ItemInWorldManager(mcServer.getWorldManager(0));
+        }
+
+        return new EntityPlayerMP(mcServer, mcServer.getWorldManager(0), par1Str, ((ItemInWorldManager)(obj)));
     }
 
     /**
@@ -237,25 +271,30 @@ public class ServerConfigurationManager
      */
     public EntityPlayerMP recreatePlayerEntity(EntityPlayerMP par1EntityPlayerMP, int par2, boolean par3)
     {
-        mcServer.getEntityTracker(par1EntityPlayerMP.dimension).removeTrackedPlayerSymmetric(par1EntityPlayerMP);
-        mcServer.getEntityTracker(par1EntityPlayerMP.dimension).untrackEntity(par1EntityPlayerMP);
-        getPlayerManager(par1EntityPlayerMP.dimension).removePlayer(par1EntityPlayerMP);
+        par1EntityPlayerMP.func_55080_H().func_55201_C().removeTrackedPlayerSymmetric(par1EntityPlayerMP);
+        par1EntityPlayerMP.func_55080_H().func_55201_C().untrackEntity(par1EntityPlayerMP);
+        par1EntityPlayerMP.func_55080_H().func_56372_E().removePlayer(par1EntityPlayerMP);
         playerEntities.remove(par1EntityPlayerMP);
         mcServer.getWorldManager(par1EntityPlayerMP.dimension).removePlayer(par1EntityPlayerMP);
         ChunkCoordinates chunkcoordinates = par1EntityPlayerMP.getSpawnChunk();
         par1EntityPlayerMP.dimension = par2;
-        EntityPlayerMP entityplayermp = new EntityPlayerMP(mcServer, mcServer.getWorldManager(par1EntityPlayerMP.dimension), par1EntityPlayerMP.username, new ItemInWorldManager(mcServer.getWorldManager(par1EntityPlayerMP.dimension)));
+        Object obj;
 
-        if (par3)
+        if (mcServer.func_56167_K())
         {
-            entityplayermp.copyPlayer(par1EntityPlayerMP);
+            obj = new DemoWorldManager(mcServer.getWorldManager(par1EntityPlayerMP.dimension));
+        }
+        else
+        {
+            obj = new ItemInWorldManager(mcServer.getWorldManager(par1EntityPlayerMP.dimension));
         }
 
+        EntityPlayerMP entityplayermp = new EntityPlayerMP(mcServer, mcServer.getWorldManager(par1EntityPlayerMP.dimension), par1EntityPlayerMP.username, ((ItemInWorldManager)(obj)));
+        entityplayermp.func_58016_a(par1EntityPlayerMP, par3);
         entityplayermp.entityId = par1EntityPlayerMP.entityId;
         entityplayermp.playerNetServerHandler = par1EntityPlayerMP.playerNetServerHandler;
         WorldServer worldserver = mcServer.getWorldManager(par1EntityPlayerMP.dimension);
-        entityplayermp.itemInWorldManager.toggleGameType(par1EntityPlayerMP.itemInWorldManager.getGameType());
-        entityplayermp.itemInWorldManager.func_35695_b(worldserver.getWorldInfo().getGameType());
+        func_58045_a(entityplayermp, par1EntityPlayerMP, worldserver);
 
         if (chunkcoordinates != null)
         {
@@ -268,22 +307,21 @@ public class ServerConfigurationManager
             }
             else
             {
-                entityplayermp.playerNetServerHandler.sendPacket(new Packet70Bed(0, 0));
+                entityplayermp.playerNetServerHandler.sendPacket(new Packet70GameEvent(0, 0));
             }
         }
 
         worldserver.chunkProviderServer.loadChunk((int)entityplayermp.posX >> 4, (int)entityplayermp.posZ >> 4);
 
-        for (; worldserver.getCollidingBoundingBoxes(entityplayermp, entityplayermp.boundingBox).size() != 0; entityplayermp.setPosition(entityplayermp.posX, entityplayermp.posY + 1.0D, entityplayermp.posZ)) { }
+        for (; !worldserver.getCollidingBoundingBoxes(entityplayermp, entityplayermp.boundingBox).isEmpty(); entityplayermp.setPosition(entityplayermp.posX, entityplayermp.posY + 1.0D, entityplayermp.posZ)) { }
 
-        entityplayermp.playerNetServerHandler.sendPacket(new Packet9Respawn(entityplayermp.dimension, (byte)entityplayermp.worldObj.difficultySetting, entityplayermp.worldObj.getWorldInfo().getTerrainType(), entityplayermp.worldObj.getHeight(), entityplayermp.itemInWorldManager.getGameType()));
+        entityplayermp.playerNetServerHandler.sendPacket(new Packet9Respawn(entityplayermp.dimension, (byte)entityplayermp.worldObj.difficultySetting, entityplayermp.worldObj.getWorldInfo().getTerrainType(), entityplayermp.worldObj.getHeight(), entityplayermp.itemInWorldManager.func_56695_b()));
         entityplayermp.playerNetServerHandler.teleportTo(entityplayermp.posX, entityplayermp.posY, entityplayermp.posZ, entityplayermp.rotationYaw, entityplayermp.rotationPitch);
         func_28170_a(entityplayermp, worldserver);
-        getPlayerManager(entityplayermp.dimension).addPlayer(entityplayermp);
+        worldserver.func_56372_E().addPlayer(entityplayermp);
         worldserver.spawnEntityInWorld(entityplayermp);
         playerEntities.add(entityplayermp);
         entityplayermp.func_20057_k();
-        entityplayermp.func_22068_s();
         return entityplayermp;
     }
 
@@ -296,7 +334,7 @@ public class ServerConfigurationManager
         WorldServer worldserver = mcServer.getWorldManager(par1EntityPlayerMP.dimension);
         par1EntityPlayerMP.dimension = par2;
         WorldServer worldserver1 = mcServer.getWorldManager(par1EntityPlayerMP.dimension);
-        par1EntityPlayerMP.playerNetServerHandler.sendPacket(new Packet9Respawn(par1EntityPlayerMP.dimension, (byte)par1EntityPlayerMP.worldObj.difficultySetting, worldserver1.getWorldInfo().getTerrainType(), worldserver1.getHeight(), par1EntityPlayerMP.itemInWorldManager.getGameType()));
+        par1EntityPlayerMP.playerNetServerHandler.sendPacket(new Packet9Respawn(par1EntityPlayerMP.dimension, (byte)par1EntityPlayerMP.worldObj.difficultySetting, worldserver1.getWorldInfo().getTerrainType(), worldserver1.getHeight(), par1EntityPlayerMP.itemInWorldManager.func_56695_b()));
         worldserver.removePlayer(par1EntityPlayerMP);
         par1EntityPlayerMP.isDead = false;
         double d = par1EntityPlayerMP.posX;
@@ -327,7 +365,7 @@ public class ServerConfigurationManager
         }
         else
         {
-            ChunkCoordinates chunkcoordinates = worldserver1.getEntrancePortalLocation();
+            ChunkCoordinates chunkcoordinates = worldserver1.func_56367_z();
             d = chunkcoordinates.posX;
             par1EntityPlayerMP.posY = chunkcoordinates.posY;
             d1 = chunkcoordinates.posZ;
@@ -344,14 +382,12 @@ public class ServerConfigurationManager
             worldserver1.spawnEntityInWorld(par1EntityPlayerMP);
             par1EntityPlayerMP.setLocationAndAngles(d, par1EntityPlayerMP.posY, d1, par1EntityPlayerMP.rotationYaw, par1EntityPlayerMP.rotationPitch);
             worldserver1.updateEntityWithOptionalForce(par1EntityPlayerMP, false);
-            worldserver1.chunkProviderServer.chunkLoadOverride = true;
             (new Teleporter()).placeInPortal(worldserver1, par1EntityPlayerMP);
-            worldserver1.chunkProviderServer.chunkLoadOverride = false;
         }
 
-        joinNewPlayerManager(par1EntityPlayerMP);
-        par1EntityPlayerMP.playerNetServerHandler.teleportTo(par1EntityPlayerMP.posX, par1EntityPlayerMP.posY, par1EntityPlayerMP.posZ, par1EntityPlayerMP.rotationYaw, par1EntityPlayerMP.rotationPitch);
         par1EntityPlayerMP.setWorld(worldserver1);
+        func_56423_a(par1EntityPlayerMP, worldserver);
+        par1EntityPlayerMP.playerNetServerHandler.teleportTo(par1EntityPlayerMP.posX, par1EntityPlayerMP.posY, par1EntityPlayerMP.posZ, par1EntityPlayerMP.rotationYaw, par1EntityPlayerMP.rotationPitch);
         par1EntityPlayerMP.itemInWorldManager.setWorld(worldserver1);
         func_28170_a(par1EntityPlayerMP, worldserver1);
         func_30008_g(par1EntityPlayerMP);
@@ -372,16 +408,6 @@ public class ServerConfigurationManager
             EntityPlayerMP entityplayermp = (EntityPlayerMP)playerEntities.get(field_35482_p);
             sendPacketToAllPlayers(new Packet201PlayerInfo(entityplayermp.username, true, entityplayermp.ping));
         }
-
-        for (int i = 0; i < playerManagerObj.length; i++)
-        {
-            playerManagerObj[i].updatePlayerInstances();
-        }
-    }
-
-    public void markBlockNeedsUpdate(int par1, int par2, int par3, int par4)
-    {
-        getPlayerManager(par4).markBlockNeedsUpdate(par1, par2, par3);
     }
 
     /**
@@ -389,10 +415,11 @@ public class ServerConfigurationManager
      */
     public void sendPacketToAllPlayers(Packet par1Packet)
     {
-        for (int i = 0; i < playerEntities.size(); i++)
+        EntityPlayerMP entityplayermp;
+
+        for (Iterator iterator = playerEntities.iterator(); iterator.hasNext(); entityplayermp.playerNetServerHandler.sendPacket(par1Packet))
         {
-            EntityPlayerMP entityplayermp = (EntityPlayerMP)playerEntities.get(i);
-            entityplayermp.playerNetServerHandler.sendPacket(par1Packet);
+            entityplayermp = (EntityPlayerMP)iterator.next();
         }
     }
 
@@ -401,15 +428,23 @@ public class ServerConfigurationManager
      */
     public void sendPacketToAllPlayersInDimension(Packet par1Packet, int par2)
     {
-        for (int i = 0; i < playerEntities.size(); i++)
+        Iterator iterator = playerEntities.iterator();
+
+        do
         {
-            EntityPlayerMP entityplayermp = (EntityPlayerMP)playerEntities.get(i);
+            if (!iterator.hasNext())
+            {
+                break;
+            }
+
+            EntityPlayerMP entityplayermp = (EntityPlayerMP)iterator.next();
 
             if (entityplayermp.dimension == par2)
             {
                 entityplayermp.playerNetServerHandler.sendPacket(par1Packet);
             }
         }
+        while (true);
     }
 
     /**
@@ -447,148 +482,14 @@ public class ServerConfigurationManager
         return as;
     }
 
-    /**
-     * add this player to the banned player list and save the ban list
-     */
-    public void banPlayer(String par1Str)
+    public BanList func_56429_e()
     {
-        bannedPlayers.add(par1Str.toLowerCase());
-        writeBannedPlayers();
+        return field_56434_g;
     }
 
-    /**
-     * remove this player from the banned player list and save the ban list
-     */
-    public void pardonPlayer(String par1Str)
+    public BanList func_56427_f()
     {
-        bannedPlayers.remove(par1Str.toLowerCase());
-        writeBannedPlayers();
-    }
-
-    /**
-     * Reads the banned players file from disk.
-     */
-    private void readBannedPlayers()
-    {
-        try
-        {
-            bannedPlayers.clear();
-            BufferedReader bufferedreader = new BufferedReader(new FileReader(bannedPlayersFile));
-
-            for (String s = ""; (s = bufferedreader.readLine()) != null;)
-            {
-                bannedPlayers.add(s.trim().toLowerCase());
-            }
-
-            bufferedreader.close();
-        }
-        catch (Exception exception)
-        {
-            logger.warning((new StringBuilder()).append("Failed to load ban list: ").append(exception).toString());
-        }
-    }
-
-    /**
-     * Writes the banned players file to disk.
-     */
-    private void writeBannedPlayers()
-    {
-        try
-        {
-            PrintWriter printwriter = new PrintWriter(new FileWriter(bannedPlayersFile, false));
-            String s;
-
-            for (Iterator iterator = bannedPlayers.iterator(); iterator.hasNext(); printwriter.println(s))
-            {
-                s = (String)iterator.next();
-            }
-
-            printwriter.close();
-        }
-        catch (Exception exception)
-        {
-            logger.warning((new StringBuilder()).append("Failed to save ban list: ").append(exception).toString());
-        }
-    }
-
-    /**
-     * Returns a list of banned player names
-     */
-    public Set getBannedPlayersList()
-    {
-        return bannedPlayers;
-    }
-
-    /**
-     * Returns the list of banned IP addresses
-     */
-    public Set getBannedIPsList()
-    {
-        return bannedIPs;
-    }
-
-    /**
-     * add the ip to the banned ip list and save ban list
-     */
-    public void banIP(String par1Str)
-    {
-        bannedIPs.add(par1Str.toLowerCase());
-        saveBannedList();
-    }
-
-    /**
-     * removes the ip from the banned ip list and save ban list
-     */
-    public void pardonIP(String par1Str)
-    {
-        bannedIPs.remove(par1Str.toLowerCase());
-        saveBannedList();
-    }
-
-    /**
-     * loads the list of banned players
-     */
-    private void loadBannedList()
-    {
-        try
-        {
-            bannedIPs.clear();
-            BufferedReader bufferedreader = new BufferedReader(new FileReader(ipBanFile));
-
-            for (String s = ""; (s = bufferedreader.readLine()) != null;)
-            {
-                bannedIPs.add(s.trim().toLowerCase());
-            }
-
-            bufferedreader.close();
-        }
-        catch (Exception exception)
-        {
-            logger.warning((new StringBuilder()).append("Failed to load ip ban list: ").append(exception).toString());
-        }
-    }
-
-    /**
-     * saves the list of banned players
-     */
-    private void saveBannedList()
-    {
-        try
-        {
-            PrintWriter printwriter = new PrintWriter(new FileWriter(ipBanFile, false));
-            String s;
-
-            for (Iterator iterator = bannedIPs.iterator(); iterator.hasNext(); printwriter.println(s))
-            {
-                s = (String)iterator.next();
-            }
-
-            printwriter.close();
-        }
-        catch (Exception exception)
-        {
-            logger.warning((new StringBuilder()).append("Failed to save ip ban list: ").append(exception).toString());
-        }
+        return field_56437_h;
     }
 
     /**
@@ -597,7 +498,6 @@ public class ServerConfigurationManager
     public void addOp(String par1Str)
     {
         ops.add(par1Str.toLowerCase());
-        saveOps();
     }
 
     /**
@@ -606,99 +506,6 @@ public class ServerConfigurationManager
     public void removeOp(String par1Str)
     {
         ops.remove(par1Str.toLowerCase());
-        saveOps();
-    }
-
-    /**
-     * loads the ops from the ops file
-     */
-    private void loadOps()
-    {
-        try
-        {
-            ops.clear();
-            BufferedReader bufferedreader = new BufferedReader(new FileReader(opFile));
-
-            for (String s = ""; (s = bufferedreader.readLine()) != null;)
-            {
-                ops.add(s.trim().toLowerCase());
-            }
-
-            bufferedreader.close();
-        }
-        catch (Exception exception)
-        {
-            logger.warning((new StringBuilder()).append("Failed to load operators list: ").append(exception).toString());
-        }
-    }
-
-    /**
-     * saves the ops to the ops file
-     */
-    private void saveOps()
-    {
-        try
-        {
-            PrintWriter printwriter = new PrintWriter(new FileWriter(opFile, false));
-            String s;
-
-            for (Iterator iterator = ops.iterator(); iterator.hasNext(); printwriter.println(s))
-            {
-                s = (String)iterator.next();
-            }
-
-            printwriter.close();
-        }
-        catch (Exception exception)
-        {
-            logger.warning((new StringBuilder()).append("Failed to save operators list: ").append(exception).toString());
-        }
-    }
-
-    /**
-     * Loads the white list file
-     */
-    private void loadWhiteList()
-    {
-        try
-        {
-            whiteListedIPs.clear();
-            BufferedReader bufferedreader = new BufferedReader(new FileReader(whitelistPlayersFile));
-
-            for (String s = ""; (s = bufferedreader.readLine()) != null;)
-            {
-                whiteListedIPs.add(s.trim().toLowerCase());
-            }
-
-            bufferedreader.close();
-        }
-        catch (Exception exception)
-        {
-            logger.warning((new StringBuilder()).append("Failed to load white-list: ").append(exception).toString());
-        }
-    }
-
-    /**
-     * Saves the white list file
-     */
-    private void saveWhiteList()
-    {
-        try
-        {
-            PrintWriter printwriter = new PrintWriter(new FileWriter(whitelistPlayersFile, false));
-            String s;
-
-            for (Iterator iterator = whiteListedIPs.iterator(); iterator.hasNext(); printwriter.println(s))
-            {
-                s = (String)iterator.next();
-            }
-
-            printwriter.close();
-        }
-        catch (Exception exception)
-        {
-            logger.warning((new StringBuilder()).append("Failed to save white-list: ").append(exception).toString());
-        }
     }
 
     /**
@@ -715,7 +522,7 @@ public class ServerConfigurationManager
      */
     public boolean isOp(String par1Str)
     {
-        return ops.contains(par1Str.trim().toLowerCase());
+        return ops.contains(par1Str.trim().toLowerCase()) || mcServer.func_56187_H() && mcServer.worldMngr[0].getWorldInfo().func_56515_s() && mcServer.func_56186_G().equalsIgnoreCase(par1Str) || field_58047_n;
     }
 
     /**
@@ -723,9 +530,9 @@ public class ServerConfigurationManager
      */
     public EntityPlayerMP getPlayerEntity(String par1Str)
     {
-        for (int i = 0; i < playerEntities.size(); i++)
+        for (Iterator iterator = playerEntities.iterator(); iterator.hasNext();)
         {
-            EntityPlayerMP entityplayermp = (EntityPlayerMP)playerEntities.get(i);
+            EntityPlayerMP entityplayermp = (EntityPlayerMP)iterator.next();
 
             if (entityplayermp.username.equalsIgnoreCase(par1Str))
             {
@@ -734,19 +541,6 @@ public class ServerConfigurationManager
         }
 
         return null;
-    }
-
-    /**
-     * sends a chat message to the player with the name specified (not necessarily a whisper)
-     */
-    public void sendChatMessageToPlayer(String par1Str, String par2Str)
-    {
-        EntityPlayerMP entityplayermp = getPlayerEntity(par1Str);
-
-        if (entityplayermp != null)
-        {
-            entityplayermp.playerNetServerHandler.sendPacket(new Packet3Chat(par2Str));
-        }
     }
 
     /**
@@ -759,60 +553,30 @@ public class ServerConfigurationManager
 
     public void func_28171_a(EntityPlayer par1EntityPlayer, double par2, double par4, double par6, double par8, int par10, Packet par11Packet)
     {
-        for (int i = 0; i < playerEntities.size(); i++)
-        {
-            EntityPlayerMP entityplayermp = (EntityPlayerMP)playerEntities.get(i);
+        Iterator iterator = playerEntities.iterator();
 
-            if (entityplayermp == par1EntityPlayer || entityplayermp.dimension != par10)
+        do
+        {
+            if (!iterator.hasNext())
             {
-                continue;
+                break;
             }
 
-            double d = par2 - entityplayermp.posX;
-            double d1 = par4 - entityplayermp.posY;
-            double d2 = par6 - entityplayermp.posZ;
+            EntityPlayerMP entityplayermp = (EntityPlayerMP)iterator.next();
 
-            if (d * d + d1 * d1 + d2 * d2 < par8 * par8)
+            if (entityplayermp != par1EntityPlayer && entityplayermp.dimension == par10)
             {
-                entityplayermp.playerNetServerHandler.sendPacket(par11Packet);
+                double d = par2 - entityplayermp.posX;
+                double d1 = par4 - entityplayermp.posY;
+                double d2 = par6 - entityplayermp.posZ;
+
+                if (d * d + d1 * d1 + d2 * d2 < par8 * par8)
+                {
+                    entityplayermp.playerNetServerHandler.sendPacket(par11Packet);
+                }
             }
         }
-    }
-
-    /**
-     * sends a chat message to all ops currently connected
-     */
-    public void sendChatMessageToAllOps(String par1Str)
-    {
-        Packet3Chat packet3chat = new Packet3Chat(par1Str);
-
-        for (int i = 0; i < playerEntities.size(); i++)
-        {
-            EntityPlayerMP entityplayermp = (EntityPlayerMP)playerEntities.get(i);
-
-            if (isOp(entityplayermp.username))
-            {
-                entityplayermp.playerNetServerHandler.sendPacket(packet3chat);
-            }
-        }
-    }
-
-    /**
-     * sends a packet to the player with the name specified
-     */
-    public boolean sendPacketToPlayer(String par1Str, Packet par2Packet)
-    {
-        EntityPlayerMP entityplayermp = getPlayerEntity(par1Str);
-
-        if (entityplayermp != null)
-        {
-            entityplayermp.playerNetServerHandler.sendPacket(par2Packet);
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        while (true);
     }
 
     /**
@@ -820,17 +584,12 @@ public class ServerConfigurationManager
      */
     public void savePlayerStates()
     {
-        for (int i = 0; i < playerEntities.size(); i++)
-        {
-            playerNBTManagerObj.writePlayerData((EntityPlayer)playerEntities.get(i));
-        }
-    }
+        EntityPlayerMP entityplayermp;
 
-    /**
-     * sends a tilentity to the player name specified
-     */
-    public void sentTileEntityToPlayer(int i, int j, int k, TileEntity tileentity)
-    {
+        for (Iterator iterator = playerEntities.iterator(); iterator.hasNext(); func_56430_b(entityplayermp))
+        {
+            entityplayermp = (EntityPlayerMP)iterator.next();
+        }
     }
 
     /**
@@ -839,7 +598,6 @@ public class ServerConfigurationManager
     public void addToWhiteList(String par1Str)
     {
         whiteListedIPs.add(par1Str);
-        saveWhiteList();
     }
 
     /**
@@ -848,7 +606,6 @@ public class ServerConfigurationManager
     public void removeFromWhiteList(String par1Str)
     {
         whiteListedIPs.remove(par1Str);
-        saveWhiteList();
     }
 
     /**
@@ -859,12 +616,16 @@ public class ServerConfigurationManager
         return whiteListedIPs;
     }
 
+    public Set func_55207_h()
+    {
+        return ops;
+    }
+
     /**
      * reloads the whitelist
      */
     public void reloadWhiteList()
     {
-        loadWhiteList();
     }
 
     public void func_28170_a(EntityPlayerMP par1EntityPlayerMP, WorldServer par2WorldServer)
@@ -873,7 +634,7 @@ public class ServerConfigurationManager
 
         if (par2WorldServer.isRaining())
         {
-            par1EntityPlayerMP.playerNetServerHandler.sendPacket(new Packet70Bed(1, 0));
+            par1EntityPlayerMP.playerNetServerHandler.sendPacket(new Packet70GameEvent(1, 0));
         }
     }
 
@@ -904,23 +665,71 @@ public class ServerConfigurationManager
         return mcServer.worldMngr[0].getSaveHandler().getPlayerNBTManager().func_52007_g();
     }
 
-    private void func_52018_u()
+    public boolean func_56426_n()
     {
-        PlayerUsageSnooper playerusagesnooper = new PlayerUsageSnooper("server");
-        playerusagesnooper.func_52014_a("version", mcServer.getVersionString());
-        playerusagesnooper.func_52014_a("os_name", System.getProperty("os.name"));
-        playerusagesnooper.func_52014_a("os_version", System.getProperty("os.version"));
-        playerusagesnooper.func_52014_a("os_architecture", System.getProperty("os.arch"));
-        playerusagesnooper.func_52014_a("memory_total", Long.valueOf(Runtime.getRuntime().totalMemory()));
-        playerusagesnooper.func_52014_a("memory_max", Long.valueOf(Runtime.getRuntime().maxMemory()));
-        playerusagesnooper.func_52014_a("memory_free", Long.valueOf(Runtime.getRuntime().freeMemory()));
-        playerusagesnooper.func_52014_a("java_version", System.getProperty("java.version"));
-        playerusagesnooper.func_52014_a("cpu_cores", Integer.valueOf(Runtime.getRuntime().availableProcessors()));
-        playerusagesnooper.func_52014_a("players_current", Integer.valueOf(playersOnline()));
-        playerusagesnooper.func_52014_a("players_max", Integer.valueOf(getMaxPlayers()));
-        playerusagesnooper.func_52014_a("players_seen", Integer.valueOf(func_52019_t().length));
-        playerusagesnooper.func_52014_a("uses_auth", Boolean.valueOf(mcServer.onlineMode));
-        playerusagesnooper.func_52014_a("server_brand", mcServer.func_52003_getServerModName());
-        playerusagesnooper.func_52012_a();
+        return whiteListEnforced;
+    }
+
+    public void func_55206_a(boolean par1)
+    {
+        whiteListEnforced = par1;
+    }
+
+    public List func_55208_l(String par1Str)
+    {
+        ArrayList arraylist = new ArrayList();
+        Iterator iterator = playerEntities.iterator();
+
+        do
+        {
+            if (!iterator.hasNext())
+            {
+                break;
+            }
+
+            EntityPlayerMP entityplayermp = (EntityPlayerMP)iterator.next();
+
+            if (entityplayermp.func_55082_I().equals(par1Str))
+            {
+                arraylist.add(entityplayermp);
+            }
+        }
+        while (true);
+
+        return arraylist;
+    }
+
+    public int func_56428_o()
+    {
+        return field_56435_d;
+    }
+
+    public MinecraftServer func_56422_p()
+    {
+        return mcServer;
+    }
+
+    public NBTTagCompound func_56425_q()
+    {
+        return null;
+    }
+
+    private void func_58045_a(EntityPlayerMP par1EntityPlayerMP, EntityPlayerMP par2EntityPlayerMP, World par3World)
+    {
+        if (par2EntityPlayerMP != null)
+        {
+            par1EntityPlayerMP.itemInWorldManager.func_56697_a(par2EntityPlayerMP.itemInWorldManager.func_56695_b());
+        }
+        else if (field_58048_m != null)
+        {
+            par1EntityPlayerMP.itemInWorldManager.func_56697_a(field_58048_m);
+        }
+
+        par1EntityPlayerMP.itemInWorldManager.func_56694_b(par3World.getWorldInfo().func_56510_o());
+    }
+
+    public void func_58046_r()
+    {
+        for (; !playerEntities.isEmpty(); ((EntityPlayerMP)playerEntities.get(0)).playerNetServerHandler.kickPlayer("Server closed")) { }
     }
 }

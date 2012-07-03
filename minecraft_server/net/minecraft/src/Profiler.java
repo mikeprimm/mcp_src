@@ -68,7 +68,7 @@ public class Profiler
             profilingMap.put(profilingSection, Long.valueOf(l2));
         }
 
-        profilingSection = sectionList.size() <= 0 ? "" : (String)sectionList.get(sectionList.size() - 1);
+        profilingSection = sectionList.isEmpty() ? "" : (String)sectionList.get(sectionList.size() - 1);
 
         if (l2 > 0x5f5e100L)
         {

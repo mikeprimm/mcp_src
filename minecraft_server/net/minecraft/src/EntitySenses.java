@@ -1,17 +1,18 @@
 package net.minecraft.src;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class EntitySenses
 {
     EntityLiving entityObj;
-    ArrayList canSeeCachePositive;
-    ArrayList canSeeCacheNegative;
+    List field_55308_b;
+    List field_55309_c;
 
     public EntitySenses(EntityLiving par1EntityLiving)
     {
-        canSeeCachePositive = new ArrayList();
-        canSeeCacheNegative = new ArrayList();
+        field_55308_b = new ArrayList();
+        field_55309_c = new ArrayList();
         entityObj = par1EntityLiving;
     }
 
@@ -20,8 +21,8 @@ public class EntitySenses
      */
     public void clearSensingCache()
     {
-        canSeeCachePositive.clear();
-        canSeeCacheNegative.clear();
+        field_55308_b.clear();
+        field_55309_c.clear();
     }
 
     /**
@@ -29,12 +30,12 @@ public class EntitySenses
      */
     public boolean canSee(Entity par1Entity)
     {
-        if (canSeeCachePositive.contains(par1Entity))
+        if (field_55308_b.contains(par1Entity))
         {
             return true;
         }
 
-        if (canSeeCacheNegative.contains(par1Entity))
+        if (field_55309_c.contains(par1Entity))
         {
             return false;
         }
@@ -45,11 +46,11 @@ public class EntitySenses
 
         if (flag)
         {
-            canSeeCachePositive.add(par1Entity);
+            field_55308_b.add(par1Entity);
         }
         else
         {
-            canSeeCacheNegative.add(par1Entity);
+            field_55309_c.add(par1Entity);
         }
 
         return flag;

@@ -1,5 +1,6 @@
 package net.minecraft.src;
 
+import java.util.Iterator;
 import java.util.List;
 
 public class ContainerFurnace extends Container
@@ -15,21 +16,21 @@ public class ContainerFurnace extends Container
         lastBurnTime = 0;
         lastItemBurnTime = 0;
         furnace = par2TileEntityFurnace;
-        addSlot(new Slot(par2TileEntityFurnace, 0, 56, 17));
-        addSlot(new Slot(par2TileEntityFurnace, 1, 56, 53));
-        addSlot(new SlotFurnace(par1InventoryPlayer.player, par2TileEntityFurnace, 2, 116, 35));
+        func_55143_a(new Slot(par2TileEntityFurnace, 0, 56, 17));
+        func_55143_a(new Slot(par2TileEntityFurnace, 1, 56, 53));
+        func_55143_a(new SlotFurnace(par1InventoryPlayer.player, par2TileEntityFurnace, 2, 116, 35));
 
         for (int i = 0; i < 3; i++)
         {
             for (int k = 0; k < 9; k++)
             {
-                addSlot(new Slot(par1InventoryPlayer, k + i * 9 + 9, 8 + k * 18, 84 + i * 18));
+                func_55143_a(new Slot(par1InventoryPlayer, k + i * 9 + 9, 8 + k * 18, 84 + i * 18));
             }
         }
 
         for (int j = 0; j < 9; j++)
         {
-            addSlot(new Slot(par1InventoryPlayer, j, 8 + j * 18, 142));
+            func_55143_a(new Slot(par1InventoryPlayer, j, 8 + j * 18, 142));
         }
     }
 
@@ -47,10 +48,16 @@ public class ContainerFurnace extends Container
     public void updateCraftingResults()
     {
         super.updateCraftingResults();
+        Iterator iterator = crafters.iterator();
 
-        for (int i = 0; i < crafters.size(); i++)
+        do
         {
-            ICrafting icrafting = (ICrafting)crafters.get(i);
+            if (!iterator.hasNext())
+            {
+                break;
+            }
+
+            ICrafting icrafting = (ICrafting)iterator.next();
 
             if (lastCookTime != furnace.furnaceCookTime)
             {
@@ -67,6 +74,7 @@ public class ContainerFurnace extends Container
                 icrafting.updateCraftingInventoryInfo(this, 2, furnace.currentItemBurnTime);
             }
         }
+        while (true);
 
         lastCookTime = furnace.furnaceCookTime;
         lastBurnTime = furnace.furnaceBurnTime;
@@ -142,14 +150,12 @@ public class ContainerFurnace extends Container
                 slot.onSlotChanged();
             }
 
-            if (itemstack1.stackSize != itemstack.stackSize)
-            {
-                slot.onPickupFromSlot(itemstack1);
-            }
-            else
+            if (itemstack1.stackSize == itemstack.stackSize)
             {
                 return null;
             }
+
+            slot.onPickupFromSlot(itemstack1);
         }
 
         return itemstack;

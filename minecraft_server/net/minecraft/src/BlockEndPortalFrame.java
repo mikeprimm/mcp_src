@@ -1,6 +1,6 @@
 package net.minecraft.src;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class BlockEndPortalFrame extends Block
@@ -55,20 +55,16 @@ public class BlockEndPortalFrame extends Block
         setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 0.8125F, 1.0F);
     }
 
-    /**
-     * Adds to the supplied array any colliding bounding boxes with the passed in bounding box. Args: world, x, y, z,
-     * axisAlignedBB, arrayList
-     */
-    public void getCollidingBoundingBoxes(World par1World, int par2, int par3, int par4, AxisAlignedBB par5AxisAlignedBB, ArrayList par6ArrayList)
+    public void func_56330_a(World par1World, int par2, int par3, int par4, AxisAlignedBB par5AxisAlignedBB, List par6List, Entity par7Entity)
     {
         setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 0.8125F, 1.0F);
-        super.getCollidingBoundingBoxes(par1World, par2, par3, par4, par5AxisAlignedBB, par6ArrayList);
+        super.func_56330_a(par1World, par2, par3, par4, par5AxisAlignedBB, par6List, par7Entity);
         int i = par1World.getBlockMetadata(par2, par3, par4);
 
         if (isEnderEyeInserted(i))
         {
             setBlockBounds(0.3125F, 0.8125F, 0.3125F, 0.6875F, 1.0F, 0.6875F);
-            super.getCollidingBoundingBoxes(par1World, par2, par3, par4, par5AxisAlignedBB, par6ArrayList);
+            super.func_56330_a(par1World, par2, par3, par4, par5AxisAlignedBB, par6List, par7Entity);
         }
 
         setBlockBoundsForItemRender();

@@ -241,17 +241,16 @@ public class EnchantmentHelper
             return 0;
         }
 
-        if (par2 > 30)
+        if (par2 > 15)
         {
-            par2 = 30;
+            par2 = 15;
         }
 
-        par2 = 1 + (par2 >> 1) + par0Random.nextInt(par2 + 1);
-        int j = par0Random.nextInt(5) + par2;
+        int j = par0Random.nextInt(8) + 1 + (par2 >> 1) + par0Random.nextInt(par2 + 1);
 
         if (par1 == 0)
         {
-            return (j >> 1) + 1;
+            return Math.max(j / 3, 1);
         }
 
         if (par1 == 1)
@@ -260,11 +259,11 @@ public class EnchantmentHelper
         }
         else
         {
-            return j;
+            return Math.max(j, par2 * 2);
         }
     }
 
-    public static void func_48622_a(Random par0Random, ItemStack par1ItemStack, int par2)
+    public static ItemStack func_56708_a(Random par0Random, ItemStack par1ItemStack, int par2)
     {
         List list = buildEnchantmentList(par0Random, par1ItemStack, par2);
 
@@ -277,6 +276,8 @@ public class EnchantmentHelper
                 enchantmentdata = (EnchantmentData)iterator.next();
             }
         }
+
+        return par1ItemStack;
     }
 
     /**
@@ -293,10 +294,17 @@ public class EnchantmentHelper
             return null;
         }
 
+        i /= 2;
         i = 1 + par0Random.nextInt((i >> 1) + 1) + par0Random.nextInt((i >> 1) + 1);
         int j = i + par2;
-        float f = ((par0Random.nextFloat() + par0Random.nextFloat()) - 1.0F) * 0.25F;
+        float f = ((par0Random.nextFloat() + par0Random.nextFloat()) - 1.0F) * 0.15F;
         int k = (int)((float)j * (1.0F + f) + 0.5F);
+
+        if (k < 1)
+        {
+            k = 1;
+        }
+
         ArrayList arraylist = null;
         Map map = mapEnchantmentData(k, par1ItemStack);
 
@@ -309,7 +317,7 @@ public class EnchantmentHelper
                 arraylist = new ArrayList();
                 arraylist.add(enchantmentdata);
 
-                for (int l = k >> 1; par0Random.nextInt(50) <= l; l >>= 1)
+                for (int l = k; par0Random.nextInt(50) <= l; l >>= 1)
                 {
                     Iterator iterator = map.keySet().iterator();
 

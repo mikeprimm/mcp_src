@@ -14,6 +14,7 @@ public class BlockStem extends BlockFlower
         setTickRandomly(true);
         float f = 0.125F;
         setBlockBounds(0.5F - f, 0.0F, 0.5F - f, 0.5F + f, 0.25F, 0.5F + f);
+        func_56326_a(null);
     }
 
     /**
@@ -235,8 +236,6 @@ public class BlockStem extends BlockFlower
      */
     public int idDropped(int par1, Random par2Random, int par3)
     {
-        if (par1 != 7);
-
         return -1;
     }
 

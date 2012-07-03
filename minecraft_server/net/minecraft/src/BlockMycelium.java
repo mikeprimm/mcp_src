@@ -9,6 +9,7 @@ public class BlockMycelium extends Block
         super(par1, Material.grass);
         blockIndexInTexture = 77;
         setTickRandomly(true);
+        func_56326_a(CreativeTabs.field_56387_b);
     }
 
     /**

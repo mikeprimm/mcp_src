@@ -7,6 +7,7 @@ public class ItemExpBottle extends Item
     public ItemExpBottle(int par1)
     {
         super(par1);
+        func_56455_a(CreativeTabs.field_56383_f);
     }
 
     /**

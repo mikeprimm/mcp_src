@@ -1,5 +1,7 @@
 package net.minecraft.src;
 
+import java.util.Random;
+
 public class EntityPig extends EntityAnimal
 {
     public EntityPig(World par1World)
@@ -7,7 +9,7 @@ public class EntityPig extends EntityAnimal
         super(par1World);
         texture = "/mob/pig.png";
         setSize(0.9F, 0.9F);
-        getNavigator().func_48656_a(true);
+        getNavigator().setAvoidsWater(true);
         float f = 0.25F;
         tasks.addTask(0, new EntityAISwimming(this));
         tasks.addTask(1, new EntityAIPanic(this, 0.38F));
@@ -115,6 +117,26 @@ public class EntityPig extends EntityAnimal
         else
         {
             return Item.porkRaw.shiftedIndex;
+        }
+    }
+
+    /**
+     * Drop 0-2 items of this living's type
+     */
+    protected void dropFewItems(boolean par1, int par2)
+    {
+        int i = rand.nextInt(3) + 1 + rand.nextInt(1 + par2);
+
+        for (int j = 0; j < i; j++)
+        {
+            if (isBurning())
+            {
+                dropItem(Item.porkCooked.shiftedIndex, 1);
+            }
+            else
+            {
+                dropItem(Item.porkRaw.shiftedIndex, 1);
+            }
         }
     }
 

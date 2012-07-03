@@ -37,7 +37,7 @@ public class IntCache
     {
         if (par0 <= 256)
         {
-            if (freeSmallArrays.size() == 0)
+            if (freeSmallArrays.isEmpty())
             {
                 int ai[] = new int[256];
                 inUseSmallArrays.add(ai);
@@ -61,7 +61,7 @@ public class IntCache
             return ai2;
         }
 
-        if (freeLargeArrays.size() == 0)
+        if (freeLargeArrays.isEmpty())
         {
             int ai3[] = new int[intCacheSize];
             inUseLargeArrays.add(ai3);
@@ -80,12 +80,12 @@ public class IntCache
      */
     public static void resetIntCache()
     {
-        if (freeLargeArrays.size() > 0)
+        if (!freeLargeArrays.isEmpty())
         {
             freeLargeArrays.remove(freeLargeArrays.size() - 1);
         }
 
-        if (freeSmallArrays.size() > 0)
+        if (!freeSmallArrays.isEmpty())
         {
             freeSmallArrays.remove(freeSmallArrays.size() - 1);
         }

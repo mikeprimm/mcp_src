@@ -13,6 +13,7 @@ public class BlockPumpkin extends BlockDirectional
         blockIndexInTexture = par2;
         setTickRandomly(true);
         blockType = par3;
+        func_56326_a(CreativeTabs.field_56387_b);
     }
 
     /**
@@ -170,7 +171,7 @@ public class BlockPumpkin extends BlockDirectional
     public boolean canPlaceBlockAt(World par1World, int par2, int par3, int par4)
     {
         int i = par1World.getBlockId(par2, par3, par4);
-        return (i == 0 || Block.blocksList[i].blockMaterial.isGroundCover()) && par1World.isBlockNormalCube(par2, par3 - 1, par4);
+        return (i == 0 || Block.blocksList[i].blockMaterial.isGroundCover()) && par1World.func_58038_s(par2, par3 - 1, par4);
     }
 
     /**

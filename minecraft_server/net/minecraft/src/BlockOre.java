@@ -7,6 +7,7 @@ public class BlockOre extends Block
     public BlockOre(int par1, int par2)
     {
         super(par1, par2, Material.rock);
+        func_56326_a(CreativeTabs.field_56387_b);
     }
 
     /**
@@ -19,14 +20,19 @@ public class BlockOre extends Block
             return Item.coal.shiftedIndex;
         }
 
-        if (blockID == Block.oreDiamond.blockID)
+        if (blockID == Block.field_56337_aw.blockID)
         {
-            return Item.diamond.shiftedIndex;
+            return Item.field_56457_n.shiftedIndex;
         }
 
         if (blockID == Block.oreLapis.blockID)
         {
             return Item.dyePowder.shiftedIndex;
+        }
+
+        if (blockID == Block.oreDiamond.blockID)
+        {
+            return Item.diamond.shiftedIndex;
         }
         else
         {
@@ -68,6 +74,20 @@ public class BlockOre extends Block
         else
         {
             return quantityDropped(par2Random);
+        }
+    }
+
+    /**
+     * Drops the block items with a specified chance of dropping the specified items
+     */
+    public void dropBlockAsItemWithChance(World par1World, int par2, int par3, int par4, int par5, float par6, int par7)
+    {
+        super.dropBlockAsItemWithChance(par1World, par2, par3, par4, par5, par6, par7);
+
+        if (idDropped(par5, par1World.rand, par7) != blockID)
+        {
+            int i = 3 + par1World.rand.nextInt(7);
+            func_56328_f(par1World, par2, par3, par4, i);
         }
     }
 

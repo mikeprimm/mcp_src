@@ -57,22 +57,6 @@ public class EntityBlaze extends EntityMob
     }
 
     /**
-     * Called when the entity is attacked.
-     */
-    public boolean attackEntityFrom(DamageSource par1DamageSource, int par2)
-    {
-        return super.attackEntityFrom(par1DamageSource, par2);
-    }
-
-    /**
-     * Called when the mob's health reaches 0.
-     */
-    public void onDeath(DamageSource par1DamageSource)
-    {
-        super.onDeath(par1DamageSource);
-    }
-
-    /**
      * Gets how bright this entity is.
      */
     public float getBrightness(float par1)
@@ -103,7 +87,7 @@ public class EntityBlaze extends EntityMob
 
             if (getEntityToAttack() != null && getEntityToAttack().posY + (double)getEntityToAttack().getEyeHeight() > posY + (double)getEyeHeight() + (double)heightOffset)
             {
-                motionY = motionY + (0.30000001192092896D - motionY) * 0.30000001192092896D;
+                motionY += (0.30000001192092896D - motionY) * 0.30000001192092896D;
             }
         }
 
@@ -185,22 +169,6 @@ public class EntityBlaze extends EntityMob
      */
     protected void fall(float f)
     {
-    }
-
-    /**
-     * (abstract) Protected helper method to write subclass entity data to NBT.
-     */
-    public void writeEntityToNBT(NBTTagCompound par1NBTTagCompound)
-    {
-        super.writeEntityToNBT(par1NBTTagCompound);
-    }
-
-    /**
-     * (abstract) Protected helper method to read subclass entity data from NBT.
-     */
-    public void readEntityFromNBT(NBTTagCompound par1NBTTagCompound)
-    {
-        super.readEntityFromNBT(par1NBTTagCompound);
     }
 
     /**

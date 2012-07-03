@@ -1,7 +1,6 @@
 package net.minecraft.src;
 
-import java.io.File;
-import java.io.FileInputStream;
+import java.io.*;
 
 public class SaveFormatOld implements ISaveFormat
 {
@@ -18,6 +17,10 @@ public class SaveFormatOld implements ISaveFormat
         }
 
         savesDirectory = par1File;
+    }
+
+    public void func_56408_b()
+    {
     }
 
     /**
@@ -65,6 +68,41 @@ public class SaveFormatOld implements ISaveFormat
         }
 
         return null;
+    }
+
+    public void func_56409_b(String par1Str)
+    {
+        File file = new File(savesDirectory, par1Str);
+
+        if (!file.exists())
+        {
+            return;
+        }
+        else
+        {
+            func_56410_a(file.listFiles());
+            file.delete();
+            return;
+        }
+    }
+
+    protected static void func_56410_a(File par0ArrayOfFile[])
+    {
+        File afile[] = par0ArrayOfFile;
+        int i = afile.length;
+
+        for (int j = 0; j < i; j++)
+        {
+            File file = afile[j];
+
+            if (file.isDirectory())
+            {
+                System.out.println((new StringBuilder()).append("Deleting ").append(file).toString());
+                func_56410_a(file.listFiles());
+            }
+
+            file.delete();
+        }
     }
 
     /**

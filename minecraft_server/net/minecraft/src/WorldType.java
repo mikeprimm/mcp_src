@@ -9,6 +9,7 @@ public class WorldType
 
     /** Flat world type. */
     public static final WorldType FLAT = new WorldType(1, "flat");
+    public static final WorldType field_56782_d = new WorldType(2, "largeBiomes");
 
     /** Default (1.1) world type. */
     public static final WorldType DEFAULT_1_1 = (new WorldType(8, "default_1_1", 0)).setCanBeCreated(false);
@@ -83,11 +84,16 @@ public class WorldType
 
     public static WorldType parseWorldType(String par0Str)
     {
-        for (int i = 0; i < worldTypes.length; i++)
+        WorldType aworldtype[] = worldTypes;
+        int i = aworldtype.length;
+
+        for (int j = 0; j < i; j++)
         {
-            if (worldTypes[i] != null && worldTypes[i].worldType.equalsIgnoreCase(par0Str))
+            WorldType worldtype = aworldtype[j];
+
+            if (worldtype != null && worldtype.worldType.equalsIgnoreCase(par0Str))
             {
-                return worldTypes[i];
+                return worldtype;
             }
         }
 

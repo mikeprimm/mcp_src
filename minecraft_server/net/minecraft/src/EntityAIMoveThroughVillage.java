@@ -46,9 +46,9 @@ public class EntityAIMoveThroughVillage extends EntityAIBase
             return false;
         }
 
-        boolean flag = theEntity.getNavigator().func_48657_b();
+        boolean flag = theEntity.getNavigator().getCanBreakDoors();
         theEntity.getNavigator().setBreakDoors(false);
-        field_48282_c = theEntity.getNavigator().func_48650_a(doorInfo.posX, doorInfo.posY, doorInfo.posZ);
+        field_48282_c = theEntity.getNavigator().getPathToXYZ(doorInfo.posX, doorInfo.posY, doorInfo.posZ);
         theEntity.getNavigator().setBreakDoors(flag);
 
         if (field_48282_c != null)
@@ -56,16 +56,16 @@ public class EntityAIMoveThroughVillage extends EntityAIBase
             return true;
         }
 
-        Vec3D vec3d = RandomPositionGenerator.func_48395_a(theEntity, 10, 7, Vec3D.createVector(doorInfo.posX, doorInfo.posY, doorInfo.posZ));
+        Vec3 vec3 = RandomPositionGenerator.func_48395_a(theEntity, 10, 7, Vec3.func_58052_a().func_58076_a(doorInfo.posX, doorInfo.posY, doorInfo.posZ));
 
-        if (vec3d == null)
+        if (vec3 == null)
         {
             return false;
         }
         else
         {
             theEntity.getNavigator().setBreakDoors(false);
-            field_48282_c = theEntity.getNavigator().func_48650_a(vec3d.xCoord, vec3d.yCoord, vec3d.zCoord);
+            field_48282_c = theEntity.getNavigator().getPathToXYZ(vec3.xCoord, vec3.yCoord, vec3.zCoord);
             theEntity.getNavigator().setBreakDoors(flag);
             return field_48282_c != null;
         }

@@ -5,7 +5,7 @@ import java.util.Random;
 
 public class StructureMineshaftPieces
 {
-    private static final StructurePieceTreasure lootArray[];
+    private static final WeightedRandomChestContent field_55184_a[];
 
     public StructureMineshaftPieces()
     {
@@ -74,17 +74,17 @@ public class StructureMineshaftPieces
         return getNextMineShaftComponent(par0StructureComponent, par1List, par2Random, par3, par4, par5, par6, par7);
     }
 
-    static StructurePieceTreasure[] getTreasurePieces()
+    static WeightedRandomChestContent[] func_55183_a()
     {
-        return lootArray;
+        return field_55184_a;
     }
 
     static
     {
-        lootArray = (new StructurePieceTreasure[]
+        field_55184_a = (new WeightedRandomChestContent[]
                 {
-                    new StructurePieceTreasure(Item.ingotIron.shiftedIndex, 0, 1, 5, 10), new StructurePieceTreasure(Item.ingotGold.shiftedIndex, 0, 1, 3, 5), new StructurePieceTreasure(Item.redstone.shiftedIndex, 0, 4, 9, 5), new StructurePieceTreasure(Item.dyePowder.shiftedIndex, 4, 4, 9, 5), new StructurePieceTreasure(Item.diamond.shiftedIndex, 0, 1, 2, 3), new StructurePieceTreasure(Item.coal.shiftedIndex, 0, 3, 8, 10), new StructurePieceTreasure(Item.bread.shiftedIndex, 0, 1, 3, 15), new StructurePieceTreasure(Item.pickaxeSteel.shiftedIndex, 0, 1, 1, 1), new StructurePieceTreasure(Block.rail.blockID, 0, 4, 8, 1), new StructurePieceTreasure(Item.melonSeeds.shiftedIndex, 0, 2, 4, 10),
-                    new StructurePieceTreasure(Item.pumpkinSeeds.shiftedIndex, 0, 2, 4, 10)
+                    new WeightedRandomChestContent(Item.ingotIron.shiftedIndex, 0, 1, 5, 10), new WeightedRandomChestContent(Item.ingotGold.shiftedIndex, 0, 1, 3, 5), new WeightedRandomChestContent(Item.redstone.shiftedIndex, 0, 4, 9, 5), new WeightedRandomChestContent(Item.dyePowder.shiftedIndex, 4, 4, 9, 5), new WeightedRandomChestContent(Item.field_56457_n.shiftedIndex, 0, 1, 2, 3), new WeightedRandomChestContent(Item.coal.shiftedIndex, 0, 3, 8, 10), new WeightedRandomChestContent(Item.bread.shiftedIndex, 0, 1, 3, 15), new WeightedRandomChestContent(Item.pickaxeSteel.shiftedIndex, 0, 1, 1, 1), new WeightedRandomChestContent(Block.rail.blockID, 0, 4, 8, 1), new WeightedRandomChestContent(Item.melonSeeds.shiftedIndex, 0, 2, 4, 10),
+                    new WeightedRandomChestContent(Item.pumpkinSeeds.shiftedIndex, 0, 2, 4, 10)
                 });
     }
 }

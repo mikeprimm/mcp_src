@@ -6,6 +6,7 @@ public class ItemMap extends ItemMapBase
     {
         super(par1);
         setMaxStackSize(1);
+        func_56455_a(CreativeTabs.field_56383_f);
     }
 
     public MapData getMapData(ItemStack par1ItemStack, World par2World)
@@ -80,6 +81,12 @@ public class ItemMap extends ItemMapBase
                 int i4 = 0;
                 int ai[] = new int[256];
                 Chunk chunk = par1World.getChunkFromBlockCoords(i3, j3);
+
+                if (chunk.isEmpty())
+                {
+                    continue;
+                }
+
                 int j4 = i3 & 0xf;
                 int k4 = j3 & 0xf;
                 int l4 = 0;
@@ -128,11 +135,17 @@ public class ItemMap extends ItemMapBase
                                         flag1 = false;
                                     }
 
-                                    if (!flag1)
+                                    if (flag1)
                                     {
-                                        j6--;
-                                        l6 = chunk.getBlockID(j5 + j4, j6 - 1, l5 + k4);
+                                        continue;
                                     }
+
+                                    if (--j6 <= 0)
+                                    {
+                                        break;
+                                    }
+
+                                    l6 = chunk.getBlockID(j5 + j4, j6 - 1, l5 + k4);
                                 }
                                 while (j6 > 0 && !flag1);
 

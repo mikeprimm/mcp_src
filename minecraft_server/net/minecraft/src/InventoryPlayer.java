@@ -82,7 +82,7 @@ public class InventoryPlayer implements IInventory
     /**
      * Returns the first item stack that is empty.
      */
-    private int getFirstEmptyStack()
+    public int getFirstEmptyStack()
     {
         for (int i = 0; i < mainInventory.length; i++)
         {
@@ -503,13 +503,17 @@ public class InventoryPlayer implements IInventory
     public int getTotalArmorValue()
     {
         int i = 0;
+        ItemStack aitemstack[] = armorInventory;
+        int j = aitemstack.length;
 
-        for (int j = 0; j < armorInventory.length; j++)
+        for (int k = 0; k < j; k++)
         {
-            if (armorInventory[j] != null && (armorInventory[j].getItem() instanceof ItemArmor))
+            ItemStack itemstack = aitemstack[k];
+
+            if (itemstack != null && (itemstack.getItem() instanceof ItemArmor))
             {
-                int k = ((ItemArmor)armorInventory[j].getItem()).damageReduceAmount;
-                i += k;
+                int l = ((ItemArmor)itemstack.getItem()).damageReduceAmount;
+                i += l;
             }
         }
 
@@ -539,7 +543,6 @@ public class InventoryPlayer implements IInventory
 
             if (armorInventory[i].stackSize == 0)
             {
-                armorInventory[i].onItemDestroyedByUse(player);
                 armorInventory[i] = null;
             }
         }
@@ -580,7 +583,6 @@ public class InventoryPlayer implements IInventory
     public void setItemStack(ItemStack par1ItemStack)
     {
         itemStack = par1ItemStack;
-        player.onItemStackChanged(par1ItemStack);
     }
 
     public ItemStack getItemStack()
@@ -606,17 +608,27 @@ public class InventoryPlayer implements IInventory
      */
     public boolean hasItemStack(ItemStack par1ItemStack)
     {
-        for (int i = 0; i < armorInventory.length; i++)
+        ItemStack aitemstack[] = armorInventory;
+        int i = aitemstack.length;
+
+        for (int j = 0; j < i; j++)
         {
-            if (armorInventory[i] != null && armorInventory[i].isStackEqual(par1ItemStack))
+            ItemStack itemstack = aitemstack[j];
+
+            if (itemstack != null && itemstack.isStackEqual(par1ItemStack))
             {
                 return true;
             }
         }
 
-        for (int j = 0; j < mainInventory.length; j++)
+        aitemstack = mainInventory;
+        i = aitemstack.length;
+
+        for (int k = 0; k < i; k++)
         {
-            if (mainInventory[j] != null && mainInventory[j].isStackEqual(par1ItemStack))
+            ItemStack itemstack1 = aitemstack[k];
+
+            if (itemstack1 != null && itemstack1.isStackEqual(par1ItemStack))
             {
                 return true;
             }

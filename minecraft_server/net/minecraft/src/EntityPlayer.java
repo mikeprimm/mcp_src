@@ -2,10 +2,11 @@ package net.minecraft.src;
 
 import java.util.*;
 
-public abstract class EntityPlayer extends EntityLiving
+public abstract class EntityPlayer extends EntityLiving implements ICommandSender
 {
     /** Inventory of the player */
     public InventoryPlayer inventory;
+    private InventoryEnderChest field_56150_a;
 
     /** the crafting inventory in you get when opening your inventory */
     public Container inventorySlots;
@@ -73,7 +74,10 @@ public abstract class EntityPlayer extends EntityLiving
     /** The player's experience level. */
     public int experienceLevel;
 
-    /** The player's experience total score. */
+    /**
+     * The total amount of experience the player has. This also includes the amount of experience within their
+     * Experience Bar.
+     */
     public int experienceTotal;
 
     /** The player's experience score. */
@@ -100,6 +104,7 @@ public abstract class EntityPlayer extends EntityLiving
     {
         super(par1World);
         inventory = new InventoryPlayer(this);
+        field_56150_a = new InventoryEnderChest();
         foodStats = new FoodStats();
         flyToggleTimer = 0;
         field_9152_am = 0;
@@ -137,7 +142,7 @@ public abstract class EntityPlayer extends EntityLiving
     }
 
     /**
-     * checks if the entity is currently using an item (e.g., bow, food, sword) by holding down the useItemButton
+     * Checks if the entity is currently using an item (e.g., bow, food, sword) by holding down the useItemButton
      */
     public boolean isUsingItem()
     {
@@ -179,11 +184,7 @@ public abstract class EntityPlayer extends EntityLiving
         {
             ItemStack itemstack = inventory.getCurrentItem();
 
-            if (itemstack != itemInUse)
-            {
-                clearItemInUse();
-            }
-            else
+            if (itemstack == itemInUse)
             {
                 if (itemInUseCount <= 25 && itemInUseCount % 4 == 0)
                 {
@@ -194,6 +195,10 @@ public abstract class EntityPlayer extends EntityLiving
                 {
                     onItemUseFinish();
                 }
+            }
+            else
+            {
+                clearItemInUse();
             }
         }
 
@@ -239,11 +244,6 @@ public abstract class EntityPlayer extends EntityLiving
         {
             closeScreen();
             craftingInventory = inventorySlots;
-        }
-
-        if (capabilities.isFlying)
-        {
-            for (int i = 0; i < 8; i++) { }
         }
 
         if (isBurning() && capabilities.disableDamage)
@@ -319,14 +319,14 @@ public abstract class EntityPlayer extends EntityLiving
         {
             for (int i = 0; i < par2; i++)
             {
-                Vec3D vec3d = Vec3D.createVector(((double)rand.nextFloat() - 0.5D) * 0.10000000000000001D, Math.random() * 0.10000000000000001D + 0.10000000000000001D, 0.0D);
-                vec3d.rotateAroundX((-rotationPitch * (float)Math.PI) / 180F);
-                vec3d.rotateAroundY((-rotationYaw * (float)Math.PI) / 180F);
-                Vec3D vec3d1 = Vec3D.createVector(((double)rand.nextFloat() - 0.5D) * 0.29999999999999999D, (double)(-rand.nextFloat()) * 0.59999999999999998D - 0.29999999999999999D, 0.59999999999999998D);
-                vec3d1.rotateAroundX((-rotationPitch * (float)Math.PI) / 180F);
-                vec3d1.rotateAroundY((-rotationYaw * (float)Math.PI) / 180F);
-                vec3d1 = vec3d1.addVector(posX, posY + (double)getEyeHeight(), posZ);
-                worldObj.spawnParticle((new StringBuilder()).append("iconcrack_").append(par1ItemStack.getItem().shiftedIndex).toString(), vec3d1.xCoord, vec3d1.yCoord, vec3d1.zCoord, vec3d.xCoord, vec3d.yCoord + 0.050000000000000003D, vec3d.zCoord);
+                Vec3 vec3 = Vec3.func_58052_a().func_58076_a(((double)rand.nextFloat() - 0.5D) * 0.10000000000000001D, Math.random() * 0.10000000000000001D + 0.10000000000000001D, 0.0D);
+                vec3.rotateAroundX((-rotationPitch * (float)Math.PI) / 180F);
+                vec3.rotateAroundY((-rotationYaw * (float)Math.PI) / 180F);
+                Vec3 vec3_1 = Vec3.func_58052_a().func_58076_a(((double)rand.nextFloat() - 0.5D) * 0.29999999999999999D, (double)(-rand.nextFloat()) * 0.59999999999999998D - 0.29999999999999999D, 0.59999999999999998D);
+                vec3_1.rotateAroundX((-rotationPitch * (float)Math.PI) / 180F);
+                vec3_1.rotateAroundY((-rotationYaw * (float)Math.PI) / 180F);
+                vec3_1 = vec3_1.addVector(posX, posY + (double)getEyeHeight(), posZ);
+                worldObj.spawnParticle((new StringBuilder()).append("iconcrack_").append(par1ItemStack.getItem().shiftedIndex).toString(), vec3_1.xCoord, vec3_1.yCoord, vec3_1.zCoord, vec3.xCoord, vec3.yCoord + 0.050000000000000003D, vec3.zCoord);
             }
 
             worldObj.playSoundAtEntity(this, "random.eat", 0.5F + 0.5F * (float)rand.nextInt(2), (rand.nextFloat() - rand.nextFloat()) * 0.2F + 1.0F);
@@ -449,12 +449,12 @@ public abstract class EntityPlayer extends EntityLiving
         inventory.decrementAnimations();
         prevCameraYaw = cameraYaw;
         super.onLivingUpdate();
-        landMovementFactor = speedOnGround;
+        landMovementFactor = capabilities.func_56599_b();
         jumpMovementFactor = speedInAir;
 
         if (isSprinting())
         {
-            landMovementFactor += (double)speedOnGround * 0.29999999999999999D;
+            landMovementFactor += (double)capabilities.func_56599_b() * 0.29999999999999999D;
             jumpMovementFactor += (double)speedInAir * 0.29999999999999999D;
         }
 
@@ -485,15 +485,23 @@ public abstract class EntityPlayer extends EntityLiving
 
             if (list != null)
             {
-                for (int i = 0; i < list.size(); i++)
+                Iterator iterator = list.iterator();
+
+                do
                 {
-                    Entity entity = (Entity)list.get(i);
+                    if (!iterator.hasNext())
+                    {
+                        break;
+                    }
+
+                    Entity entity = (Entity)iterator.next();
 
                     if (!entity.isDead)
                     {
                         collideWithPlayer(entity);
                     }
                 }
+                while (true);
             }
         }
     }
@@ -578,7 +586,8 @@ public abstract class EntityPlayer extends EntityLiving
     }
 
     /**
-     * Args: itemstack
+     * Args: itemstack - called when player drops an item stack that's not in his inventory (like items still placed in
+     * a workbench while the workbench'es GUI gets closed)
      */
     public EntityItem dropPlayerItem(ItemStack par1ItemStack)
     {
@@ -640,35 +649,34 @@ public abstract class EntityPlayer extends EntityLiving
     public float getCurrentPlayerStrVsBlock(Block par1Block)
     {
         float f = inventory.getStrVsBlock(par1Block);
-        float f1 = f;
         int i = EnchantmentHelper.getEfficiencyModifier(inventory);
 
         if (i > 0 && inventory.canHarvestBlock(par1Block))
         {
-            f1 += i * i + 1;
+            f += i * i + 1;
         }
 
         if (isPotionActive(Potion.digSpeed))
         {
-            f1 *= 1.0F + (float)(getActivePotionEffect(Potion.digSpeed).getAmplifier() + 1) * 0.2F;
+            f *= 1.0F + (float)(getActivePotionEffect(Potion.digSpeed).getAmplifier() + 1) * 0.2F;
         }
 
         if (isPotionActive(Potion.digSlowdown))
         {
-            f1 *= 1.0F - (float)(getActivePotionEffect(Potion.digSlowdown).getAmplifier() + 1) * 0.2F;
+            f *= 1.0F - (float)(getActivePotionEffect(Potion.digSlowdown).getAmplifier() + 1) * 0.2F;
         }
 
         if (isInsideOfMaterial(Material.water) && !EnchantmentHelper.getAquaAffinityModifier(inventory))
         {
-            f1 /= 5F;
+            f /= 5F;
         }
 
         if (!onGround)
         {
-            f1 /= 5F;
+            f /= 5F;
         }
 
-        return f1;
+        return f;
     }
 
     /**
@@ -707,6 +715,12 @@ public abstract class EntityPlayer extends EntityLiving
 
         foodStats.readNBT(par1NBTTagCompound);
         capabilities.readCapabilitiesFromNBT(par1NBTTagCompound);
+
+        if (par1NBTTagCompound.hasKey("EnderItems"))
+        {
+            NBTTagList nbttaglist1 = par1NBTTagCompound.getTagList("EnderItems");
+            field_56150_a.func_56119_a(nbttaglist1);
+        }
     }
 
     /**
@@ -732,6 +746,7 @@ public abstract class EntityPlayer extends EntityLiving
 
         foodStats.writeNBT(par1NBTTagCompound);
         capabilities.writeCapabilitiesToNBT(par1NBTTagCompound);
+        par1NBTTagCompound.setTag("EnderItems", field_56150_a.func_56120_g());
     }
 
     /**
@@ -899,7 +914,7 @@ public abstract class EntityPlayer extends EntityLiving
             return;
         }
 
-        List list = worldObj.getEntitiesWithinAABB(net.minecraft.src.EntityWolf.class, AxisAlignedBB.getBoundingBoxFromPool(posX, posY, posZ, posX + 1.0D, posY + 1.0D, posZ + 1.0D).expand(16D, 4D, 16D));
+        List list = worldObj.getEntitiesWithinAABB(net.minecraft.src.EntityWolf.class, AxisAlignedBB.func_58089_a().func_58067_a(posX, posY, posZ, posX + 1.0D, posY + 1.0D, posZ + 1.0D).expand(16D, 4D, 16D));
         Iterator iterator = list.iterator();
 
         do
@@ -909,12 +924,11 @@ public abstract class EntityPlayer extends EntityLiving
                 break;
             }
 
-            Entity entity = (Entity)iterator.next();
-            EntityWolf entitywolf1 = (EntityWolf)entity;
+            EntityWolf entitywolf1 = (EntityWolf)iterator.next();
 
             if (entitywolf1.isTamed() && entitywolf1.getEntityToAttack() == null && username.equals(entitywolf1.getOwnerName()) && (!par2 || !entitywolf1.isSitting()))
             {
-                entitywolf1.func_48369_c(false);
+                entitywolf1.setSitting(false);
                 entitywolf1.setTarget(par1EntityLiving);
             }
         }
@@ -979,28 +993,42 @@ public abstract class EntityPlayer extends EntityLiving
     {
     }
 
-    /**
-     * Uses the currently equipped item on the specified entity. Args: entity
-     */
-    public void useCurrentItemOnEntity(Entity par1Entity)
+    public void func_56149_a(IMerchant imerchant)
+    {
+    }
+
+    public void func_55077_b(ItemStack itemstack)
+    {
+    }
+
+    public boolean func_56146_e(Entity par1Entity)
     {
         if (par1Entity.interact(this))
         {
-            return;
+            return true;
         }
 
         ItemStack itemstack = getCurrentEquippedItem();
 
         if (itemstack != null && (par1Entity instanceof EntityLiving))
         {
-            itemstack.useItemOnEntity((EntityLiving)par1Entity);
-
-            if (itemstack.stackSize <= 0)
+            if (capabilities.isCreativeMode)
             {
-                itemstack.onItemDestroyedByUse(this);
-                destroyCurrentEquippedItem();
+                itemstack = itemstack.copy();
+            }
+
+            if (itemstack.func_56776_a((EntityLiving)par1Entity))
+            {
+                if (itemstack.stackSize <= 0 && !capabilities.isCreativeMode)
+                {
+                    destroyCurrentEquippedItem();
+                }
+
+                return true;
             }
         }
+
+        return false;
     }
 
     /**
@@ -1124,7 +1152,6 @@ public abstract class EntityPlayer extends EntityLiving
 
                 if (itemstack.stackSize <= 0)
                 {
-                    itemstack.onItemDestroyedByUse(this);
                     destroyCurrentEquippedItem();
                 }
             }
@@ -1157,10 +1184,6 @@ public abstract class EntityPlayer extends EntityLiving
     }
 
     public void onEnchantmentCritical(Entity entity)
-    {
-    }
-
-    public void onItemStackChanged(ItemStack itemstack)
     {
     }
 
@@ -1215,7 +1238,7 @@ public abstract class EntityPlayer extends EntityLiving
 
             double d = 8D;
             double d1 = 5D;
-            List list = worldObj.getEntitiesWithinAABB(net.minecraft.src.EntityMob.class, AxisAlignedBB.getBoundingBoxFromPool((double)par1 - d, (double)par2 - d1, (double)par3 - d, (double)par1 + d, (double)par2 + d1, (double)par3 + d));
+            List list = worldObj.getEntitiesWithinAABB(net.minecraft.src.EntityMob.class, AxisAlignedBB.func_58089_a().func_58067_a((double)par1 - d, (double)par2 - d1, (double)par3 - d, (double)par1 + d, (double)par2 + d1, (double)par3 + d));
 
             if (!list.isEmpty())
             {
@@ -1398,7 +1421,7 @@ public abstract class EntityPlayer extends EntityLiving
     }
 
     /**
-     * gets the players spawn chunk
+     * Returns the coordinates to respawn the player based on last bed that the player sleep.
      */
     public ChunkCoordinates getSpawnChunk()
     {
@@ -1406,7 +1429,7 @@ public abstract class EntityPlayer extends EntityLiving
     }
 
     /**
-     * sets the players spawn chunk
+     * Defines a spawn coordinate to player spawn. Used by bed after the player sleep on it.
      */
     public void setSpawnChunk(ChunkCoordinates par1ChunkCoordinates)
     {
@@ -1436,7 +1459,7 @@ public abstract class EntityPlayer extends EntityLiving
     }
 
     /**
-     * causes this entity to jump (or at least move upwards)
+     * Causes this entity to do an upwards motion (jumping).
      */
     protected void jump()
     {
@@ -1462,11 +1485,11 @@ public abstract class EntityPlayer extends EntityLiving
         double d1 = posY;
         double d2 = posZ;
 
-        if (capabilities.isFlying)
+        if (capabilities.isFlying && ridingEntity == null)
         {
             double d3 = motionY;
             float f = jumpMovementFactor;
-            jumpMovementFactor = 0.05F;
+            jumpMovementFactor = capabilities.func_56598_a();
             super.moveEntityWithHeading(par1, par2);
             motionY = d3 * 0.59999999999999998D;
             jumpMovementFactor = f;
@@ -1643,7 +1666,7 @@ public abstract class EntityPlayer extends EntityLiving
         experience += (float)par1 / (float)xpBarCap();
         experienceTotal += par1;
 
-        for (; experience >= 1.0F; experience = experience / (float)xpBarCap())
+        for (; experience >= 1.0F; experience /= xpBarCap())
         {
             experience = (experience - 1.0F) * (float)xpBarCap();
             increaseLevel();
@@ -1669,7 +1692,19 @@ public abstract class EntityPlayer extends EntityLiving
      */
     public int xpBarCap()
     {
-        return 7 + (experienceLevel * 7 >> 1);
+        if (experienceLevel >= 30)
+        {
+            return 62 + (experienceLevel - 30) * 7;
+        }
+
+        if (experienceLevel >= 15)
+        {
+            return 17 + (experienceLevel - 15) * 3;
+        }
+        else
+        {
+            return 17;
+        }
     }
 
     /**
@@ -1738,7 +1773,7 @@ public abstract class EntityPlayer extends EntityLiving
 
     public boolean canPlayerEdit(int par1, int par2, int par3)
     {
-        return true;
+        return capabilities.field_56602_e;
     }
 
     /**
@@ -1775,18 +1810,20 @@ public abstract class EntityPlayer extends EntityLiving
     {
     }
 
-    /**
-     * Copy the inventory and various stats from another EntityPlayer
-     */
-    public void copyPlayer(EntityPlayer par1EntityPlayer)
+    public void func_58016_a(EntityPlayer par1EntityPlayer, boolean par2)
     {
-        inventory.copyInventory(par1EntityPlayer.inventory);
-        health = par1EntityPlayer.health;
-        foodStats = par1EntityPlayer.foodStats;
-        experienceLevel = par1EntityPlayer.experienceLevel;
-        experienceTotal = par1EntityPlayer.experienceTotal;
-        experience = par1EntityPlayer.experience;
-        score = par1EntityPlayer.score;
+        if (par2)
+        {
+            inventory.copyInventory(par1EntityPlayer.inventory);
+            health = par1EntityPlayer.health;
+            foodStats = par1EntityPlayer.foodStats;
+            experienceLevel = par1EntityPlayer.experienceLevel;
+            experienceTotal = par1EntityPlayer.experienceTotal;
+            experience = par1EntityPlayer.experience;
+            score = par1EntityPlayer.score;
+        }
+
+        field_56150_a = par1EntityPlayer.field_56150_a;
     }
 
     /**
@@ -1800,5 +1837,29 @@ public abstract class EntityPlayer extends EntityLiving
 
     public void func_50022_L()
     {
+    }
+
+    public void func_56147_a(EnumGameType enumgametype)
+    {
+    }
+
+    public String func_55070_y_()
+    {
+        return username;
+    }
+
+    public StringTranslate func_55078_J()
+    {
+        return StringTranslate.getInstance();
+    }
+
+    public String func_55069_a(String par1Str, Object par2ArrayOfObj[])
+    {
+        return func_55078_J().translateKeyFormat(par1Str, par2ArrayOfObj);
+    }
+
+    public InventoryEnderChest func_56148_aC()
+    {
+        return field_56150_a;
     }
 }

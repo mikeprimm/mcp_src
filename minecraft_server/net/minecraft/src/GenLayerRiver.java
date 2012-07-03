@@ -31,13 +31,7 @@ public class GenLayerRiver extends GenLayer
                 int j2 = ai[j1 + 1 + (i1 + 2) * k];
                 int k2 = ai[j1 + 1 + (i1 + 1) * k];
 
-                if (k2 == 0 || k1 == 0 || l1 == 0 || i2 == 0 || j2 == 0)
-                {
-                    ai1[j1 + i1 * par3] = BiomeGenBase.river.biomeID;
-                    continue;
-                }
-
-                if (k2 != k1 || k2 != i2 || k2 != l1 || k2 != j2)
+                if (k2 == 0 || k1 == 0 || l1 == 0 || i2 == 0 || j2 == 0 || k2 != k1 || k2 != i2 || k2 != l1 || k2 != j2)
                 {
                     ai1[j1 + i1 * par3] = BiomeGenBase.river.biomeID;
                 }

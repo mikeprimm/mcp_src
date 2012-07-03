@@ -21,7 +21,7 @@ public class RecipesArmor
         recipeItems = (new Object[][]
                 {
                     new Object[] {
-                        Item.leather, Block.fire, Item.ingotIron, Item.diamond, Item.ingotGold
+                        Item.leather, Block.fire, Item.ingotIron, Item.field_56457_n, Item.ingotGold
                     }, new Object[] {
                         Item.helmetLeather, Item.helmetChain, Item.helmetSteel, Item.helmetDiamond, Item.helmetGold
                     }, new Object[] {

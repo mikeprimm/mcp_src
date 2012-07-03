@@ -8,6 +8,7 @@ public class ItemSnowball extends Item
     {
         super(par1);
         maxStackSize = 16;
+        func_56455_a(CreativeTabs.field_56383_f);
     }
 
     /**

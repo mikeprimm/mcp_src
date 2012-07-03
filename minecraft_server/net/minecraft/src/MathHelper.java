@@ -76,6 +76,12 @@ public class MathHelper
         return par0 < 0 ? -par0 : par0;
     }
 
+    public static int func_55185_d(double par0)
+    {
+        int i = (int)par0;
+        return par0 <= (double)i ? i : i + 1;
+    }
+
     /**
      * Returns the value of the first parameter, clamped to be within the lower and upper limits given by the second and
      * third parameters.
@@ -125,6 +131,21 @@ public class MathHelper
         {
             return par0Random.nextInt((par2 - par1) + 1) + par1;
         }
+    }
+
+    public static double func_56405_a(long par0ArrayOfLong[])
+    {
+        long l = 0L;
+        long al[] = par0ArrayOfLong;
+        int i = al.length;
+
+        for (int j = 0; j < i; j++)
+        {
+            long l1 = al[j];
+            l += l1;
+        }
+
+        return (double)l / (double)par0ArrayOfLong.length;
     }
 
     static

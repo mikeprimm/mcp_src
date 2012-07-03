@@ -4,10 +4,16 @@ import java.util.Random;
 
 public class BlockLog extends Block
 {
+    public static final String field_56341_a[] =
+    {
+        "oak", "spruce", "birch", "jungle"
+    };
+
     protected BlockLog(int par1)
     {
         super(par1, Material.wood);
         blockIndexInTexture = 20;
+        func_56326_a(CreativeTabs.field_56387_b);
     }
 
     /**
@@ -26,19 +32,7 @@ public class BlockLog extends Block
         return Block.wood.blockID;
     }
 
-    /**
-     * Called when the player destroys a block with an item that can harvest it. (i, j, k) are the coordinates of the
-     * block and l is the block's subtype/damage.
-     */
-    public void harvestBlock(World par1World, EntityPlayer par2EntityPlayer, int par3, int par4, int par5, int par6)
-    {
-        super.harvestBlock(par1World, par2EntityPlayer, par3, par4, par5, par6);
-    }
-
-    /**
-     * Called whenever the block is removed.
-     */
-    public void onBlockRemoval(World par1World, int par2, int par3, int par4)
+    public void func_56322_a(World par1World, int par2, int par3, int par4, int par5, int par6)
     {
         byte byte0 = 4;
         int i = byte0 + 1;

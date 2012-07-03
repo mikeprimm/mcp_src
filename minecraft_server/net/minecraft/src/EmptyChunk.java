@@ -33,10 +33,6 @@ public class EmptyChunk extends Chunk
     {
     }
 
-    public void func_4053_c()
-    {
-    }
-
     /**
      * Return the ID of a block in the chunk.
      */

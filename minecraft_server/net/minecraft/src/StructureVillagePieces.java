@@ -39,12 +39,12 @@ public class StructureVillagePieces
         return arraylist;
     }
 
-    private static int getAvailablePieceWeight(ArrayList par0ArrayList)
+    private static int func_55232_a(List par0List)
     {
         boolean flag = false;
         int i = 0;
 
-        for (Iterator iterator = par0ArrayList.iterator(); iterator.hasNext();)
+        for (Iterator iterator = par0List.iterator(); iterator.hasNext();)
         {
             StructureVillagePieceWeight structurevillagepieceweight = (StructureVillagePieceWeight)iterator.next();
 
@@ -59,57 +59,57 @@ public class StructureVillagePieces
         return flag ? i : -1;
     }
 
-    private static ComponentVillage getVillageComponentFromWeightedPiece(StructureVillagePieceWeight par0StructureVillagePieceWeight, List par1List, Random par2Random, int par3, int par4, int par5, int par6, int par7)
+    private static ComponentVillage func_56917_a(ComponentVillageStartPiece par0ComponentVillageStartPiece, StructureVillagePieceWeight par1StructureVillagePieceWeight, List par2List, Random par3Random, int par4, int par5, int par6, int par7, int par8)
     {
-        Class class1 = par0StructureVillagePieceWeight.villagePieceClass;
+        Class class1 = par1StructureVillagePieceWeight.villagePieceClass;
         Object obj = null;
 
         if (class1 == (net.minecraft.src.ComponentVillageHouse4_Garden.class))
         {
-            obj = ComponentVillageHouse4_Garden.findValidPlacement(par1List, par2Random, par3, par4, par5, par6, par7);
+            obj = ComponentVillageHouse4_Garden.func_56311_a(par0ComponentVillageStartPiece, par2List, par3Random, par4, par5, par6, par7, par8);
         }
         else if (class1 == (net.minecraft.src.ComponentVillageChurch.class))
         {
-            obj = ComponentVillageChurch.findValidPlacement(par1List, par2Random, par3, par4, par5, par6, par7);
+            obj = ComponentVillageChurch.func_56317_a(par0ComponentVillageStartPiece, par2List, par3Random, par4, par5, par6, par7, par8);
         }
         else if (class1 == (net.minecraft.src.ComponentVillageHouse1.class))
         {
-            obj = ComponentVillageHouse1.findValidPlacement(par1List, par2Random, par3, par4, par5, par6, par7);
+            obj = ComponentVillageHouse1.func_56318_a(par0ComponentVillageStartPiece, par2List, par3Random, par4, par5, par6, par7, par8);
         }
         else if (class1 == (net.minecraft.src.ComponentVillageWoodHut.class))
         {
-            obj = ComponentVillageWoodHut.findValidPlacement(par1List, par2Random, par3, par4, par5, par6, par7);
+            obj = ComponentVillageWoodHut.func_56312_a(par0ComponentVillageStartPiece, par2List, par3Random, par4, par5, par6, par7, par8);
         }
         else if (class1 == (net.minecraft.src.ComponentVillageHall.class))
         {
-            obj = ComponentVillageHall.findValidPlacement(par1List, par2Random, par3, par4, par5, par6, par7);
+            obj = ComponentVillageHall.func_56310_a(par0ComponentVillageStartPiece, par2List, par3Random, par4, par5, par6, par7, par8);
         }
         else if (class1 == (net.minecraft.src.ComponentVillageField.class))
         {
-            obj = ComponentVillageField.findValidPlacement(par1List, par2Random, par3, par4, par5, par6, par7);
+            obj = ComponentVillageField.func_56320_a(par0ComponentVillageStartPiece, par2List, par3Random, par4, par5, par6, par7, par8);
         }
         else if (class1 == (net.minecraft.src.ComponentVillageField2.class))
         {
-            obj = ComponentVillageField2.findValidPlacement(par1List, par2Random, par3, par4, par5, par6, par7);
+            obj = ComponentVillageField2.func_56315_a(par0ComponentVillageStartPiece, par2List, par3Random, par4, par5, par6, par7, par8);
         }
         else if (class1 == (net.minecraft.src.ComponentVillageHouse2.class))
         {
-            obj = ComponentVillageHouse2.findValidPlacement(par1List, par2Random, par3, par4, par5, par6, par7);
+            obj = ComponentVillageHouse2.func_56313_a(par0ComponentVillageStartPiece, par2List, par3Random, par4, par5, par6, par7, par8);
         }
         else if (class1 == (net.minecraft.src.ComponentVillageHouse3.class))
         {
-            obj = ComponentVillageHouse3.findValidPlacement(par1List, par2Random, par3, par4, par5, par6, par7);
+            obj = ComponentVillageHouse3.func_56319_a(par0ComponentVillageStartPiece, par2List, par3Random, par4, par5, par6, par7, par8);
         }
 
         return ((ComponentVillage)(obj));
     }
 
     /**
-     * 'attempts to find a next Village Component to be spawned'
+     * attempts to find a next Village Component to be spawned
      */
     private static ComponentVillage getNextVillageComponent(ComponentVillageStartPiece par0ComponentVillageStartPiece, List par1List, Random par2Random, int par3, int par4, int par5, int par6, int par7)
     {
-        int var8 = getAvailablePieceWeight(par0ComponentVillageStartPiece.structureVillageWeightedPieceList);
+        int var8 = func_55232_a(par0ComponentVillageStartPiece.structureVillageWeightedPieceList);
 
         if (var8 <= 0)
         {
@@ -137,7 +137,7 @@ public class StructureVillagePieces
                             break;
                         }
 
-                        ComponentVillage var13 = getVillageComponentFromWeightedPiece(var12, par1List, par2Random, par3, par4, par5, par6, par7);
+                        ComponentVillage var13 = func_56917_a(par0ComponentVillageStartPiece, var12, par1List, par2Random, par3, par4, par5, par6, par7);
 
                         if (var13 != null)
                         {
@@ -155,11 +155,11 @@ public class StructureVillagePieces
                 }
             }
 
-            StructureBoundingBox var14 = ComponentVillageTorch.findValidPlacement(par1List, par2Random, par3, par4, par5, par6);
+            StructureBoundingBox var14 = ComponentVillageTorch.func_56316_a(par0ComponentVillageStartPiece, par1List, par2Random, par3, par4, par5, par6);
 
             if (var14 != null)
             {
-                return new ComponentVillageTorch(par7, par2Random, var14, par6);
+                return new ComponentVillageTorch(par0ComponentVillageStartPiece, par7, par2Random, var14, par6);
             }
             else
             {
@@ -169,7 +169,7 @@ public class StructureVillagePieces
     }
 
     /**
-     * 'attempts to find a next Structure Component to be spawned, private Village function'
+     * attempts to find a next Structure Component to be spawned, private Village function
      */
     private static StructureComponent getNextVillageStructureComponent(ComponentVillageStartPiece par0ComponentVillageStartPiece, List par1List, Random par2Random, int par3, int par4, int par5, int par6, int par7)
     {
@@ -220,7 +220,7 @@ public class StructureVillagePieces
 
         if (structureboundingbox != null && structureboundingbox.minY > 10)
         {
-            ComponentVillagePathGen componentvillagepathgen = new ComponentVillagePathGen(par7, par2Random, structureboundingbox, par6);
+            ComponentVillagePathGen componentvillagepathgen = new ComponentVillagePathGen(par0ComponentVillageStartPiece, par7, par2Random, structureboundingbox, par6);
             int i = (((StructureComponent)(componentvillagepathgen)).boundingBox.minX + ((StructureComponent)(componentvillagepathgen)).boundingBox.maxX) / 2;
             int j = (((StructureComponent)(componentvillagepathgen)).boundingBox.minZ + ((StructureComponent)(componentvillagepathgen)).boundingBox.maxZ) / 2;
             int k = ((StructureComponent)(componentvillagepathgen)).boundingBox.maxX - ((StructureComponent)(componentvillagepathgen)).boundingBox.minX;
@@ -239,7 +239,7 @@ public class StructureVillagePieces
     }
 
     /**
-     * 'attempts to find a next Structure Component to be spawned'
+     * attempts to find a next Structure Component to be spawned
      */
     static StructureComponent getNextStructureComponent(ComponentVillageStartPiece par0ComponentVillageStartPiece, List par1List, Random par2Random, int par3, int par4, int par5, int par6, int par7)
     {

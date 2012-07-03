@@ -4,11 +4,17 @@ import java.util.Random;
 
 public class BlockSapling extends BlockFlower
 {
+    public static final String field_55137_a[] =
+    {
+        "oak", "spruce", "birch", "jungle"
+    };
+
     protected BlockSapling(int par1, int par2)
     {
         super(par1, par2);
         float f = 0.4F;
         setBlockBounds(0.5F - f, 0.0F, 0.5F - f, 0.5F + f, f * 2.0F, 0.5F + f);
+        func_56326_a(CreativeTabs.field_56388_c);
     }
 
     /**

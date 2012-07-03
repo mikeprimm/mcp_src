@@ -15,7 +15,7 @@ public class EntityOcelot extends EntityTameable
         super(par1World);
         texture = "/mob/ozelot.png";
         setSize(0.6F, 0.8F);
-        getNavigator().func_48656_a(true);
+        getNavigator().setAvoidsWater(true);
         tasks.addTask(1, new EntityAISwimming(this));
         tasks.addTask(2, aiSit);
         tasks.addTask(3, aiTempt = new EntityAITempt(this, 0.18F, Item.fishRaw.shiftedIndex, true));
@@ -41,12 +41,7 @@ public class EntityOcelot extends EntityTameable
      */
     public void updateAITick()
     {
-        if (!getMoveHelper().func_48438_a())
-        {
-            setSneaking(false);
-            setSprinting(false);
-        }
-        else
+        if (getMoveHelper().func_48438_a())
         {
             float f = getMoveHelper().getSpeed();
 
@@ -65,6 +60,11 @@ public class EntityOcelot extends EntityTameable
                 setSneaking(false);
                 setSprinting(false);
             }
+        }
+        else
+        {
+            setSneaking(false);
+            setSprinting(false);
         }
     }
 
@@ -201,42 +201,44 @@ public class EntityOcelot extends EntityTameable
     {
         ItemStack itemstack = par1EntityPlayer.inventory.getCurrentItem();
 
-        if (!isTamed())
+        if (isTamed())
         {
-            if (aiTempt.func_48261_f() && itemstack != null && itemstack.itemID == Item.fishRaw.shiftedIndex && par1EntityPlayer.getDistanceSqToEntity(this) < 9D)
+            if (par1EntityPlayer.username.equalsIgnoreCase(getOwnerName()) && !worldObj.isRemote && !isWheat(itemstack))
+            {
+                aiSit.func_48210_a(!isSitting());
+            }
+        }
+        else if (aiTempt.func_48261_f() && itemstack != null && itemstack.itemID == Item.fishRaw.shiftedIndex && par1EntityPlayer.getDistanceSqToEntity(this) < 9D)
+        {
+            if (!par1EntityPlayer.capabilities.isCreativeMode)
             {
                 itemstack.stackSize--;
+            }
 
-                if (itemstack.stackSize <= 0)
+            if (itemstack.stackSize <= 0)
+            {
+                par1EntityPlayer.inventory.setInventorySlotContents(par1EntityPlayer.inventory.currentItem, null);
+            }
+
+            if (!worldObj.isRemote)
+            {
+                if (rand.nextInt(3) == 0)
                 {
-                    par1EntityPlayer.inventory.setInventorySlotContents(par1EntityPlayer.inventory.currentItem, null);
+                    setTamed(true);
+                    func_48376_c_(1 + worldObj.rand.nextInt(3));
+                    setOwner(par1EntityPlayer.username);
+                    func_48370_a(true);
+                    aiSit.func_48210_a(true);
+                    worldObj.setEntityState(this, (byte)7);
                 }
-
-                if (!worldObj.isRemote)
+                else
                 {
-                    if (rand.nextInt(3) == 0)
-                    {
-                        setTamed(true);
-                        func_48376_c_(1 + worldObj.rand.nextInt(3));
-                        setOwner(par1EntityPlayer.username);
-                        func_48370_a(true);
-                        aiSit.func_48210_a(true);
-                        worldObj.setEntityState(this, (byte)7);
-                    }
-                    else
-                    {
-                        func_48370_a(false);
-                        worldObj.setEntityState(this, (byte)6);
-                    }
+                    func_48370_a(false);
+                    worldObj.setEntityState(this, (byte)6);
                 }
             }
 
             return true;
-        }
-
-        if (par1EntityPlayer.username.equalsIgnoreCase(getOwnerName()) && !worldObj.isRemote && !isWheat(itemstack))
-        {
-            aiSit.func_48210_a(!isSitting());
         }
 
         return super.interact(par1EntityPlayer);
@@ -316,7 +318,7 @@ public class EntityOcelot extends EntityTameable
             return false;
         }
 
-        if (worldObj.checkIfAABBIsClear(boundingBox) && worldObj.getCollidingBoundingBoxes(this, boundingBox).size() == 0 && !worldObj.isAnyLiquid(boundingBox))
+        if (worldObj.checkIfAABBIsClear(boundingBox) && worldObj.getCollidingBoundingBoxes(this, boundingBox).isEmpty() && !worldObj.isAnyLiquid(boundingBox))
         {
             int i = MathHelper.floor_double(posX);
             int j = MathHelper.floor_double(boundingBox.minY);

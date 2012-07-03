@@ -30,16 +30,14 @@ public class RConThreadQuery extends RConThreadBase
 
     /** Storage for incoming DatagramPackets */
     private DatagramPacket incomingPacket;
-    private HashMap field_40452_p;
+    private Map field_55128_p;
 
     /** The hostname of this query server */
     private String queryHostname;
 
     /** The hostname of the running server */
     private String serverHostname;
-
-    /** A map */
-    private HashMap queryClients;
+    private Map field_55127_s;
     private long field_40448_t;
 
     /** The RConQuery output stream */
@@ -59,7 +57,7 @@ public class RConThreadQuery extends RConThreadBase
         serverPort = par1IServer.getPort();
         serverMotd = par1IServer.getMotd();
         maxPlayers = par1IServer.getMaxPlayers();
-        worldName = par1IServer.getWorldName();
+        worldName = par1IServer.func_58018_H();
         lastQueryResponseTime = 0L;
         queryHostname = "0.0.0.0";
 
@@ -91,16 +89,16 @@ public class RConThreadQuery extends RConThreadBase
             par1IServer.saveProperties();
         }
 
-        field_40452_p = new HashMap();
+        field_55128_p = new HashMap();
         output = new RConOutputStream(1460);
-        queryClients = new HashMap();
+        field_55127_s = new HashMap();
         field_40448_t = (new Date()).getTime();
     }
 
     /**
      * Sends a byte array as a DatagramPacket response to the client who sent the given DatagramPacket
      */
-    private void sendResponsePacket(byte par1ArrayOfByte[], DatagramPacket par2DatagramPacket) throws SocketException, IOException
+    private void sendResponsePacket(byte par1ArrayOfByte[], DatagramPacket par2DatagramPacket) throws IOException
     {
         querySocket.send(new DatagramPacket(par1ArrayOfByte, par1ArrayOfByte.length, par2DatagramPacket.getSocketAddress()));
     }
@@ -137,7 +135,12 @@ public class RConThreadQuery extends RConThreadBase
                     return false;
                 }
 
-                if (15 != i)
+                if (15 == i)
+                {
+                    sendResponsePacket(createQueryResponse(par1DatagramPacket), par1DatagramPacket);
+                    logInfo((new StringBuilder()).append("Rules [").append(socketaddress).append("]").toString());
+                }
+                else
                 {
                     RConOutputStream rconoutputstream = new RConOutputStream(1460);
                     rconoutputstream.writeInt(0);
@@ -151,11 +154,6 @@ public class RConThreadQuery extends RConThreadBase
                     rconoutputstream.writeString(queryHostname);
                     sendResponsePacket(rconoutputstream.toByteArray(), par1DatagramPacket);
                     logInfo((new StringBuilder()).append("Status [").append(socketaddress).append("]").toString());
-                }
-                else
-                {
-                    sendResponsePacket(createQueryResponse(par1DatagramPacket), par1DatagramPacket);
-                    logInfo((new StringBuilder()).append("Rules [").append(socketaddress).append("]").toString());
                 }
 
                 break;
@@ -230,7 +228,7 @@ public class RConThreadQuery extends RConThreadBase
      */
     private byte[] getRequestID(SocketAddress par1SocketAddress)
     {
-        return ((RConThreadQueryAuth)queryClients.get(par1SocketAddress)).getRequestID();
+        return ((RConThreadQueryAuth)field_55127_s.get(par1SocketAddress)).getRequestID();
     }
 
     /**
@@ -240,14 +238,14 @@ public class RConThreadQuery extends RConThreadBase
     {
         SocketAddress socketaddress = par1DatagramPacket.getSocketAddress();
 
-        if (!queryClients.containsKey(socketaddress))
+        if (!field_55127_s.containsKey(socketaddress))
         {
             return Boolean.valueOf(false);
         }
 
         byte abyte0[] = par1DatagramPacket.getData();
 
-        if (((RConThreadQueryAuth)queryClients.get(socketaddress)).getRandomChallenge() != RConUtils.getBytesAsBEint(abyte0, 7, par1DatagramPacket.getLength()))
+        if (((RConThreadQueryAuth)field_55127_s.get(socketaddress)).getRandomChallenge() != RConUtils.getBytesAsBEint(abyte0, 7, par1DatagramPacket.getLength()))
         {
             return Boolean.valueOf(false);
         }
@@ -260,10 +258,10 @@ public class RConThreadQuery extends RConThreadBase
     /**
      * Sends an auth challenge DatagramPacket to the client and adds the client to the queryClients map
      */
-    private void sendAuthChallenge(DatagramPacket par1DatagramPacket) throws SocketException, IOException
+    private void sendAuthChallenge(DatagramPacket par1DatagramPacket) throws IOException
     {
         RConThreadQueryAuth rconthreadqueryauth = new RConThreadQueryAuth(this, par1DatagramPacket);
-        queryClients.put(par1DatagramPacket.getSocketAddress(), rconthreadqueryauth);
+        field_55127_s.put(par1DatagramPacket.getSocketAddress(), rconthreadqueryauth);
         sendResponsePacket(rconthreadqueryauth.getChallengeValue(), par1DatagramPacket);
     }
 
@@ -285,7 +283,7 @@ public class RConThreadQuery extends RConThreadBase
         }
 
         lastAuthCheckTime = l;
-        Iterator iterator = queryClients.entrySet().iterator();
+        Iterator iterator = field_55127_s.entrySet().iterator();
 
         do
         {
@@ -375,7 +373,6 @@ public class RConThreadQuery extends RConThreadBase
         {
             logSevere("Failed to recover from buggy JRE, shutting down!");
             running = false;
-            server.func_40010_o();
         }
     }
 

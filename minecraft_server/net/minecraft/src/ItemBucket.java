@@ -12,6 +12,7 @@ public class ItemBucket extends Item
         super(par1);
         maxStackSize = 1;
         isFull = par2;
+        func_56455_a(CreativeTabs.field_56383_f);
     }
 
     /**
@@ -57,10 +58,18 @@ public class ItemBucket extends Item
                     {
                         return par1ItemStack;
                     }
-                    else
+
+                    if (--par1ItemStack.stackSize <= 0)
                     {
                         return new ItemStack(Item.bucketWater);
                     }
+
+                    if (!par3EntityPlayer.inventory.addItemStackToInventory(new ItemStack(Item.bucketWater)))
+                    {
+                        par3EntityPlayer.dropPlayerItem(new ItemStack(Item.bucketWater.shiftedIndex, 1, 0));
+                    }
+
+                    return par1ItemStack;
                 }
 
                 if (par2World.getBlockMaterial(i, j, k) == Material.lava && par2World.getBlockMetadata(i, j, k) == 0)
@@ -71,10 +80,18 @@ public class ItemBucket extends Item
                     {
                         return par1ItemStack;
                     }
-                    else
+
+                    if (--par1ItemStack.stackSize <= 0)
                     {
                         return new ItemStack(Item.bucketLava);
                     }
+
+                    if (!par3EntityPlayer.inventory.addItemStackToInventory(new ItemStack(Item.bucketLava)))
+                    {
+                        par3EntityPlayer.dropPlayerItem(new ItemStack(Item.bucketLava.shiftedIndex, 1, 0));
+                    }
+
+                    return par1ItemStack;
                 }
             }
             else
@@ -119,30 +136,9 @@ public class ItemBucket extends Item
                     return par1ItemStack;
                 }
 
-                if (par2World.isAirBlock(i, j, k) || !par2World.getBlockMaterial(i, j, k).isSolid())
+                if (func_56461_a(par2World, d, d1, d2, i, j, k) && !par3EntityPlayer.capabilities.isCreativeMode)
                 {
-                    if (par2World.worldProvider.isHellWorld && isFull == Block.waterMoving.blockID)
-                    {
-                        par2World.playSoundEffect(d + 0.5D, d1 + 0.5D, d2 + 0.5D, "random.fizz", 0.5F, 2.6F + (par2World.rand.nextFloat() - par2World.rand.nextFloat()) * 0.8F);
-
-                        for (int l = 0; l < 8; l++)
-                        {
-                            par2World.spawnParticle("largesmoke", (double)i + Math.random(), (double)j + Math.random(), (double)k + Math.random(), 0.0D, 0.0D, 0.0D);
-                        }
-                    }
-                    else
-                    {
-                        par2World.setBlockAndMetadataWithNotify(i, j, k, isFull, 0);
-                    }
-
-                    if (par3EntityPlayer.capabilities.isCreativeMode)
-                    {
-                        return par1ItemStack;
-                    }
-                    else
-                    {
-                        return new ItemStack(Item.bucketEmpty);
-                    }
+                    return new ItemStack(Item.bucketEmpty);
                 }
             }
         }
@@ -152,5 +148,36 @@ public class ItemBucket extends Item
         }
 
         return par1ItemStack;
+    }
+
+    public boolean func_56461_a(World par1World, double par2, double par4, double par6, int par8, int par9, int par10)
+    {
+        if (isFull <= 0)
+        {
+            return false;
+        }
+
+        if (par1World.isAirBlock(par8, par9, par10) || !par1World.getBlockMaterial(par8, par9, par10).isSolid())
+        {
+            if (par1World.worldProvider.isHellWorld && isFull == Block.waterMoving.blockID)
+            {
+                par1World.playSoundEffect(par2 + 0.5D, par4 + 0.5D, par6 + 0.5D, "random.fizz", 0.5F, 2.6F + (par1World.rand.nextFloat() - par1World.rand.nextFloat()) * 0.8F);
+
+                for (int i = 0; i < 8; i++)
+                {
+                    par1World.spawnParticle("largesmoke", (double)par8 + Math.random(), (double)par9 + Math.random(), (double)par10 + Math.random(), 0.0D, 0.0D, 0.0D);
+                }
+            }
+            else
+            {
+                par1World.setBlockAndMetadataWithNotify(par8, par9, par10, isFull, 0);
+            }
+
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 }

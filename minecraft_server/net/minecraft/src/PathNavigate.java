@@ -7,71 +7,116 @@ public class PathNavigate
 
     /** The PathEntity being followed. */
     private PathEntity currentPath;
-    private float field_46036_d;
-    private float field_48672_e;
+    private float speed;
+
+    /**
+     * The number of blocks (extra) +/- in each axis that get pulled out as cache for the pathfinder's search space
+     */
+    private float pathSearchRange;
     private boolean noSunPathfind;
-    private int field_48671_g;
-    private int field_48677_h;
-    private Vec3D field_48678_i;
-    private boolean field_48675_j;
-    private boolean field_48676_k;
-    private boolean field_48673_l;
-    private boolean field_48674_m;
+
+    /** Time, in number of ticks, following the current path */
+    private int totalTicks;
+
+    /**
+     * The time when the last position check was done (to detect successful movement)
+     */
+    private int ticksAtLastPos;
+
+    /**
+     * Coordinates of the entity's position last time a check was done (part of monitoring getting 'stuck')
+     */
+    private Vec3 lastPosCheck;
+
+    /**
+     * Specifically, if a wooden door block is even considered to be passable by the pathfinder
+     */
+    private boolean canPassOpenWoodenDoors;
+
+    /** If door blocks are considered passable even when closed */
+    private boolean canPassClosedWoodenDoors;
+
+    /** If water blocks are avoided (at least by the pathfinder) */
+    private boolean avoidsWater;
+
+    /**
+     * If the entity can swim. Swimming AI enables this and the pathfinder will also cause the entity to swim straight
+     * upwards when underwater
+     */
+    private boolean canSwim;
 
     public PathNavigate(EntityLiving par1EntityLiving, World par2World, float par3)
     {
         noSunPathfind = false;
-        field_48678_i = Vec3D.createVectorHelper(0.0D, 0.0D, 0.0D);
-        field_48675_j = true;
-        field_48676_k = false;
-        field_48673_l = false;
-        field_48674_m = false;
+        lastPosCheck = Vec3.createVectorHelper(0.0D, 0.0D, 0.0D);
+        canPassOpenWoodenDoors = true;
+        canPassClosedWoodenDoors = false;
+        avoidsWater = false;
+        canSwim = false;
         theEntity = par1EntityLiving;
         worldObj = par2World;
-        field_48672_e = par3;
+        pathSearchRange = par3;
     }
 
-    public void func_48656_a(boolean par1)
+    public void setAvoidsWater(boolean par1)
     {
-        field_48673_l = par1;
+        avoidsWater = par1;
     }
 
-    public boolean func_48649_a()
+    public boolean getAvoidsWater()
     {
-        return field_48673_l;
+        return avoidsWater;
     }
 
     public void setBreakDoors(boolean par1)
     {
-        field_48676_k = par1;
+        canPassClosedWoodenDoors = par1;
     }
 
-    public void func_48655_c(boolean par1)
+    /**
+     * Sets if the entity can enter open doors
+     */
+    public void setEnterDoors(boolean par1)
     {
-        field_48675_j = par1;
+        canPassOpenWoodenDoors = par1;
     }
 
-    public boolean func_48657_b()
+    /**
+     * Returns true if the entity can break doors, false otherwise
+     */
+    public boolean getCanBreakDoors()
     {
-        return field_48676_k;
+        return canPassClosedWoodenDoors;
     }
 
-    public void func_48669_d(boolean par1)
+    /**
+     * Sets if the path should avoid sunlight
+     */
+    public void setAvoidSun(boolean par1)
     {
         noSunPathfind = par1;
     }
 
-    public void func_48654_a(float par1)
+    /**
+     * Sets the speed
+     */
+    public void setSpeed(float par1)
     {
-        field_46036_d = par1;
+        speed = par1;
     }
 
-    public void func_48660_e(boolean par1)
+    /**
+     * Sets if the entity can swim
+     */
+    public void setCanSwim(boolean par1)
     {
-        field_48674_m = par1;
+        canSwim = par1;
     }
 
-    public PathEntity func_48650_a(double par1, double par3, double par5)
+    /**
+     * Returns the path to the given coordinates
+     */
+    public PathEntity getPathToXYZ(double par1, double par3, double par5)
     {
         if (!canNavigate())
         {
@@ -79,13 +124,16 @@ public class PathNavigate
         }
         else
         {
-            return worldObj.getEntityPathToXYZ(theEntity, MathHelper.floor_double(par1), (int)par3, MathHelper.floor_double(par5), field_48672_e, field_48675_j, field_48676_k, field_48673_l, field_48674_m);
+            return worldObj.getEntityPathToXYZ(theEntity, MathHelper.floor_double(par1), (int)par3, MathHelper.floor_double(par5), pathSearchRange, canPassOpenWoodenDoors, canPassClosedWoodenDoors, avoidsWater, canSwim);
         }
     }
 
-    public boolean func_48658_a(double par1, double par3, double par5, float par7)
+    /**
+     * Try to find and set a path to XYZ. Returns true if successful.
+     */
+    public boolean tryMoveToXYZ(double par1, double par3, double par5, float par7)
     {
-        PathEntity pathentity = func_48650_a(MathHelper.floor_double(par1), (int)par3, MathHelper.floor_double(par5));
+        PathEntity pathentity = getPathToXYZ(MathHelper.floor_double(par1), (int)par3, MathHelper.floor_double(par5));
         return setPath(pathentity, par7);
     }
 
@@ -97,7 +145,7 @@ public class PathNavigate
         }
         else
         {
-            return worldObj.getPathEntityToEntity(theEntity, par1EntityLiving, field_48672_e, field_48675_j, field_48676_k, field_48673_l, field_48674_m);
+            return worldObj.getPathEntityToEntity(theEntity, par1EntityLiving, pathSearchRange, canPassOpenWoodenDoors, canPassClosedWoodenDoors, avoidsWater, canSwim);
         }
     }
 
@@ -143,12 +191,12 @@ public class PathNavigate
         }
         else
         {
-            field_46036_d = par2;
-            Vec3D vec3d = getEntityPosition();
-            field_48677_h = field_48671_g;
-            field_48678_i.xCoord = vec3d.xCoord;
-            field_48678_i.yCoord = vec3d.yCoord;
-            field_48678_i.zCoord = vec3d.zCoord;
+            speed = par2;
+            Vec3 vec3 = getEntityPosition();
+            ticksAtLastPos = totalTicks;
+            lastPosCheck.xCoord = vec3.xCoord;
+            lastPosCheck.yCoord = vec3.yCoord;
+            lastPosCheck.zCoord = vec3.zCoord;
             return true;
         }
     }
@@ -163,7 +211,7 @@ public class PathNavigate
 
     public void onUpdateNavigation()
     {
-        field_48671_g++;
+        totalTicks++;
 
         if (noPath())
         {
@@ -180,47 +228,47 @@ public class PathNavigate
             return;
         }
 
-        Vec3D vec3d = currentPath.getPosition(theEntity);
+        Vec3 vec3 = currentPath.getPosition(theEntity);
 
-        if (vec3d == null)
+        if (vec3 == null)
         {
             return;
         }
         else
         {
-            theEntity.getMoveHelper().setMoveTo(vec3d.xCoord, vec3d.yCoord, vec3d.zCoord, field_46036_d);
+            theEntity.getMoveHelper().setMoveTo(vec3.xCoord, vec3.yCoord, vec3.zCoord, speed);
             return;
         }
     }
 
     private void pathFollow()
     {
-        Vec3D vec3d = getEntityPosition();
+        Vec3 vec3 = getEntityPosition();
         int i = currentPath.getCurrentPathLength();
-        int i2 = currentPath.getCurrentPathIndex();
+        int f = currentPath.getCurrentPathIndex();
 
         do
         {
-            if (i2 >= currentPath.getCurrentPathLength())
+            if (f >= currentPath.getCurrentPathLength())
             {
                 break;
             }
 
-            if (currentPath.getPathPointFromIndex(i2).yCoord != (int)vec3d.yCoord)
+            if (currentPath.getPathPointFromIndex(f).yCoord != (int)vec3.yCoord)
             {
-                i = i2;
+                i = f;
                 break;
             }
 
-            i2++;
+            f++;
         }
         while (true);
 
-        float f = theEntity.width * theEntity.width;
+        float fa = theEntity.width * theEntity.width;
 
         for (int j = currentPath.getCurrentPathIndex(); j < i; j++)
         {
-            if (vec3d.squareDistanceTo(currentPath.getVectorFromIndex(theEntity, j)) < (double)f)
+            if (vec3.squareDistanceTo(currentPath.getVectorFromIndex(theEntity, j)) < (double)fa)
             {
                 currentPath.setCurrentPathIndex(j + 1);
             }
@@ -238,7 +286,7 @@ public class PathNavigate
                 break;
             }
 
-            if (func_48653_a(vec3d, currentPath.getVectorFromIndex(theEntity, j1), k, l, i1))
+            if (isDirectPathBetweenPoints(vec3, currentPath.getVectorFromIndex(theEntity, j1), k, l, i1))
             {
                 currentPath.setCurrentPathIndex(j1);
                 break;
@@ -248,17 +296,17 @@ public class PathNavigate
         }
         while (true);
 
-        if (field_48671_g - field_48677_h > 100)
+        if (totalTicks - ticksAtLastPos > 100)
         {
-            if (vec3d.squareDistanceTo(field_48678_i) < 2.25D)
+            if (vec3.squareDistanceTo(lastPosCheck) < 2.25D)
             {
                 clearPathEntity();
             }
 
-            field_48677_h = field_48671_g;
-            field_48678_i.xCoord = vec3d.xCoord;
-            field_48678_i.yCoord = vec3d.yCoord;
-            field_48678_i.zCoord = vec3d.zCoord;
+            ticksAtLastPos = totalTicks;
+            lastPosCheck.xCoord = vec3.xCoord;
+            lastPosCheck.yCoord = vec3.yCoord;
+            lastPosCheck.zCoord = vec3.zCoord;
         }
     }
 
@@ -278,9 +326,9 @@ public class PathNavigate
         currentPath = null;
     }
 
-    private Vec3D getEntityPosition()
+    private Vec3 getEntityPosition()
     {
-        return Vec3D.createVector(theEntity.posX, getPathableYPos(), theEntity.posZ);
+        return Vec3.func_58052_a().func_58076_a(theEntity.posX, getPathableYPos(), theEntity.posZ);
     }
 
     /**
@@ -288,7 +336,7 @@ public class PathNavigate
      */
     private int getPathableYPos()
     {
-        if (!theEntity.isInWater() || !field_48674_m)
+        if (!theEntity.isInWater() || !canSwim)
         {
             return (int)(theEntity.boundingBox.minY + 0.5D);
         }
@@ -316,10 +364,13 @@ public class PathNavigate
      */
     private boolean canNavigate()
     {
-        return theEntity.onGround || field_48674_m && func_48648_k();
+        return theEntity.onGround || canSwim && isInFluid();
     }
 
-    private boolean func_48648_k()
+    /**
+     * Returns true if the entity is in water or lava, false otherwise
+     */
+    private boolean isInFluid()
     {
         return theEntity.isInWater() || theEntity.handleLavaMovement();
     }
@@ -346,12 +397,16 @@ public class PathNavigate
         }
     }
 
-    private boolean func_48653_a(Vec3D par1Vec3D, Vec3D par2Vec3D, int par3, int par4, int par5)
+    /**
+     * Returns true when an entity of specified size could safely walk in a straight line between the two points. Args:
+     * pos1, pos2, entityXSize, entityYSize, entityZSize
+     */
+    private boolean isDirectPathBetweenPoints(Vec3 par1Vec3, Vec3 par2Vec3, int par3, int par4, int par5)
     {
-        int i = MathHelper.floor_double(par1Vec3D.xCoord);
-        int j = MathHelper.floor_double(par1Vec3D.zCoord);
-        double d = par2Vec3D.xCoord - par1Vec3D.xCoord;
-        double d1 = par2Vec3D.zCoord - par1Vec3D.zCoord;
+        int i = MathHelper.floor_double(par1Vec3.xCoord);
+        int j = MathHelper.floor_double(par1Vec3.zCoord);
+        double d = par2Vec3.xCoord - par1Vec3.xCoord;
+        double d1 = par2Vec3.zCoord - par1Vec3.zCoord;
         double d2 = d * d + d1 * d1;
 
         if (d2 < 1E-008D)
@@ -365,7 +420,7 @@ public class PathNavigate
         par3 += 2;
         par5 += 2;
 
-        if (!func_48646_a(i, (int)par1Vec3D.yCoord, j, par3, par4, par5, par1Vec3D, d, d1))
+        if (!isSafeToStandAt(i, (int)par1Vec3.yCoord, j, par3, par4, par5, par1Vec3, d, d1))
         {
             return false;
         }
@@ -374,8 +429,8 @@ public class PathNavigate
         par5 -= 2;
         double d4 = 1.0D / Math.abs(d);
         double d5 = 1.0D / Math.abs(d1);
-        double d6 = (double)(i * 1) - par1Vec3D.xCoord;
-        double d7 = (double)(j * 1) - par1Vec3D.zCoord;
+        double d6 = (double)(i * 1) - par1Vec3.xCoord;
+        double d7 = (double)(j * 1) - par1Vec3.zCoord;
 
         if (d >= 0.0D)
         {
@@ -391,8 +446,8 @@ public class PathNavigate
         d7 /= d1;
         byte byte0 = ((byte)(d >= 0.0D ? 1 : -1));
         byte byte1 = ((byte)(d1 >= 0.0D ? 1 : -1));
-        int k = MathHelper.floor_double(par2Vec3D.xCoord);
-        int l = MathHelper.floor_double(par2Vec3D.zCoord);
+        int k = MathHelper.floor_double(par2Vec3.xCoord);
+        int l = MathHelper.floor_double(par2Vec3.zCoord);
         int i1 = k - i;
 
         for (int j1 = l - j; i1 * byte0 > 0 || j1 * byte1 > 0;)
@@ -410,7 +465,7 @@ public class PathNavigate
                 j1 = l - j;
             }
 
-            if (!func_48646_a(i, (int)par1Vec3D.yCoord, j, par3, par4, par5, par1Vec3D, d, d1))
+            if (!isSafeToStandAt(i, (int)par1Vec3.yCoord, j, par3, par4, par5, par1Vec3, d, d1))
             {
                 return false;
             }
@@ -419,12 +474,16 @@ public class PathNavigate
         return true;
     }
 
-    private boolean func_48646_a(int par1, int par2, int par3, int par4, int par5, int par6, Vec3D par7Vec3D, double par8, double par10)
+    /**
+     * Returns true when an entity could stand at a position, including solid blocks under the entire entity. Args:
+     * xOffset, yOffset, zOffset, entityXSize, entityYSize, entityZSize, originPosition, vecX, vecZ
+     */
+    private boolean isSafeToStandAt(int par1, int par2, int par3, int par4, int par5, int par6, Vec3 par7Vec3, double par8, double par10)
     {
         int i = par1 - par4 / 2;
         int j = par3 - par6 / 2;
 
-        if (!func_48666_b(i, par2, j, par4, par5, par6, par7Vec3D, par8, par10))
+        if (!isPositionClear(i, par2, j, par4, par5, par6, par7Vec3, par8, par10))
         {
             return false;
         }
@@ -433,8 +492,8 @@ public class PathNavigate
         {
             for (int l = j; l < j + par6; l++)
             {
-                double d = ((double)k + 0.5D) - par7Vec3D.xCoord;
-                double d1 = ((double)l + 0.5D) - par7Vec3D.zCoord;
+                double d = ((double)k + 0.5D) - par7Vec3.xCoord;
+                double d1 = ((double)l + 0.5D) - par7Vec3.zCoord;
 
                 if (d * par8 + d1 * par10 < 0.0D)
                 {
@@ -465,7 +524,11 @@ public class PathNavigate
         return true;
     }
 
-    private boolean func_48666_b(int par1, int par2, int par3, int par4, int par5, int par6, Vec3D par7Vec3D, double par8, double par10)
+    /**
+     * Returns true if an entity does not collide with any solid blocks at the position. Args: xOffset, yOffset,
+     * zOffset, entityXSize, entityYSize, entityZSize, originPosition, vecX, vecZ
+     */
+    private boolean isPositionClear(int par1, int par2, int par3, int par4, int par5, int par6, Vec3 par7Vec3, double par8, double par10)
     {
         for (int i = par1; i < par1 + par4; i++)
         {
@@ -473,8 +536,8 @@ public class PathNavigate
             {
                 for (int k = par3; k < par3 + par6; k++)
                 {
-                    double d = ((double)i + 0.5D) - par7Vec3D.xCoord;
-                    double d1 = ((double)k + 0.5D) - par7Vec3D.zCoord;
+                    double d = ((double)i + 0.5D) - par7Vec3.xCoord;
+                    double d1 = ((double)k + 0.5D) - par7Vec3.zCoord;
 
                     if (d * par8 + d1 * par10 < 0.0D)
                     {

@@ -5,7 +5,7 @@ import java.util.Random;
 
 public class ComponentStrongholdLibrary extends ComponentStronghold
 {
-    private static final StructurePieceTreasure field_35335_b[];
+    private static final WeightedRandomChestContent field_55097_b[];
     protected final EnumDoor doorType;
     private final boolean isLargeRoom;
 
@@ -16,13 +16,6 @@ public class ComponentStrongholdLibrary extends ComponentStronghold
         doorType = getRandomDoor(par2Random);
         boundingBox = par3StructureBoundingBox;
         isLargeRoom = par3StructureBoundingBox.getYSize() > 6;
-    }
-
-    /**
-     * 'Initiates construction of the Structure Component picked, at the current Location of StructGen'
-     */
-    public void buildComponent(StructureComponent structurecomponent, List list, Random random)
-    {
     }
 
     public static ComponentStrongholdLibrary findValidPlacement(List par0List, Random par1Random, int par2, int par3, int par4, int par5, int par6)
@@ -43,8 +36,8 @@ public class ComponentStrongholdLibrary extends ComponentStronghold
     }
 
     /**
-     * 'second Part of Structure generating, this for example places Spiderwebs, Mob Spawners, it closes Mineshafts at
-     * the end, it adds Fences...'
+     * second Part of Structure generating, this for example places Spiderwebs, Mob Spawners, it closes Mineshafts at
+     * the end, it adds Fences...
      */
     public boolean addComponentParts(World par1World, Random par2Random, StructureBoundingBox par3StructureBoundingBox)
     {
@@ -145,12 +138,12 @@ public class ComponentStrongholdLibrary extends ComponentStronghold
             placeBlockAtCurrentPosition(par1World, Block.torchWood.blockID, 0, byte1, 8, byte2 + 1, par3StructureBoundingBox);
         }
 
-        createTreasureChestAtCurrentPosition(par1World, par3StructureBoundingBox, par2Random, 3, 3, 5, field_35335_b, 1 + par2Random.nextInt(4));
+        func_56289_a(par1World, par3StructureBoundingBox, par2Random, 3, 3, 5, field_55097_b, 1 + par2Random.nextInt(4));
 
         if (isLargeRoom)
         {
             placeBlockAtCurrentPosition(par1World, 0, 0, 12, 9, 1, par3StructureBoundingBox);
-            createTreasureChestAtCurrentPosition(par1World, par3StructureBoundingBox, par2Random, 12, 8, 1, field_35335_b, 1 + par2Random.nextInt(4));
+            func_56289_a(par1World, par3StructureBoundingBox, par2Random, 12, 8, 1, field_55097_b, 1 + par2Random.nextInt(4));
         }
 
         return true;
@@ -158,9 +151,9 @@ public class ComponentStrongholdLibrary extends ComponentStronghold
 
     static
     {
-        field_35335_b = (new StructurePieceTreasure[]
+        field_55097_b = (new WeightedRandomChestContent[]
                 {
-                    new StructurePieceTreasure(Item.book.shiftedIndex, 0, 1, 3, 20), new StructurePieceTreasure(Item.paper.shiftedIndex, 0, 2, 7, 20), new StructurePieceTreasure(Item.map.shiftedIndex, 0, 1, 1, 1), new StructurePieceTreasure(Item.compass.shiftedIndex, 0, 1, 1, 1)
+                    new WeightedRandomChestContent(Item.book.shiftedIndex, 0, 1, 3, 20), new WeightedRandomChestContent(Item.paper.shiftedIndex, 0, 2, 7, 20), new WeightedRandomChestContent(Item.map.shiftedIndex, 0, 1, 1, 1), new WeightedRandomChestContent(Item.compass.shiftedIndex, 0, 1, 1, 1)
                 });
     }
 }

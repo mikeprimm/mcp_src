@@ -7,6 +7,7 @@ public class BlockTNT extends Block
     public BlockTNT(int par1, int par2)
     {
         super(par1, par2, Material.tnt);
+        func_56326_a(CreativeTabs.field_56385_d);
     }
 
     /**
@@ -61,7 +62,7 @@ public class BlockTNT extends Block
      */
     public int quantityDropped(Random par1Random)
     {
-        return 0;
+        return 1;
     }
 
     /**
@@ -92,11 +93,7 @@ public class BlockTNT extends Block
             return;
         }
 
-        if ((par5 & 1) == 0)
-        {
-            dropBlockAsItem_do(par1World, par2, par3, par4, new ItemStack(Block.tnt.blockID, 1, 0));
-        }
-        else
+        if ((par5 & 1) == 1)
         {
             EntityTNTPrimed entitytntprimed = new EntityTNTPrimed(par1World, (float)par2 + 0.5F, (float)par3 + 0.5F, (float)par4 + 0.5F);
             par1World.spawnEntityInWorld(entitytntprimed);
@@ -104,19 +101,7 @@ public class BlockTNT extends Block
         }
     }
 
-    /**
-     * Called when the block is clicked by a player. Args: x, y, z, entityPlayer
-     */
-    public void onBlockClicked(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer)
-    {
-        super.onBlockClicked(par1World, par2, par3, par4, par5EntityPlayer);
-    }
-
-    /**
-     * Called upon block activation (left or right click on the block.). The three integers represent x,y,z of the
-     * block.
-     */
-    public boolean blockActivated(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer)
+    public boolean func_56323_a(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer, int par6, float par7, float par8, float par9)
     {
         if (par5EntityPlayer.getCurrentEquippedItem() != null && par5EntityPlayer.getCurrentEquippedItem().itemID == Item.flintAndSteel.shiftedIndex)
         {
@@ -126,7 +111,7 @@ public class BlockTNT extends Block
         }
         else
         {
-            return super.blockActivated(par1World, par2, par3, par4, par5EntityPlayer);
+            return super.func_56323_a(par1World, par2, par3, par4, par5EntityPlayer, par6, par7, par8, par9);
         }
     }
 

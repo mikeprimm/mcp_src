@@ -2,23 +2,21 @@ package net.minecraft.src;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import net.minecraft.server.MinecraftServer;
 
 final class ServerWindowAdapter extends WindowAdapter
 {
-    /** Reference to the MinecraftServer object. */
-    final MinecraftServer mcServer;
+    final DedicatedServer field_56549_a;
 
-    ServerWindowAdapter(MinecraftServer par1MinecraftServer)
+    ServerWindowAdapter(DedicatedServer par1DedicatedServer)
     {
-        mcServer = par1MinecraftServer;
+        field_56549_a = par1DedicatedServer;
     }
 
     public void windowClosing(WindowEvent par1WindowEvent)
     {
-        mcServer.initiateShutdown();
+        field_56549_a.initiateShutdown();
 
-        while (!mcServer.serverStopped)
+        while (!field_56549_a.func_56210_X())
         {
             try
             {

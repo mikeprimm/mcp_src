@@ -145,10 +145,10 @@ public class EntityGhast extends EntityFlying implements IMob
                     worldObj.playAuxSFXAtEntity(null, 1008, (int)posX, (int)posY, (int)posZ, 0);
                     EntityFireball entityfireball = new EntityFireball(worldObj, this, d5, d6, d7);
                     double d8 = 4D;
-                    Vec3D vec3d = getLook(1.0F);
-                    entityfireball.posX = posX + vec3d.xCoord * d8;
+                    Vec3 vec3 = getLook(1.0F);
+                    entityfireball.posX = posX + vec3.xCoord * d8;
                     entityfireball.posY = posY + (double)(height / 2.0F) + 0.5D;
-                    entityfireball.posZ = posZ + vec3d.zCoord * d8;
+                    entityfireball.posZ = posZ + vec3.zCoord * d8;
                     worldObj.spawnEntityInWorld(entityfireball);
                     attackCounter = -40;
                 }
@@ -194,7 +194,7 @@ public class EntityGhast extends EntityFlying implements IMob
         {
             axisalignedbb.offset(d, d1, d2);
 
-            if (worldObj.getCollidingBoundingBoxes(this, axisalignedbb).size() > 0)
+            if (!worldObj.getCollidingBoundingBoxes(this, axisalignedbb).isEmpty())
             {
                 return false;
             }

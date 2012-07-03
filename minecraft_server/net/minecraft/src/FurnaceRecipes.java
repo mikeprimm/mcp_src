@@ -23,7 +23,7 @@ public class FurnaceRecipes
         smeltingList = new HashMap();
         addSmelting(Block.oreIron.blockID, new ItemStack(Item.ingotIron));
         addSmelting(Block.oreGold.blockID, new ItemStack(Item.ingotGold));
-        addSmelting(Block.oreDiamond.blockID, new ItemStack(Item.diamond));
+        addSmelting(Block.field_56337_aw.blockID, new ItemStack(Item.field_56457_n));
         addSmelting(Block.sand.blockID, new ItemStack(Block.glass));
         addSmelting(Item.porkRaw.shiftedIndex, new ItemStack(Item.porkCooked));
         addSmelting(Item.beefRaw.shiftedIndex, new ItemStack(Item.beefCooked));
@@ -33,6 +33,7 @@ public class FurnaceRecipes
         addSmelting(Item.clay.shiftedIndex, new ItemStack(Item.brick));
         addSmelting(Block.cactus.blockID, new ItemStack(Item.dyePowder, 1, 2));
         addSmelting(Block.wood.blockID, new ItemStack(Item.coal, 1, 1));
+        addSmelting(Block.oreDiamond.blockID, new ItemStack(Item.diamond));
         addSmelting(Block.oreCoal.blockID, new ItemStack(Item.coal));
         addSmelting(Block.oreRedstone.blockID, new ItemStack(Item.redstone));
         addSmelting(Block.oreLapis.blockID, new ItemStack(Item.dyePowder, 1, 4));

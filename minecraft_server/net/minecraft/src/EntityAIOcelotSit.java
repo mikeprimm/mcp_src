@@ -47,7 +47,7 @@ public class EntityAIOcelotSit extends EntityAIBase
      */
     public void startExecuting()
     {
-        field_50019_a.getNavigator().func_48658_a((double)(float)field_50016_e + 0.5D, field_50013_f + 1, (double)(float)field_50014_g + 0.5D, field_50017_b);
+        field_50019_a.getNavigator().tryMoveToXYZ((double)(float)field_50016_e + 0.5D, field_50013_f + 1, (double)(float)field_50014_g + 0.5D, field_50017_b);
         field_50018_c = 0;
         field_52005_h = 0;
         field_50015_d = field_50019_a.getRNG().nextInt(field_50019_a.getRNG().nextInt(1200) + 1200) + 1200;
@@ -59,7 +59,7 @@ public class EntityAIOcelotSit extends EntityAIBase
      */
     public void resetTask()
     {
-        field_50019_a.func_48369_c(false);
+        field_50019_a.setSitting(false);
     }
 
     /**
@@ -72,13 +72,13 @@ public class EntityAIOcelotSit extends EntityAIBase
 
         if (field_50019_a.getDistanceSq(field_50016_e, field_50013_f + 1, field_50014_g) > 1.0D)
         {
-            field_50019_a.func_48369_c(false);
-            field_50019_a.getNavigator().func_48658_a((double)(float)field_50016_e + 0.5D, field_50013_f + 1, (double)(float)field_50014_g + 0.5D, field_50017_b);
+            field_50019_a.setSitting(false);
+            field_50019_a.getNavigator().tryMoveToXYZ((double)(float)field_50016_e + 0.5D, field_50013_f + 1, (double)(float)field_50014_g + 0.5D, field_50017_b);
             field_52005_h++;
         }
         else if (!field_50019_a.isSitting())
         {
-            field_50019_a.func_48369_c(true);
+            field_50019_a.setSitting(true);
         }
         else
         {

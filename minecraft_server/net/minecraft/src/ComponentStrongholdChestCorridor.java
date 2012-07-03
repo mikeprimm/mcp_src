@@ -5,7 +5,7 @@ import java.util.Random;
 
 public class ComponentStrongholdChestCorridor extends ComponentStronghold
 {
-    private static final StructurePieceTreasure chestLoot[];
+    private static final WeightedRandomChestContent field_55099_a[];
     private final EnumDoor doorType;
     private boolean hasMadeChest;
 
@@ -18,7 +18,7 @@ public class ComponentStrongholdChestCorridor extends ComponentStronghold
     }
 
     /**
-     * 'Initiates construction of the Structure Component picked, at the current Location of StructGen'
+     * Initiates construction of the Structure Component picked, at the current Location of StructGen
      */
     public void buildComponent(StructureComponent par1StructureComponent, List par2List, Random par3Random)
     {
@@ -40,8 +40,8 @@ public class ComponentStrongholdChestCorridor extends ComponentStronghold
     }
 
     /**
-     * 'second Part of Structure generating, this for example places Spiderwebs, Mob Spawners, it closes Mineshafts at
-     * the end, it adds Fences...'
+     * second Part of Structure generating, this for example places Spiderwebs, Mob Spawners, it closes Mineshafts at
+     * the end, it adds Fences...
      */
     public boolean addComponentParts(World par1World, Random par2Random, StructureBoundingBox par3StructureBoundingBox)
     {
@@ -54,14 +54,14 @@ public class ComponentStrongholdChestCorridor extends ComponentStronghold
         placeDoor(par1World, par2Random, par3StructureBoundingBox, doorType, 1, 1, 0);
         placeDoor(par1World, par2Random, par3StructureBoundingBox, EnumDoor.OPENING, 1, 1, 6);
         fillWithBlocks(par1World, par3StructureBoundingBox, 3, 1, 2, 3, 1, 4, Block.stoneBrick.blockID, Block.stoneBrick.blockID, false);
-        placeBlockAtCurrentPosition(par1World, Block.stairSingle.blockID, 5, 3, 1, 1, par3StructureBoundingBox);
-        placeBlockAtCurrentPosition(par1World, Block.stairSingle.blockID, 5, 3, 1, 5, par3StructureBoundingBox);
-        placeBlockAtCurrentPosition(par1World, Block.stairSingle.blockID, 5, 3, 2, 2, par3StructureBoundingBox);
-        placeBlockAtCurrentPosition(par1World, Block.stairSingle.blockID, 5, 3, 2, 4, par3StructureBoundingBox);
+        placeBlockAtCurrentPosition(par1World, Block.field_55133_ak.blockID, 5, 3, 1, 1, par3StructureBoundingBox);
+        placeBlockAtCurrentPosition(par1World, Block.field_55133_ak.blockID, 5, 3, 1, 5, par3StructureBoundingBox);
+        placeBlockAtCurrentPosition(par1World, Block.field_55133_ak.blockID, 5, 3, 2, 2, par3StructureBoundingBox);
+        placeBlockAtCurrentPosition(par1World, Block.field_55133_ak.blockID, 5, 3, 2, 4, par3StructureBoundingBox);
 
         for (int i = 2; i <= 4; i++)
         {
-            placeBlockAtCurrentPosition(par1World, Block.stairSingle.blockID, 5, 2, 1, i, par3StructureBoundingBox);
+            placeBlockAtCurrentPosition(par1World, Block.field_55133_ak.blockID, 5, 2, 1, i, par3StructureBoundingBox);
         }
 
         if (!hasMadeChest)
@@ -73,7 +73,7 @@ public class ComponentStrongholdChestCorridor extends ComponentStronghold
             if (par3StructureBoundingBox.isVecInside(k, j, l))
             {
                 hasMadeChest = true;
-                createTreasureChestAtCurrentPosition(par1World, par3StructureBoundingBox, par2Random, 3, 2, 3, chestLoot, 2 + par2Random.nextInt(2));
+                func_56289_a(par1World, par3StructureBoundingBox, par2Random, 3, 2, 3, field_55099_a, 2 + par2Random.nextInt(2));
             }
         }
 
@@ -82,10 +82,10 @@ public class ComponentStrongholdChestCorridor extends ComponentStronghold
 
     static
     {
-        chestLoot = (new StructurePieceTreasure[]
+        field_55099_a = (new WeightedRandomChestContent[]
                 {
-                    new StructurePieceTreasure(Item.enderPearl.shiftedIndex, 0, 1, 1, 10), new StructurePieceTreasure(Item.diamond.shiftedIndex, 0, 1, 3, 3), new StructurePieceTreasure(Item.ingotIron.shiftedIndex, 0, 1, 5, 10), new StructurePieceTreasure(Item.ingotGold.shiftedIndex, 0, 1, 3, 5), new StructurePieceTreasure(Item.redstone.shiftedIndex, 0, 4, 9, 5), new StructurePieceTreasure(Item.bread.shiftedIndex, 0, 1, 3, 15), new StructurePieceTreasure(Item.appleRed.shiftedIndex, 0, 1, 3, 15), new StructurePieceTreasure(Item.pickaxeSteel.shiftedIndex, 0, 1, 1, 5), new StructurePieceTreasure(Item.swordSteel.shiftedIndex, 0, 1, 1, 5), new StructurePieceTreasure(Item.plateSteel.shiftedIndex, 0, 1, 1, 5),
-                    new StructurePieceTreasure(Item.helmetSteel.shiftedIndex, 0, 1, 1, 5), new StructurePieceTreasure(Item.legsSteel.shiftedIndex, 0, 1, 1, 5), new StructurePieceTreasure(Item.bootsSteel.shiftedIndex, 0, 1, 1, 5), new StructurePieceTreasure(Item.appleGold.shiftedIndex, 0, 1, 1, 1)
+                    new WeightedRandomChestContent(Item.enderPearl.shiftedIndex, 0, 1, 1, 10), new WeightedRandomChestContent(Item.field_56457_n.shiftedIndex, 0, 1, 3, 3), new WeightedRandomChestContent(Item.ingotIron.shiftedIndex, 0, 1, 5, 10), new WeightedRandomChestContent(Item.ingotGold.shiftedIndex, 0, 1, 3, 5), new WeightedRandomChestContent(Item.redstone.shiftedIndex, 0, 4, 9, 5), new WeightedRandomChestContent(Item.bread.shiftedIndex, 0, 1, 3, 15), new WeightedRandomChestContent(Item.appleRed.shiftedIndex, 0, 1, 3, 15), new WeightedRandomChestContent(Item.pickaxeSteel.shiftedIndex, 0, 1, 1, 5), new WeightedRandomChestContent(Item.swordSteel.shiftedIndex, 0, 1, 1, 5), new WeightedRandomChestContent(Item.plateSteel.shiftedIndex, 0, 1, 1, 5),
+                    new WeightedRandomChestContent(Item.helmetSteel.shiftedIndex, 0, 1, 1, 5), new WeightedRandomChestContent(Item.legsSteel.shiftedIndex, 0, 1, 1, 5), new WeightedRandomChestContent(Item.bootsSteel.shiftedIndex, 0, 1, 1, 5), new WeightedRandomChestContent(Item.appleGold.shiftedIndex, 0, 1, 1, 1)
                 });
     }
 }

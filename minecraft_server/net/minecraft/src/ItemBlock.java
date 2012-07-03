@@ -20,11 +20,7 @@ public class ItemBlock extends Item
         return blockID;
     }
 
-    /**
-     * Callback for item usage. If the item does something special on right clicking, he will have one of those. Return
-     * True if something happen and false if it don't. This is for ITEMS, not BLOCKS !
-     */
-    public boolean onItemUse(ItemStack par1ItemStack, EntityPlayer par2EntityPlayer, World par3World, int par4, int par5, int par6, int par7)
+    public boolean func_56454_a(ItemStack par1ItemStack, EntityPlayer par2EntityPlayer, World par3World, int par4, int par5, int par6, int par7, float par8, float par9, float par10)
     {
         int i = par3World.getBlockId(par4, par5, par6);
 
@@ -88,7 +84,7 @@ public class ItemBlock extends Item
             {
                 if (par3World.getBlockId(par4, par5, par6) == blockID)
                 {
-                    Block.blocksList[blockID].onBlockPlaced(par3World, par4, par5, par6, par7);
+                    Block.blocksList[blockID].func_56327_a(par3World, par4, par5, par6, par7, par8, par9, par10);
                     Block.blocksList[blockID].onBlockPlacedBy(par3World, par4, par5, par6, par2EntityPlayer);
                 }
 

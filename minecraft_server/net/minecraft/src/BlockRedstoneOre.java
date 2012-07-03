@@ -44,14 +44,10 @@ public class BlockRedstoneOre extends Block
         super.onEntityWalking(par1World, par2, par3, par4, par5Entity);
     }
 
-    /**
-     * Called upon block activation (left or right click on the block.). The three integers represent x,y,z of the
-     * block.
-     */
-    public boolean blockActivated(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer)
+    public boolean func_56323_a(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer, int par6, float par7, float par8, float par9)
     {
         glow(par1World, par2, par3, par4);
-        return super.blockActivated(par1World, par2, par3, par4, par5EntityPlayer);
+        return super.func_56323_a(par1World, par2, par3, par4, par5EntityPlayer, par6, par7, par8, par9);
     }
 
     /**
@@ -100,6 +96,20 @@ public class BlockRedstoneOre extends Block
     public int quantityDropped(Random par1Random)
     {
         return 4 + par1Random.nextInt(2);
+    }
+
+    /**
+     * Drops the block items with a specified chance of dropping the specified items
+     */
+    public void dropBlockAsItemWithChance(World par1World, int par2, int par3, int par4, int par5, float par6, int par7)
+    {
+        super.dropBlockAsItemWithChance(par1World, par2, par3, par4, par5, par6, par7);
+
+        if (idDropped(par5, par1World.rand, par7) != blockID)
+        {
+            int i = 3 + par1World.rand.nextInt(7);
+            func_56328_f(par1World, par2, par3, par4, i);
+        }
     }
 
     /**

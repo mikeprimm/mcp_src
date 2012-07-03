@@ -7,18 +7,19 @@ public class ItemShears extends Item
         super(par1);
         setMaxStackSize(1);
         setMaxDamage(238);
+        func_56455_a(CreativeTabs.field_56397_i);
     }
 
-    public boolean onBlockDestroyed(ItemStack par1ItemStack, int par2, int par3, int par4, int par5, EntityLiving par6EntityLiving)
+    public boolean func_58049_a(ItemStack par1ItemStack, World par2World, int par3, int par4, int par5, int par6, EntityLiving par7EntityLiving)
     {
-        if (par2 == Block.leaves.blockID || par2 == Block.web.blockID || par2 == Block.tallGrass.blockID || par2 == Block.vine.blockID)
+        if (par3 == Block.leaves.blockID || par3 == Block.web.blockID || par3 == Block.tallGrass.blockID || par3 == Block.vine.blockID || par3 == Block.field_56333_bU.blockID)
         {
-            par1ItemStack.damageItem(1, par6EntityLiving);
+            par1ItemStack.damageItem(1, par7EntityLiving);
             return true;
         }
         else
         {
-            return super.onBlockDestroyed(par1ItemStack, par2, par3, par4, par5, par6EntityLiving);
+            return super.func_58049_a(par1ItemStack, par2World, par3, par4, par5, par6, par7EntityLiving);
         }
     }
 

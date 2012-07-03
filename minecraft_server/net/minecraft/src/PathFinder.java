@@ -307,14 +307,12 @@ public class PathFinder
                     }
                     else if (l == Block.waterMoving.blockID || l == Block.waterStill.blockID)
                     {
-                        if (!isPathingInWater)
-                        {
-                            flag = true;
-                        }
-                        else
+                        if (isPathingInWater)
                         {
                             return -1;
                         }
+
+                        flag = true;
                     }
                     else if (!isWoddenDoorAllowed && l == Block.doorWood.blockID)
                     {

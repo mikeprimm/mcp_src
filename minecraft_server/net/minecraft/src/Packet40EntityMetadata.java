@@ -15,7 +15,7 @@ public class Packet40EntityMetadata extends Packet
     public Packet40EntityMetadata(int par1, DataWatcher par2DataWatcher)
     {
         entityId = par1;
-        metadata = par2DataWatcher.getChangedObjects();
+        metadata = par2DataWatcher.func_55234_b();
     }
 
     /**

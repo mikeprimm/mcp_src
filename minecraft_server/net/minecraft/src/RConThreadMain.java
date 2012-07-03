@@ -20,9 +20,7 @@ public class RConThreadMain extends RConThreadBase
 
     /** The RCon password */
     private String rconPassword;
-
-    /** A map of client addresses to their running Threads */
-    private HashMap clientThreads;
+    private Map field_55129_l;
 
     public RConThreadMain(IServer par1IServer)
     {
@@ -58,7 +56,7 @@ public class RConThreadMain extends RConThreadBase
 
     private void initClientTh()
     {
-        clientThreads = new HashMap();
+        field_55129_l = new HashMap();
     }
 
     /**
@@ -66,7 +64,7 @@ public class RConThreadMain extends RConThreadBase
      */
     private void cleanClientThreadsMap()
     {
-        Iterator iterator = clientThreads.entrySet().iterator();
+        Iterator iterator = field_55129_l.entrySet().iterator();
 
         do
         {
@@ -104,7 +102,7 @@ public class RConThreadMain extends RConThreadBase
                     socket.setSoTimeout(500);
                     RConThreadClient rconthreadclient = new RConThreadClient(server, socket);
                     rconthreadclient.startThread();
-                    clientThreads.put(socket.getRemoteSocketAddress(), rconthreadclient);
+                    field_55129_l.put(socket.getRemoteSocketAddress(), rconthreadclient);
                     cleanClientThreadsMap();
                 }
                 catch (SocketTimeoutException sockettimeoutexception)

@@ -6,6 +6,7 @@ public class Explosion
 {
     /** whether or not the explosion sets fire to blocks around it */
     public boolean isFlaming;
+    private int field_56556_h;
     private Random explosionRNG;
     private World worldObj;
     public double explosionX;
@@ -13,13 +14,16 @@ public class Explosion
     public double explosionZ;
     public Entity exploder;
     public float explosionSize;
-    public Set destroyedBlockPositions;
+    public List field_58065_g;
+    private Map field_56555_k;
 
     public Explosion(World par1World, Entity par2Entity, double par3, double par5, double par7, float par9)
     {
         isFlaming = false;
+        field_56556_h = 16;
         explosionRNG = new Random();
-        destroyedBlockPositions = new HashSet();
+        field_58065_g = new ArrayList();
+        field_56555_k = new HashMap();
         worldObj = par1World;
         exploder = par2Entity;
         explosionSize = par9;
@@ -34,24 +38,24 @@ public class Explosion
     public void doExplosionA()
     {
         float f = explosionSize;
-        int i = 16;
+        HashSet hashset = new HashSet();
 
-        for (int j = 0; j < i; j++)
+        for (int i = 0; i < field_56556_h; i++)
         {
-            for (int l = 0; l < i; l++)
+            for (int k = 0; k < field_56556_h; k++)
             {
                 label0:
 
-                for (int j1 = 0; j1 < i; j1++)
+                for (int i1 = 0; i1 < field_56556_h; i1++)
                 {
-                    if (j != 0 && j != i - 1 && l != 0 && l != i - 1 && j1 != 0 && j1 != i - 1)
+                    if (i != 0 && i != field_56556_h - 1 && k != 0 && k != field_56556_h - 1 && i1 != 0 && i1 != field_56556_h - 1)
                     {
                         continue;
                     }
 
-                    double d = ((float)j / ((float)i - 1.0F)) * 2.0F - 1.0F;
-                    double d1 = ((float)l / ((float)i - 1.0F)) * 2.0F - 1.0F;
-                    double d2 = ((float)j1 / ((float)i - 1.0F)) * 2.0F - 1.0F;
+                    double d = ((float)i / ((float)field_56556_h - 1.0F)) * 2.0F - 1.0F;
+                    double d1 = ((float)k / ((float)field_56556_h - 1.0F)) * 2.0F - 1.0F;
+                    double d2 = ((float)i1 / ((float)field_56556_h - 1.0F)) * 2.0F - 1.0F;
                     double d3 = Math.sqrt(d * d + d1 * d1 + d2 * d2);
                     d /= d3;
                     d1 /= d3;
@@ -69,19 +73,19 @@ public class Explosion
                             continue label0;
                         }
 
-                        int l2 = MathHelper.floor_double(d5);
-                        int i3 = MathHelper.floor_double(d7);
-                        int j3 = MathHelper.floor_double(d9);
-                        int k3 = worldObj.getBlockId(l2, i3, j3);
+                        int k2 = MathHelper.floor_double(d5);
+                        int l2 = MathHelper.floor_double(d7);
+                        int i3 = MathHelper.floor_double(d9);
+                        int j3 = worldObj.getBlockId(k2, l2, i3);
 
-                        if (k3 > 0)
+                        if (j3 > 0)
                         {
-                            f1 -= (Block.blocksList[k3].getExplosionResistance(exploder) + 0.3F) * f2;
+                            f1 -= (Block.blocksList[j3].getExplosionResistance(exploder) + 0.3F) * f2;
                         }
 
                         if (f1 > 0.0F)
                         {
-                            destroyedBlockPositions.add(new ChunkPosition(l2, i3, j3));
+                            hashset.add(new ChunkPosition(k2, l2, i3));
                         }
 
                         d5 += d * (double)f2;
@@ -94,43 +98,54 @@ public class Explosion
             }
         }
 
+        field_58065_g.addAll(hashset);
         explosionSize *= 2.0F;
-        int k = MathHelper.floor_double(explosionX - (double)explosionSize - 1.0D);
-        int i1 = MathHelper.floor_double(explosionX + (double)explosionSize + 1.0D);
-        int k1 = MathHelper.floor_double(explosionY - (double)explosionSize - 1.0D);
-        int l1 = MathHelper.floor_double(explosionY + (double)explosionSize + 1.0D);
-        int i2 = MathHelper.floor_double(explosionZ - (double)explosionSize - 1.0D);
-        int j2 = MathHelper.floor_double(explosionZ + (double)explosionSize + 1.0D);
-        List list = worldObj.getEntitiesWithinAABBExcludingEntity(exploder, AxisAlignedBB.getBoundingBoxFromPool(k, k1, i2, i1, l1, j2));
-        Vec3D vec3d = Vec3D.createVector(explosionX, explosionY, explosionZ);
+        int j = MathHelper.floor_double(explosionX - (double)explosionSize - 1.0D);
+        int l = MathHelper.floor_double(explosionX + (double)explosionSize + 1.0D);
+        int j1 = MathHelper.floor_double(explosionY - (double)explosionSize - 1.0D);
+        int k1 = MathHelper.floor_double(explosionY + (double)explosionSize + 1.0D);
+        int l1 = MathHelper.floor_double(explosionZ - (double)explosionSize - 1.0D);
+        int i2 = MathHelper.floor_double(explosionZ + (double)explosionSize + 1.0D);
+        List list = worldObj.getEntitiesWithinAABBExcludingEntity(exploder, AxisAlignedBB.func_58089_a().func_58067_a(j, j1, l1, l, k1, i2));
+        Vec3 vec3 = Vec3.func_58052_a().func_58076_a(explosionX, explosionY, explosionZ);
 
-        for (int k2 = 0; k2 < list.size(); k2++)
+        for (int j2 = 0; j2 < list.size(); j2++)
         {
-            Entity entity = (Entity)list.get(k2);
+            Entity entity = (Entity)list.get(j2);
             double d4 = entity.getDistance(explosionX, explosionY, explosionZ) / (double)explosionSize;
 
-            if (d4 <= 1.0D)
+            if (d4 > 1.0D)
             {
-                double d6 = entity.posX - explosionX;
-                double d8 = entity.posY - explosionY;
-                double d10 = entity.posZ - explosionZ;
-                double d11 = MathHelper.sqrt_double(d6 * d6 + d8 * d8 + d10 * d10);
-                d6 /= d11;
-                d8 /= d11;
-                d10 /= d11;
-                double d12 = worldObj.getBlockDensity(vec3d, entity.boundingBox);
-                double d13 = (1.0D - d4) * d12;
-                entity.attackEntityFrom(DamageSource.explosion, (int)(((d13 * d13 + d13) / 2D) * 8D * (double)explosionSize + 1.0D));
-                double d14 = d13;
-                entity.motionX += d6 * d14;
-                entity.motionY += d8 * d14;
-                entity.motionZ += d10 * d14;
+                continue;
+            }
+
+            double d6 = entity.posX - explosionX;
+            double d8 = (entity.posY + (double)entity.getEyeHeight()) - explosionY;
+            double d10 = entity.posZ - explosionZ;
+            double d11 = MathHelper.sqrt_double(d6 * d6 + d8 * d8 + d10 * d10);
+
+            if (d11 == 0.0D)
+            {
+                continue;
+            }
+
+            d6 /= d11;
+            d8 /= d11;
+            d10 /= d11;
+            double d12 = worldObj.getBlockDensity(vec3, entity.boundingBox);
+            double d13 = (1.0D - d4) * d12;
+            entity.attackEntityFrom(DamageSource.explosion, (int)(((d13 * d13 + d13) / 2D) * 8D * (double)explosionSize + 1.0D));
+            entity.motionX += d6 * d13;
+            entity.motionY += d8 * d13;
+            entity.motionZ += d10 * d13;
+
+            if (entity instanceof EntityPlayer)
+            {
+                field_56555_k.put((EntityPlayer)entity, Vec3.func_58052_a().func_58076_a(d6 * d13, d8 * d13, d10 * d13));
             }
         }
 
         explosionSize = f;
-        ArrayList arraylist = new ArrayList();
-        arraylist.addAll(destroyedBlockPositions);
     }
 
     /**
@@ -140,22 +155,26 @@ public class Explosion
     {
         worldObj.playSoundEffect(explosionX, explosionY, explosionZ, "random.explode", 4F, (1.0F + (worldObj.rand.nextFloat() - worldObj.rand.nextFloat()) * 0.2F) * 0.7F);
         worldObj.spawnParticle("hugeexplosion", explosionX, explosionY, explosionZ, 0.0D, 0.0D, 0.0D);
-        ArrayList arraylist = new ArrayList();
-        arraylist.addAll(destroyedBlockPositions);
+        Iterator iterator = field_58065_g.iterator();
 
-        for (int i = arraylist.size() - 1; i >= 0; i--)
+        do
         {
-            ChunkPosition chunkposition = (ChunkPosition)arraylist.get(i);
-            int k = chunkposition.x;
-            int i1 = chunkposition.y;
-            int k1 = chunkposition.z;
-            int i2 = worldObj.getBlockId(k, i1, k1);
+            if (!iterator.hasNext())
+            {
+                break;
+            }
+
+            ChunkPosition chunkposition = (ChunkPosition)iterator.next();
+            int i = chunkposition.x;
+            int k = chunkposition.y;
+            int i1 = chunkposition.z;
+            int k1 = worldObj.getBlockId(i, k, i1);
 
             if (par1)
             {
-                double d = (float)k + worldObj.rand.nextFloat();
-                double d1 = (float)i1 + worldObj.rand.nextFloat();
-                double d2 = (float)k1 + worldObj.rand.nextFloat();
+                double d = (float)i + worldObj.rand.nextFloat();
+                double d1 = (float)k + worldObj.rand.nextFloat();
+                double d2 = (float)i1 + worldObj.rand.nextFloat();
                 double d3 = d - explosionX;
                 double d4 = d1 - explosionY;
                 double d5 = d2 - explosionZ;
@@ -172,30 +191,44 @@ public class Explosion
                 worldObj.spawnParticle("smoke", d, d1, d2, d3, d4, d5);
             }
 
-            if (i2 > 0)
+            if (k1 > 0)
             {
-                Block.blocksList[i2].dropBlockAsItemWithChance(worldObj, k, i1, k1, worldObj.getBlockMetadata(k, i1, k1), 0.3F, 0);
-                worldObj.setBlockWithNotify(k, i1, k1, 0);
-                Block.blocksList[i2].onBlockDestroyedByExplosion(worldObj, k, i1, k1);
+                Block.blocksList[k1].dropBlockAsItemWithChance(worldObj, i, k, i1, worldObj.getBlockMetadata(i, k, i1), 0.3F, 0);
+                worldObj.setBlockWithNotify(i, k, i1, 0);
+                Block.blocksList[k1].onBlockDestroyedByExplosion(worldObj, i, k, i1);
             }
         }
+        while (true);
 
         if (isFlaming)
         {
-            for (int j = arraylist.size() - 1; j >= 0; j--)
-            {
-                ChunkPosition chunkposition1 = (ChunkPosition)arraylist.get(j);
-                int l = chunkposition1.x;
-                int j1 = chunkposition1.y;
-                int l1 = chunkposition1.z;
-                int j2 = worldObj.getBlockId(l, j1, l1);
-                int k2 = worldObj.getBlockId(l, j1 - 1, l1);
+            Iterator iterator1 = field_58065_g.iterator();
 
-                if (j2 == 0 && Block.opaqueCubeLookup[k2] && explosionRNG.nextInt(3) == 0)
+            do
+            {
+                if (!iterator1.hasNext())
                 {
-                    worldObj.setBlockWithNotify(l, j1, l1, Block.fire.blockID);
+                    break;
+                }
+
+                ChunkPosition chunkposition1 = (ChunkPosition)iterator1.next();
+                int j = chunkposition1.x;
+                int l = chunkposition1.y;
+                int j1 = chunkposition1.z;
+                int l1 = worldObj.getBlockId(j, l, j1);
+                int i2 = worldObj.getBlockId(j, l - 1, j1);
+
+                if (l1 == 0 && Block.opaqueCubeLookup[i2] && explosionRNG.nextInt(3) == 0)
+                {
+                    worldObj.setBlockWithNotify(j, l, j1, Block.fire.blockID);
                 }
             }
+            while (true);
         }
+    }
+
+    public Map func_56554_b()
+    {
+        return field_56555_k;
     }
 }

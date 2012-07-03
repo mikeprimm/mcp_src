@@ -28,14 +28,12 @@ public abstract class Container
         field_20131_b = new HashSet();
     }
 
-    /**
-     * adds the slot to the inventory it is in
-     */
-    protected void addSlot(Slot par1Slot)
+    protected Slot func_55143_a(Slot par1Slot)
     {
         par1Slot.slotNumber = inventorySlots.size();
         inventorySlots.add(par1Slot);
         inventoryItemStacks.add(null);
+        return par1Slot;
     }
 
     public void onCraftGuiOpened(ICrafting par1ICrafting)
@@ -56,10 +54,11 @@ public abstract class Container
     public List func_28127_b()
     {
         ArrayList arraylist = new ArrayList();
+        Slot slot;
 
-        for (int i = 0; i < inventorySlots.size(); i++)
+        for (Iterator iterator = inventorySlots.iterator(); iterator.hasNext(); arraylist.add(slot.getStack()))
         {
-            arraylist.add(((Slot)inventorySlots.get(i)).getStack());
+            slot = (Slot)iterator.next();
         }
 
         return arraylist;
@@ -82,10 +81,11 @@ public abstract class Container
 
             itemstack1 = itemstack != null ? itemstack.copy() : null;
             inventoryItemStacks.set(i, itemstack1);
+            ICrafting icrafting;
 
-            for (int j = 0; j < crafters.size(); j++)
+            for (Iterator iterator = crafters.iterator(); iterator.hasNext(); icrafting.updateCraftingInventorySlot(this, i, itemstack1))
             {
-                ((ICrafting)crafters.get(j)).updateCraftingInventorySlot(this, i, itemstack1);
+                icrafting = (ICrafting)iterator.next();
             }
         }
     }
@@ -100,9 +100,9 @@ public abstract class Container
 
     public Slot func_20127_a(IInventory par1IInventory, int par2)
     {
-        for (int i = 0; i < inventorySlots.size(); i++)
+        for (Iterator iterator = inventorySlots.iterator(); iterator.hasNext();)
         {
-            Slot slot = (Slot)inventorySlots.get(i);
+            Slot slot = (Slot)iterator.next();
 
             if (slot.isHere(par1IInventory, par2))
             {
@@ -196,7 +196,6 @@ public abstract class Container
 
                 if (slot != null)
                 {
-                    slot.onSlotChanged();
                     ItemStack itemstack2 = slot.getStack();
                     ItemStack itemstack4 = inventoryplayer.getItemStack();
 
@@ -227,8 +226,8 @@ public abstract class Container
                     else if (itemstack4 == null)
                     {
                         int k = par2 != 0 ? (itemstack2.stackSize + 1) / 2 : itemstack2.stackSize;
-                        ItemStack itemstack6 = slot.decrStackSize(k);
-                        inventoryplayer.setItemStack(itemstack6);
+                        ItemStack itemstack5 = slot.decrStackSize(k);
+                        inventoryplayer.setItemStack(itemstack5);
 
                         if (itemstack2.stackSize == 0)
                         {
@@ -243,9 +242,8 @@ public abstract class Container
                         {
                             if (itemstack4.stackSize <= slot.getSlotStackLimit())
                             {
-                                ItemStack itemstack5 = itemstack2;
                                 slot.putStack(itemstack4);
-                                inventoryplayer.setItemStack(itemstack5);
+                                inventoryplayer.setItemStack(itemstack2);
                             }
                         }
                         else
@@ -289,6 +287,8 @@ public abstract class Container
                             slot.onPickupFromSlot(inventoryplayer.getItemStack());
                         }
                     }
+
+                    slot.onSlotChanged();
                 }
             }
         }

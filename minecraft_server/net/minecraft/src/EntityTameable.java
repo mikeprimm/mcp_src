@@ -97,7 +97,7 @@ public abstract class EntityTameable extends EntityAnimal
         return (dataWatcher.getWatchableObjectByte(16) & 1) != 0;
     }
 
-    public void func_48369_c(boolean par1)
+    public void setSitting(boolean par1)
     {
         byte byte0 = dataWatcher.getWatchableObjectByte(16);
 

@@ -30,7 +30,7 @@ public class NBTTagList extends NBTBase
      */
     void write(DataOutput par1DataOutput) throws IOException
     {
-        if (tagList.size() > 0)
+        if (!tagList.isEmpty())
         {
             tagType = ((NBTBase)tagList.get(0)).getId();
         }
@@ -41,10 +41,11 @@ public class NBTTagList extends NBTBase
 
         par1DataOutput.writeByte(tagType);
         par1DataOutput.writeInt(tagList.size());
+        NBTBase nbtbase;
 
-        for (int i = 0; i < tagList.size(); i++)
+        for (Iterator iterator = tagList.iterator(); iterator.hasNext(); nbtbase.write(par1DataOutput))
         {
-            ((NBTBase)tagList.get(i)).write(par1DataOutput);
+            nbtbase = (NBTBase)iterator.next();
         }
     }
 

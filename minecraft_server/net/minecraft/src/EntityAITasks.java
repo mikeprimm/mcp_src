@@ -1,31 +1,28 @@
 package net.minecraft.src;
 
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.*;
 
 public class EntityAITasks
 {
-    private ArrayList tasksToDo;
-
-    /** Tasks currently being executed */
-    private ArrayList executingTasks;
+    private List field_55244_a;
+    private List field_55243_b;
 
     public EntityAITasks()
     {
-        tasksToDo = new ArrayList();
-        executingTasks = new ArrayList();
+        field_55244_a = new ArrayList();
+        field_55243_b = new ArrayList();
     }
 
     public void addTask(int par1, EntityAIBase par2EntityAIBase)
     {
-        tasksToDo.add(new EntityAITaskEntry(this, par1, par2EntityAIBase));
+        field_55244_a.add(new EntityAITaskEntry(this, par1, par2EntityAIBase));
     }
 
     public void onUpdateTasks()
     {
         ArrayList arraylist = new ArrayList();
-        Iterator iterator = tasksToDo.iterator();
+        Iterator iterator = field_55244_a.iterator();
 
         do
         {
@@ -35,7 +32,7 @@ public class EntityAITasks
             }
 
             EntityAITaskEntry entityaitaskentry = (EntityAITaskEntry)iterator.next();
-            boolean flag1 = executingTasks.contains(entityaitaskentry);
+            boolean flag1 = field_55243_b.contains(entityaitaskentry);
 
             if (flag1)
             {
@@ -45,20 +42,20 @@ public class EntityAITasks
                 }
 
                 entityaitaskentry.action.resetTask();
-                executingTasks.remove(entityaitaskentry);
+                field_55243_b.remove(entityaitaskentry);
             }
 
             if (func_46136_a(entityaitaskentry) && entityaitaskentry.action.shouldExecute())
             {
                 arraylist.add(entityaitaskentry);
-                executingTasks.add(entityaitaskentry);
+                field_55243_b.add(entityaitaskentry);
             }
         }
         while (true);
 
         boolean flag = false;
 
-        if (flag && arraylist.size() > 0)
+        if (flag && !arraylist.isEmpty())
         {
             System.out.println("Starting: ");
         }
@@ -75,14 +72,14 @@ public class EntityAITasks
             }
         }
 
-        if (flag && executingTasks.size() > 0)
+        if (flag && !field_55243_b.isEmpty())
         {
             System.out.println("Running: ");
         }
 
         EntityAITaskEntry entityaitaskentry2;
 
-        for (Iterator iterator2 = executingTasks.iterator(); iterator2.hasNext(); entityaitaskentry2.action.updateTask())
+        for (Iterator iterator2 = field_55243_b.iterator(); iterator2.hasNext(); entityaitaskentry2.action.updateTask())
         {
             entityaitaskentry2 = (EntityAITaskEntry)iterator2.next();
 
@@ -97,7 +94,7 @@ public class EntityAITasks
     {
         label0:
         {
-            Iterator iterator = tasksToDo.iterator();
+            Iterator iterator = field_55244_a.iterator();
             EntityAITaskEntry entityaitaskentry;
             label1:
 
@@ -121,11 +118,11 @@ public class EntityAITasks
                         continue label1;
                     }
                 }
-                while (!executingTasks.contains(entityaitaskentry) || areTasksCompatible(par1EntityAITaskEntry, entityaitaskentry));
+                while (!field_55243_b.contains(entityaitaskentry) || areTasksCompatible(par1EntityAITaskEntry, entityaitaskentry));
 
                 return false;
             }
-            while (!executingTasks.contains(entityaitaskentry) || entityaitaskentry.action.isContinuous());
+            while (!field_55243_b.contains(entityaitaskentry) || entityaitaskentry.action.isContinuous());
 
             return false;
         }

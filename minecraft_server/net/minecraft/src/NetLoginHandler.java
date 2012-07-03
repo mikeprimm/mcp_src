@@ -2,20 +2,23 @@ package net.minecraft.src;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.util.*;
+import java.security.KeyPair;
+import java.util.Arrays;
+import java.util.Random;
 import java.util.logging.Logger;
+import javax.crypto.SecretKey;
 import net.minecraft.server.MinecraftServer;
 
 public class NetLoginHandler extends NetHandler
 {
+    private byte field_58074_d[];
+
     /** The Minecraft logger. */
     public static Logger logger = Logger.getLogger("Minecraft");
 
     /** The Random object used to generate serverId hex strings. */
     private static Random rand = new Random();
-
-    /** The underlying network manager for this login handler. */
-    public NetworkManager netManager;
+    public TcpConnection field_56681_b;
 
     /**
      * Returns if the login handler is finished and can be removed. It is set to true on either error or successful
@@ -28,28 +31,22 @@ public class NetLoginHandler extends NetHandler
 
     /** While waiting to login, if this field ++'s to 600 it will kick you. */
     private int loginTimer;
-
-    /** The username for this login. */
-    private String username;
-
-    /** holds the login packet of the current getting handled login packet */
-    private Packet1Login packet1login;
-
-    /**
-     * The hex string that corresponds to the random number generated as a server ID. Used in online mode.
-     */
-    private String serverId;
+    private String field_55256_g;
+    private volatile boolean field_55258_h;
+    private String field_55259_i;
+    private SecretKey field_55257_j;
 
     public NetLoginHandler(MinecraftServer par1MinecraftServer, Socket par2Socket, String par3Str) throws IOException
     {
         finishedProcessing = false;
         loginTimer = 0;
-        username = null;
-        packet1login = null;
-        serverId = "";
+        field_55256_g = null;
+        field_55258_h = false;
+        field_55259_i = "";
+        field_55257_j = null;
         mcServer = par1MinecraftServer;
-        netManager = new NetworkManager(par2Socket, par3Str, this);
-        netManager.chunkDataSendCounter = 0;
+        field_56681_b = new TcpConnection(par2Socket, par3Str, this, par1MinecraftServer.func_55087_t().getPrivate());
+        field_56681_b.field_56655_e = 0;
     }
 
     /**
@@ -58,10 +55,9 @@ public class NetLoginHandler extends NetHandler
      */
     public void tryLogin()
     {
-        if (packet1login != null)
+        if (field_55258_h)
         {
-            doLogin(packet1login);
-            packet1login = null;
+            func_55254_c();
         }
 
         if (loginTimer++ == 600)
@@ -70,7 +66,7 @@ public class NetLoginHandler extends NetHandler
         }
         else
         {
-            netManager.processReadPackets();
+            field_56681_b.processReadPackets();
         }
     }
 
@@ -81,9 +77,9 @@ public class NetLoginHandler extends NetHandler
     {
         try
         {
-            logger.info((new StringBuilder()).append("Disconnecting ").append(getUserAndIPString()).append(": ").append(par1Str).toString());
-            netManager.addToSendQueue(new Packet255KickDisconnect(par1Str));
-            netManager.serverShutdown();
+            logger.info((new StringBuilder()).append("Disconnecting ").append(func_55250_d()).append(": ").append(par1Str).toString());
+            field_56681_b.addToSendQueue(new Packet255KickDisconnect(par1Str));
+            field_56681_b.serverShutdown();
             finishedProcessing = true;
         }
         catch (Exception exception)
@@ -92,26 +88,21 @@ public class NetLoginHandler extends NetHandler
         }
     }
 
-    public void handleHandshake(Packet2Handshake par1Packet2Handshake)
+    public void func_55247_a(Packet2ClientProtocol par1Packet2ClientProtocol)
     {
-        if (mcServer.onlineMode)
-        {
-            serverId = Long.toString(rand.nextLong(), 16);
-            netManager.addToSendQueue(new Packet2Handshake(serverId));
-        }
-        else
-        {
-            netManager.addToSendQueue(new Packet2Handshake("-"));
-        }
-    }
+        field_55256_g = par1Packet2ClientProtocol.func_55113_c();
 
-    public void handleLogin(Packet1Login par1Packet1Login)
-    {
-        username = par1Packet1Login.username;
-
-        if (par1Packet1Login.protocolVersion != 29)
+        if (!field_55256_g.equals(StringUtils.func_55306_a(field_55256_g)))
         {
-            if (par1Packet1Login.protocolVersion > 29)
+            kickUser("Invalid username!");
+            return;
+        }
+
+        java.security.PublicKey publickey = mcServer.func_55087_t().getPublic();
+
+        if (par1Packet2ClientProtocol.func_55112_b() != 37)
+        {
+            if (par1Packet2ClientProtocol.func_55112_b() > 37)
             {
                 kickUser("Outdated server!");
             }
@@ -122,51 +113,64 @@ public class NetLoginHandler extends NetHandler
 
             return;
         }
-
-        if (!mcServer.onlineMode)
-        {
-            doLogin(par1Packet1Login);
-        }
         else
         {
-            (new ThreadLoginVerifier(this, par1Packet1Login)).start();
+            field_55259_i = mcServer.func_56211_Q() ? Long.toString(rand.nextLong(), 16) : "-";
+            field_58074_d = new byte[4];
+            rand.nextBytes(field_58074_d);
+            field_56681_b.addToSendQueue(new Packet253ServerAuthData(field_55259_i, publickey, field_58074_d));
+            return;
         }
     }
 
-    /**
-     * Processes the login packet and sends response packets to the user.
-     */
-    public void doLogin(Packet1Login par1Packet1Login)
+    public void func_55249_a(Packet252SharedKey par1Packet252SharedKey)
     {
-        EntityPlayerMP entityplayermp = mcServer.configManager.login(this, par1Packet1Login.username);
+        java.security.PrivateKey privatekey = mcServer.func_55087_t().getPrivate();
+        field_55257_j = par1Packet252SharedKey.func_55107_a(privatekey);
 
-        if (entityplayermp != null)
+        if (!Arrays.equals(field_58074_d, par1Packet252SharedKey.func_58028_b(privatekey)))
         {
-            mcServer.configManager.readPlayerDataFromFile(entityplayermp);
-            entityplayermp.setWorld(mcServer.getWorldManager(entityplayermp.dimension));
-            entityplayermp.itemInWorldManager.setWorld((WorldServer)entityplayermp.worldObj);
-            logger.info((new StringBuilder()).append(getUserAndIPString()).append(" logged in with entity id ").append(entityplayermp.entityId).append(" at (").append(entityplayermp.posX).append(", ").append(entityplayermp.posY).append(", ").append(entityplayermp.posZ).append(")").toString());
-            WorldServer worldserver = mcServer.getWorldManager(entityplayermp.dimension);
-            ChunkCoordinates chunkcoordinates = worldserver.getSpawnPoint();
-            entityplayermp.itemInWorldManager.func_35695_b(worldserver.getWorldInfo().getGameType());
-            NetServerHandler netserverhandler = new NetServerHandler(mcServer, netManager, entityplayermp);
-            netserverhandler.sendPacket(new Packet1Login("", entityplayermp.entityId, worldserver.getWorldInfo().getTerrainType(), entityplayermp.itemInWorldManager.getGameType(), worldserver.worldProvider.worldType, (byte)worldserver.difficultySetting, (byte)worldserver.getHeight(), (byte)mcServer.configManager.getMaxPlayers()));
-            netserverhandler.sendPacket(new Packet6SpawnPosition(chunkcoordinates.posX, chunkcoordinates.posY, chunkcoordinates.posZ));
-            netserverhandler.sendPacket(new Packet202PlayerAbilities(entityplayermp.capabilities));
-            mcServer.configManager.func_28170_a(entityplayermp, worldserver);
-            mcServer.configManager.sendPacketToAllPlayers(new Packet3Chat((new StringBuilder()).append("\247e").append(entityplayermp.username).append(" joined the game.").toString()));
-            mcServer.configManager.playerLoggedIn(entityplayermp);
-            netserverhandler.teleportTo(entityplayermp.posX, entityplayermp.posY, entityplayermp.posZ, entityplayermp.rotationYaw, entityplayermp.rotationPitch);
-            mcServer.networkServer.addPlayer(netserverhandler);
-            netserverhandler.sendPacket(new Packet4UpdateTime(worldserver.getWorldTime()));
-            PotionEffect potioneffect;
+            kickUser("Invalid client reply");
+        }
 
-            for (Iterator iterator = entityplayermp.getActivePotionEffects().iterator(); iterator.hasNext(); netserverhandler.sendPacket(new Packet41EntityEffect(entityplayermp.entityId, potioneffect)))
+        field_56681_b.addToSendQueue(new Packet252SharedKey());
+    }
+
+    public void func_56678_a(Packet205ClientCommand par1Packet205ClientCommand)
+    {
+        if (par1Packet205ClientCommand.field_56242_a == 0)
+        {
+            if (mcServer.func_56211_Q())
             {
-                potioneffect = (PotionEffect)iterator.next();
+                (new ThreadLoginVerifier(this)).start();
             }
+            else
+            {
+                field_55258_h = true;
+            }
+        }
+    }
 
-            entityplayermp.func_20057_k();
+    public void handleLogin(Packet1Login packet1login)
+    {
+    }
+
+    public void func_55254_c()
+    {
+        String s = mcServer.func_56173_Y().func_56433_a(field_56681_b.getRemoteAddress(), field_55256_g);
+
+        if (s != null)
+        {
+            kickUser(s);
+        }
+        else
+        {
+            EntityPlayerMP entityplayermp = mcServer.func_56173_Y().func_56431_a(field_55256_g);
+
+            if (entityplayermp != null)
+            {
+                mcServer.func_56173_Y().func_56432_a(field_56681_b, entityplayermp);
+            }
         }
 
         finishedProcessing = true;
@@ -174,7 +178,7 @@ public class NetLoginHandler extends NetHandler
 
     public void handleErrorMessage(String par1Str, Object par2ArrayOfObj[])
     {
-        logger.info((new StringBuilder()).append(getUserAndIPString()).append(" lost connection").toString());
+        logger.info((new StringBuilder()).append(func_55250_d()).append(" lost connection").toString());
         finishedProcessing = true;
     }
 
@@ -185,10 +189,22 @@ public class NetLoginHandler extends NetHandler
     {
         try
         {
-            String s = (new StringBuilder()).append(mcServer.motd).append("\247").append(mcServer.configManager.playersOnline()).append("\247").append(mcServer.configManager.getMaxPlayers()).toString();
-            netManager.addToSendQueue(new Packet255KickDisconnect(s));
-            netManager.serverShutdown();
-            mcServer.networkServer.func_35505_a(netManager.getSocket());
+            String s = (new StringBuilder()).append(mcServer.func_56155_V()).append("\247").append(mcServer.func_56173_Y().playersOnline()).append("\247").append(mcServer.func_56173_Y().getMaxPlayers()).toString();
+            java.net.InetAddress inetaddress = null;
+
+            if (field_56681_b.func_56640_f() != null)
+            {
+                inetaddress = field_56681_b.func_56640_f().getInetAddress();
+            }
+
+            field_56681_b.addToSendQueue(new Packet255KickDisconnect(s));
+            field_56681_b.serverShutdown();
+
+            if (inetaddress != null && (mcServer.func_56203_Z() instanceof DedicatedServerListenThread))
+            {
+                ((DedicatedServerListenThread)mcServer.func_56203_Z()).func_58050_a(inetaddress);
+            }
+
             finishedProcessing = true;
         }
         catch (Exception exception)
@@ -202,18 +218,15 @@ public class NetLoginHandler extends NetHandler
         kickUser("Protocol error");
     }
 
-    /**
-     * Returns the user name (if any) and the remote address as a string.
-     */
-    public String getUserAndIPString()
+    public String func_55250_d()
     {
-        if (username != null)
+        if (field_55256_g != null)
         {
-            return (new StringBuilder()).append(username).append(" [").append(netManager.getRemoteAddress().toString()).append("]").toString();
+            return (new StringBuilder()).append(field_55256_g).append(" [").append(field_56681_b.getRemoteAddress().toString()).append("]").toString();
         }
         else
         {
-            return netManager.getRemoteAddress().toString();
+            return field_56681_b.getRemoteAddress().toString();
         }
     }
 
@@ -230,14 +243,26 @@ public class NetLoginHandler extends NetHandler
      */
     static String getServerId(NetLoginHandler par0NetLoginHandler)
     {
-        return par0NetLoginHandler.serverId;
+        return par0NetLoginHandler.field_55259_i;
     }
 
-    /**
-     * Sets and returns the login packet provided.
-     */
-    static Packet1Login setLoginPacket(NetLoginHandler par0NetLoginHandler, Packet1Login par1Packet1Login)
+    static MinecraftServer func_55253_b(NetLoginHandler par0NetLoginHandler)
     {
-        return par0NetLoginHandler.packet1login = par1Packet1Login;
+        return par0NetLoginHandler.mcServer;
+    }
+
+    static SecretKey func_55255_c(NetLoginHandler par0NetLoginHandler)
+    {
+        return par0NetLoginHandler.field_55257_j;
+    }
+
+    static String func_55251_d(NetLoginHandler par0NetLoginHandler)
+    {
+        return par0NetLoginHandler.field_55256_g;
+    }
+
+    static boolean func_55252_a(NetLoginHandler par0NetLoginHandler, boolean par1)
+    {
+        return par0NetLoginHandler.field_55258_h = par1;
     }
 }

@@ -66,7 +66,8 @@ public class Material
     private boolean canHarvest;
 
     /**
-     * 0 indicates normal, 1 indicates this block can't push other blocks, 2 indicates this block cant be pushed
+     * Mobility information flag. 0 indicates that this block is normal, 1 indicates that it can't push other blocks, 2
+     * indicates that it can't be pushed.
      */
     private int mobilityFlag;
 
@@ -198,7 +199,7 @@ public class Material
     }
 
     /**
-     * marks this material as being immovable
+     * This type of material can't be pushed, and pistons are blocked to move.
      */
     protected Material setImmovableMobility()
     {

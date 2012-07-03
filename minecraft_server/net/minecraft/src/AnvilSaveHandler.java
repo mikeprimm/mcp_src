@@ -1,7 +1,6 @@
 package net.minecraft.src;
 
 import java.io.File;
-import java.util.List;
 
 public class AnvilSaveHandler extends SaveHandler
 {
@@ -36,13 +35,10 @@ public class AnvilSaveHandler extends SaveHandler
         }
     }
 
-    /**
-     * saves level.dat and backs up the existing one to level.dat_old
-     */
-    public void saveWorldInfoAndPlayer(WorldInfo par1WorldInfo, List par2List)
+    public void func_56407_a(WorldInfo par1WorldInfo, NBTTagCompound par2NBTTagCompound)
     {
         par1WorldInfo.setSaveVersion(19133);
-        super.saveWorldInfoAndPlayer(par1WorldInfo, par2List);
+        super.func_56407_a(par1WorldInfo, par2NBTTagCompound);
     }
 
     public void func_22093_e()

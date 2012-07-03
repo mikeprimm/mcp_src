@@ -9,6 +9,7 @@ public class ItemBow extends Item
         super(par1);
         maxStackSize = 1;
         setMaxDamage(384);
+        func_56455_a(CreativeTabs.field_56394_j);
     }
 
     /**
@@ -38,7 +39,7 @@ public class ItemBow extends Item
 
             if (f == 1.0F)
             {
-                entityarrow.arrowCritical = true;
+                entityarrow.func_56125_a(true);
             }
 
             int j = EnchantmentHelper.getEnchantmentLevel(Enchantment.power.effectId, par1ItemStack);
@@ -63,13 +64,13 @@ public class ItemBow extends Item
             par1ItemStack.damageItem(1, par3EntityPlayer);
             par2World.playSoundAtEntity(par3EntityPlayer, "random.bow", 1.0F, 1.0F / (itemRand.nextFloat() * 0.4F + 1.2F) + f * 0.5F);
 
-            if (!flag)
+            if (flag)
             {
-                par3EntityPlayer.inventory.consumeInventoryItem(Item.arrow.shiftedIndex);
+                entityarrow.field_58012_a = 2;
             }
             else
             {
-                entityarrow.doesArrowBelongToPlayer = false;
+                par3EntityPlayer.inventory.consumeInventoryItem(Item.arrow.shiftedIndex);
             }
 
             if (!par2World.isRemote)

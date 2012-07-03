@@ -15,12 +15,28 @@ public class Packet250CustomPayload extends Packet
     {
     }
 
+    public Packet250CustomPayload(String par1Str, byte par2ArrayOfByte[])
+    {
+        channel = par1Str;
+        data = par2ArrayOfByte;
+
+        if (par2ArrayOfByte != null)
+        {
+            length = par2ArrayOfByte.length;
+
+            if (length > 32767)
+            {
+                throw new IllegalArgumentException("Payload may not be larger than 32k");
+            }
+        }
+    }
+
     /**
      * Abstract. Reads the raw packet data from the data stream.
      */
     public void readPacketData(DataInputStream par1DataInputStream) throws IOException
     {
-        channel = readString(par1DataInputStream, 16);
+        channel = readString(par1DataInputStream, 20);
         length = par1DataInputStream.readShort();
 
         if (length > 0 && length < 32767)

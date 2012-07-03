@@ -8,6 +8,7 @@ public class BlockMelon extends Block
     {
         super(par1, Material.pumpkin);
         blockIndexInTexture = 136;
+        func_56326_a(CreativeTabs.field_56387_b);
     }
 
     /**

@@ -65,8 +65,8 @@ public class EntityAIFollowOwner extends EntityAIBase
     public void startExecuting()
     {
         field_48252_h = 0;
-        field_48253_i = thePet.getNavigator().func_48649_a();
-        thePet.getNavigator().func_48656_a(false);
+        field_48253_i = thePet.getNavigator().getAvoidsWater();
+        thePet.getNavigator().setAvoidsWater(false);
     }
 
     /**
@@ -76,7 +76,7 @@ public class EntityAIFollowOwner extends EntityAIBase
     {
         theOwner = null;
         petPathfinder.clearPathEntity();
-        thePet.getNavigator().func_48656_a(field_48253_i);
+        thePet.getNavigator().setAvoidsWater(field_48253_i);
     }
 
     /**
@@ -116,7 +116,7 @@ public class EntityAIFollowOwner extends EntityAIBase
         {
             for (int i1 = 0; i1 <= 4; i1++)
             {
-                if ((l < 1 || i1 < 1 || l > 3 || i1 > 3) && theWorld.isBlockNormalCube(i + l, k - 1, j + i1) && !theWorld.isBlockNormalCube(i + l, k, j + i1) && !theWorld.isBlockNormalCube(i + l, k + 1, j + i1))
+                if ((l < 1 || i1 < 1 || l > 3 || i1 > 3) && theWorld.func_58038_s(i + l, k - 1, j + i1) && !theWorld.isBlockNormalCube(i + l, k, j + i1) && !theWorld.isBlockNormalCube(i + l, k + 1, j + i1))
                 {
                     thePet.setLocationAndAngles((float)(i + l) + 0.5F, k, (float)(j + i1) + 0.5F, thePet.rotationYaw, thePet.rotationPitch);
                     petPathfinder.clearPathEntity();

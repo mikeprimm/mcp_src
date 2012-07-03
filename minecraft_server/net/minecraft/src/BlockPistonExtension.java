@@ -1,6 +1,6 @@
 package net.minecraft.src;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class BlockPistonExtension extends Block
@@ -16,26 +16,22 @@ public class BlockPistonExtension extends Block
         setHardness(0.5F);
     }
 
-    /**
-     * Called whenever the block is removed.
-     */
-    public void onBlockRemoval(World par1World, int par2, int par3, int par4)
+    public void func_56322_a(World par1World, int par2, int par3, int par4, int par5, int par6)
     {
-        super.onBlockRemoval(par1World, par2, par3, par4);
-        int i = par1World.getBlockMetadata(par2, par3, par4);
-        int k = Facing.faceToSide[getDirectionMeta(i)];
-        par2 += Facing.offsetsXForSide[k];
-        par3 += Facing.offsetsYForSide[k];
-        par4 += Facing.offsetsZForSide[k];
-        int l = par1World.getBlockId(par2, par3, par4);
+        super.func_56322_a(par1World, par2, par3, par4, par5, par6);
+        int i = Facing.faceToSide[getDirectionMeta(par6)];
+        par2 += Facing.offsetsXForSide[i];
+        par3 += Facing.offsetsYForSide[i];
+        par4 += Facing.offsetsZForSide[i];
+        int j = par1World.getBlockId(par2, par3, par4);
 
-        if (l == Block.pistonBase.blockID || l == Block.pistonStickyBase.blockID)
+        if (j == Block.pistonBase.blockID || j == Block.pistonStickyBase.blockID)
         {
-            int j = par1World.getBlockMetadata(par2, par3, par4);
+            par6 = par1World.getBlockMetadata(par2, par3, par4);
 
-            if (BlockPistonBase.isExtended(j))
+            if (BlockPistonBase.isExtended(par6))
             {
-                Block.blocksList[l].dropBlockAsItem(par1World, par2, par3, par4, j, 0);
+                Block.blocksList[j].dropBlockAsItem(par1World, par2, par3, par4, par6, 0);
                 par1World.setBlockWithNotify(par2, par3, par4, 0);
             }
         }
@@ -117,11 +113,7 @@ public class BlockPistonExtension extends Block
         return 0;
     }
 
-    /**
-     * Adds to the supplied array any colliding bounding boxes with the passed in bounding box. Args: world, x, y, z,
-     * axisAlignedBB, arrayList
-     */
-    public void getCollidingBoundingBoxes(World par1World, int par2, int par3, int par4, AxisAlignedBB par5AxisAlignedBB, ArrayList par6ArrayList)
+    public void func_56330_a(World par1World, int par2, int par3, int par4, AxisAlignedBB par5AxisAlignedBB, List par6List, Entity par7Entity)
     {
         int i = par1World.getBlockMetadata(par2, par3, par4);
 
@@ -129,44 +121,44 @@ public class BlockPistonExtension extends Block
         {
             case 0:
                 setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 0.25F, 1.0F);
-                super.getCollidingBoundingBoxes(par1World, par2, par3, par4, par5AxisAlignedBB, par6ArrayList);
+                super.func_56330_a(par1World, par2, par3, par4, par5AxisAlignedBB, par6List, par7Entity);
                 setBlockBounds(0.375F, 0.25F, 0.375F, 0.625F, 1.0F, 0.625F);
-                super.getCollidingBoundingBoxes(par1World, par2, par3, par4, par5AxisAlignedBB, par6ArrayList);
+                super.func_56330_a(par1World, par2, par3, par4, par5AxisAlignedBB, par6List, par7Entity);
                 break;
 
             case 1:
                 setBlockBounds(0.0F, 0.75F, 0.0F, 1.0F, 1.0F, 1.0F);
-                super.getCollidingBoundingBoxes(par1World, par2, par3, par4, par5AxisAlignedBB, par6ArrayList);
+                super.func_56330_a(par1World, par2, par3, par4, par5AxisAlignedBB, par6List, par7Entity);
                 setBlockBounds(0.375F, 0.0F, 0.375F, 0.625F, 0.75F, 0.625F);
-                super.getCollidingBoundingBoxes(par1World, par2, par3, par4, par5AxisAlignedBB, par6ArrayList);
+                super.func_56330_a(par1World, par2, par3, par4, par5AxisAlignedBB, par6List, par7Entity);
                 break;
 
             case 2:
                 setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 0.25F);
-                super.getCollidingBoundingBoxes(par1World, par2, par3, par4, par5AxisAlignedBB, par6ArrayList);
+                super.func_56330_a(par1World, par2, par3, par4, par5AxisAlignedBB, par6List, par7Entity);
                 setBlockBounds(0.25F, 0.375F, 0.25F, 0.75F, 0.625F, 1.0F);
-                super.getCollidingBoundingBoxes(par1World, par2, par3, par4, par5AxisAlignedBB, par6ArrayList);
+                super.func_56330_a(par1World, par2, par3, par4, par5AxisAlignedBB, par6List, par7Entity);
                 break;
 
             case 3:
                 setBlockBounds(0.0F, 0.0F, 0.75F, 1.0F, 1.0F, 1.0F);
-                super.getCollidingBoundingBoxes(par1World, par2, par3, par4, par5AxisAlignedBB, par6ArrayList);
+                super.func_56330_a(par1World, par2, par3, par4, par5AxisAlignedBB, par6List, par7Entity);
                 setBlockBounds(0.25F, 0.375F, 0.0F, 0.75F, 0.625F, 0.75F);
-                super.getCollidingBoundingBoxes(par1World, par2, par3, par4, par5AxisAlignedBB, par6ArrayList);
+                super.func_56330_a(par1World, par2, par3, par4, par5AxisAlignedBB, par6List, par7Entity);
                 break;
 
             case 4:
                 setBlockBounds(0.0F, 0.0F, 0.0F, 0.25F, 1.0F, 1.0F);
-                super.getCollidingBoundingBoxes(par1World, par2, par3, par4, par5AxisAlignedBB, par6ArrayList);
+                super.func_56330_a(par1World, par2, par3, par4, par5AxisAlignedBB, par6List, par7Entity);
                 setBlockBounds(0.375F, 0.25F, 0.25F, 0.625F, 0.75F, 1.0F);
-                super.getCollidingBoundingBoxes(par1World, par2, par3, par4, par5AxisAlignedBB, par6ArrayList);
+                super.func_56330_a(par1World, par2, par3, par4, par5AxisAlignedBB, par6List, par7Entity);
                 break;
 
             case 5:
                 setBlockBounds(0.75F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
-                super.getCollidingBoundingBoxes(par1World, par2, par3, par4, par5AxisAlignedBB, par6ArrayList);
+                super.func_56330_a(par1World, par2, par3, par4, par5AxisAlignedBB, par6List, par7Entity);
                 setBlockBounds(0.0F, 0.375F, 0.25F, 0.75F, 0.625F, 0.75F);
-                super.getCollidingBoundingBoxes(par1World, par2, par3, par4, par5AxisAlignedBB, par6ArrayList);
+                super.func_56330_a(par1World, par2, par3, par4, par5AxisAlignedBB, par6List, par7Entity);
                 break;
         }
 

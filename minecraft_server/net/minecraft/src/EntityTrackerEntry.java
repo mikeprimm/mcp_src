@@ -92,9 +92,9 @@ public class EntityTrackerEntry
 
         if (updateCounter++ % field_9234_e == 0 || trackedEntity.isAirBorne)
         {
-            int i = MathHelper.floor_double(trackedEntity.posX * 32D);
+            int i = trackedEntity.field_55074_am.func_55187_a(trackedEntity.posX);
             int j = MathHelper.floor_double(trackedEntity.posY * 32D);
-            int k = MathHelper.floor_double(trackedEntity.posZ * 32D);
+            int k = trackedEntity.field_55074_am.func_55187_a(trackedEntity.posZ);
             int l = MathHelper.floor_float((trackedEntity.rotationYaw * 256F) / 360F);
             int i1 = MathHelper.floor_float((trackedEntity.rotationPitch * 256F) / 360F);
             int j1 = i - encodedPosX;
@@ -107,9 +107,6 @@ public class EntityTrackerEntry
             if (j1 < -128 || j1 >= 128 || k1 < -128 || k1 >= 128 || l1 < -128 || l1 >= 128 || field_28165_t > 400)
             {
                 field_28165_t = 0;
-                trackedEntity.posX = (double)i / 32D;
-                trackedEntity.posY = (double)j / 32D;
-                trackedEntity.posZ = (double)k / 32D;
                 obj = new Packet34EntityTeleport(trackedEntity.entityId, i, j, k, (byte)l, (byte)i1);
             }
             else if (flag && flag1)
@@ -281,9 +278,11 @@ public class EntityTrackerEntry
 
     public void updatePlayerEntities(List par1List)
     {
-        for (int i = 0; i < par1List.size(); i++)
+        EntityPlayer entityplayer;
+
+        for (Iterator iterator = par1List.iterator(); iterator.hasNext(); updatePlayerEntity((EntityPlayerMP)entityplayer))
         {
-            updatePlayerEntity((EntityPlayerMP)par1List.get(i));
+            entityplayer = (EntityPlayer)iterator.next();
         }
     }
 
@@ -346,7 +345,8 @@ public class EntityTrackerEntry
 
         if (trackedEntity instanceof EntityFishHook)
         {
-            return new Packet23VehicleSpawn(trackedEntity, 90);
+            EntityPlayer entityplayer = ((EntityFishHook)trackedEntity).angler;
+            return new Packet23VehicleSpawn(trackedEntity, 90, entityplayer == null ? trackedEntity.entityId : ((Entity)(entityplayer)).entityId);
         }
 
         if (trackedEntity instanceof EntityArrow)
@@ -438,21 +438,7 @@ public class EntityTrackerEntry
         if (trackedEntity instanceof EntityFallingSand)
         {
             EntityFallingSand entityfallingsand = (EntityFallingSand)trackedEntity;
-
-            if (entityfallingsand.blockID == Block.sand.blockID)
-            {
-                return new Packet23VehicleSpawn(trackedEntity, 70);
-            }
-
-            if (entityfallingsand.blockID == Block.gravel.blockID)
-            {
-                return new Packet23VehicleSpawn(trackedEntity, 71);
-            }
-
-            if (entityfallingsand.blockID == Block.dragonEgg.blockID)
-            {
-                return new Packet23VehicleSpawn(trackedEntity, 74);
-            }
+            return new Packet23VehicleSpawn(trackedEntity, 70, entityfallingsand.blockID | entityfallingsand.field_56127_b << 12);
         }
 
         if (trackedEntity instanceof EntityPainting)

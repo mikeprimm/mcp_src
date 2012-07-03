@@ -1,7 +1,6 @@
 package net.minecraft.src;
 
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class EntityFireball extends Entity
 {
@@ -93,16 +92,7 @@ public class EntityFireball extends Entity
         {
             int i = worldObj.getBlockId(xTile, yTile, zTile);
 
-            if (i != inTile)
-            {
-                inGround = false;
-                motionX *= rand.nextFloat() * 0.2F;
-                motionY *= rand.nextFloat() * 0.2F;
-                motionZ *= rand.nextFloat() * 0.2F;
-                ticksAlive = 0;
-                ticksInAir = 0;
-            }
-            else
+            if (i == inTile)
             {
                 ticksAlive++;
 
@@ -113,53 +103,63 @@ public class EntityFireball extends Entity
 
                 return;
             }
+
+            inGround = false;
+            motionX *= rand.nextFloat() * 0.2F;
+            motionY *= rand.nextFloat() * 0.2F;
+            motionZ *= rand.nextFloat() * 0.2F;
+            ticksAlive = 0;
+            ticksInAir = 0;
         }
         else
         {
             ticksInAir++;
         }
 
-        Vec3D vec3d = Vec3D.createVector(posX, posY, posZ);
-        Vec3D vec3d1 = Vec3D.createVector(posX + motionX, posY + motionY, posZ + motionZ);
-        MovingObjectPosition movingobjectposition = worldObj.rayTraceBlocks(vec3d, vec3d1);
-        vec3d = Vec3D.createVector(posX, posY, posZ);
-        vec3d1 = Vec3D.createVector(posX + motionX, posY + motionY, posZ + motionZ);
+        Vec3 vec3 = Vec3.func_58052_a().func_58076_a(posX, posY, posZ);
+        Vec3 vec3_1 = Vec3.func_58052_a().func_58076_a(posX + motionX, posY + motionY, posZ + motionZ);
+        MovingObjectPosition movingobjectposition = worldObj.rayTraceBlocks(vec3, vec3_1);
+        vec3 = Vec3.func_58052_a().func_58076_a(posX, posY, posZ);
+        vec3_1 = Vec3.func_58052_a().func_58076_a(posX + motionX, posY + motionY, posZ + motionZ);
 
         if (movingobjectposition != null)
         {
-            vec3d1 = Vec3D.createVector(movingobjectposition.hitVec.xCoord, movingobjectposition.hitVec.yCoord, movingobjectposition.hitVec.zCoord);
+            vec3_1 = Vec3.func_58052_a().func_58076_a(movingobjectposition.hitVec.xCoord, movingobjectposition.hitVec.yCoord, movingobjectposition.hitVec.zCoord);
         }
 
         Entity entity = null;
         List list = worldObj.getEntitiesWithinAABBExcludingEntity(this, boundingBox.addCoord(motionX, motionY, motionZ).expand(1.0D, 1.0D, 1.0D));
         double d = 0.0D;
+        Iterator iterator = list.iterator();
 
-        for (int j = 0; j < list.size(); j++)
+        do
         {
-            Entity entity1 = (Entity)list.get(j);
-
-            if (!entity1.canBeCollidedWith() || entity1.isEntityEqual(shootingEntity) && ticksInAir < 25)
+            if (!iterator.hasNext())
             {
-                continue;
+                break;
             }
 
-            float f2 = 0.3F;
-            AxisAlignedBB axisalignedbb = entity1.boundingBox.expand(f2, f2, f2);
-            MovingObjectPosition movingobjectposition1 = axisalignedbb.calculateIntercept(vec3d, vec3d1);
+            Entity entity1 = (Entity)iterator.next();
 
-            if (movingobjectposition1 == null)
+            if (entity1.canBeCollidedWith() && (!entity1.isEntityEqual(shootingEntity) || ticksInAir >= 25))
             {
-                continue;
-            }
+                float f2 = 0.3F;
+                AxisAlignedBB axisalignedbb = entity1.boundingBox.expand(f2, f2, f2);
+                MovingObjectPosition movingobjectposition1 = axisalignedbb.calculateIntercept(vec3, vec3_1);
 
-            double d1 = vec3d.distanceTo(movingobjectposition1.hitVec);
+                if (movingobjectposition1 != null)
+                {
+                    double d1 = vec3.distanceTo(movingobjectposition1.hitVec);
 
-            if (d1 < d || d == 0.0D)
-            {
-                entity = entity1;
-                d = d1;
+                    if (d1 < d || d == 0.0D)
+                    {
+                        entity = entity1;
+                        d = d1;
+                    }
+                }
             }
         }
+        while (true);
 
         if (entity != null)
         {
@@ -191,7 +191,7 @@ public class EntityFireball extends Entity
 
         if (isInWater())
         {
-            for (int k = 0; k < 4; k++)
+            for (int j = 0; j < 4; j++)
             {
                 float f3 = 0.25F;
                 worldObj.spawnParticle("bubble", posX - motionX * (double)f3, posY - motionY * (double)f3, posZ - motionZ * (double)f3, motionX, motionY, motionZ);
@@ -216,7 +216,7 @@ public class EntityFireball extends Entity
         {
             if (par1MovingObjectPosition.entityHit != null)
             {
-                if (!par1MovingObjectPosition.entityHit.attackEntityFrom(DamageSource.causeFireballDamage(this, shootingEntity), 4));
+                par1MovingObjectPosition.entityHit.attackEntityFrom(DamageSource.causeFireballDamage(this, shootingEntity), 6);
             }
 
             worldObj.newExplosion(null, posX, posY, posZ, 1.0F, true);
@@ -234,6 +234,10 @@ public class EntityFireball extends Entity
         par1NBTTagCompound.setShort("zTile", (short)zTile);
         par1NBTTagCompound.setByte("inTile", (byte)inTile);
         par1NBTTagCompound.setByte("inGround", (byte)(inGround ? 1 : 0));
+        par1NBTTagCompound.setTag("direction", newDoubleNBTList(new double[]
+                {
+                    motionX, motionY, motionZ
+                }));
     }
 
     /**
@@ -246,6 +250,18 @@ public class EntityFireball extends Entity
         zTile = par1NBTTagCompound.getShort("zTile");
         inTile = par1NBTTagCompound.getByte("inTile") & 0xff;
         inGround = par1NBTTagCompound.getByte("inGround") == 1;
+
+        if (par1NBTTagCompound.hasKey("direction"))
+        {
+            NBTTagList nbttaglist = par1NBTTagCompound.getTagList("direction");
+            motionX = ((NBTTagDouble)nbttaglist.tagAt(0)).data;
+            motionY = ((NBTTagDouble)nbttaglist.tagAt(1)).data;
+            motionZ = ((NBTTagDouble)nbttaglist.tagAt(2)).data;
+        }
+        else
+        {
+            setDead();
+        }
     }
 
     /**
@@ -270,13 +286,13 @@ public class EntityFireball extends Entity
 
         if (par1DamageSource.getEntity() != null)
         {
-            Vec3D vec3d = par1DamageSource.getEntity().getLookVec();
+            Vec3 vec3 = par1DamageSource.getEntity().getLookVec();
 
-            if (vec3d != null)
+            if (vec3 != null)
             {
-                motionX = vec3d.xCoord;
-                motionY = vec3d.yCoord;
-                motionZ = vec3d.zCoord;
+                motionX = vec3.xCoord;
+                motionY = vec3.yCoord;
+                motionZ = vec3.zCoord;
                 accelerationX = motionX * 0.10000000000000001D;
                 accelerationY = motionY * 0.10000000000000001D;
                 accelerationZ = motionZ * 0.10000000000000001D;

@@ -1,10 +1,9 @@
 package net.minecraft.src;
 
 import java.io.*;
-import java.util.List;
 import java.util.logging.Logger;
 
-public class SaveHandler implements IPlayerFileData, ISaveHandler
+public class SaveHandler implements ISaveHandler, IPlayerFileData
 {
     /** Reference to the logger. */
     private static final Logger logger = Logger.getLogger("Minecraft");
@@ -78,7 +77,7 @@ public class SaveHandler implements IPlayerFileData, ISaveHandler
     /**
      * Checks the session lock to prevent save collisions
      */
-    public void checkSessionLock()
+    public void checkSessionLock() throws MinecraftException
     {
         try
         {
@@ -151,12 +150,9 @@ public class SaveHandler implements IPlayerFileData, ISaveHandler
         return null;
     }
 
-    /**
-     * saves level.dat and backs up the existing one to level.dat_old
-     */
-    public void saveWorldInfoAndPlayer(WorldInfo par1WorldInfo, List par2List)
+    public void func_56407_a(WorldInfo par1WorldInfo, NBTTagCompound par2NBTTagCompound)
     {
-        NBTTagCompound nbttagcompound = par1WorldInfo.getNBTTagCompoundWithPlayers(par2List);
+        NBTTagCompound nbttagcompound = par1WorldInfo.func_56514_a(par2NBTTagCompound);
         NBTTagCompound nbttagcompound1 = new NBTTagCompound();
         nbttagcompound1.setTag("Data", nbttagcompound);
 
@@ -298,7 +294,17 @@ public class SaveHandler implements IPlayerFileData, ISaveHandler
 
     public String[] func_52007_g()
     {
-        return worldFile.list();
+        String as[] = worldFile.list();
+
+        for (int i = 0; i < as.length; i++)
+        {
+            if (as[i].endsWith(".dat"))
+            {
+                as[i] = as[i].substring(0, as[i].length() - 4);
+            }
+        }
+
+        return as;
     }
 
     public void func_22093_e()
@@ -311,5 +317,10 @@ public class SaveHandler implements IPlayerFileData, ISaveHandler
     public File getMapFileFromName(String par1Str)
     {
         return new File(mapDataDir, (new StringBuilder()).append(par1Str).append(".dat").toString());
+    }
+
+    public String func_56406_g()
+    {
+        return saveDirectoryName;
     }
 }

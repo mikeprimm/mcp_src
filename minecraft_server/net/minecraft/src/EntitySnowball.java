@@ -31,7 +31,7 @@ public class EntitySnowball extends EntityThrowable
                 byte0 = 3;
             }
 
-            if (!par1MovingObjectPosition.entityHit.attackEntityFrom(DamageSource.causeThrownDamage(this, thrower), byte0));
+            par1MovingObjectPosition.entityHit.attackEntityFrom(DamageSource.causeThrownDamage(this, thrower), byte0);
         }
 
         for (int i = 0; i < 8; i++)

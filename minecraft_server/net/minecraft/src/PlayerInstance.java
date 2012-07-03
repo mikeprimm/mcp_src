@@ -5,16 +5,10 @@ import java.util.*;
 class PlayerInstance
 {
     /** the list of all players in this instance (chunk) */
-    private List players;
-
-    /** the x coordinate of the chunk they are in */
-    private int chunkX;
-
-    /** the z coordinate of the chunk they are in */
-    private int chunkZ;
+    private final List players = new ArrayList();
 
     /** the chunk the player currently resides in */
-    private ChunkCoordIntPair currentChunk;
+    private final ChunkCoordIntPair currentChunk;
     private short blocksToUpdate[];
 
     /** the number of blocks that need to be updated next tick */
@@ -25,11 +19,8 @@ class PlayerInstance
     public PlayerInstance(PlayerManager par1PlayerManager, int par2, int par3)
     {
         playerManager = par1PlayerManager;
-        players = new ArrayList();
         blocksToUpdate = new short[64];
         numBlocksToUpdate = 0;
-        chunkX = par2;
-        chunkZ = par3;
         currentChunk = new ChunkCoordIntPair(par2, par3);
         par1PlayerManager.getMinecraftServer().chunkProviderServer.loadChunk(par2, par3);
     }
@@ -41,12 +32,10 @@ class PlayerInstance
     {
         if (players.contains(par1EntityPlayerMP))
         {
-            throw new IllegalStateException((new StringBuilder()).append("Failed to add player. ").append(par1EntityPlayerMP).append(" already is in chunk ").append(chunkX).append(", ").append(chunkZ).toString());
+            throw new IllegalStateException((new StringBuilder()).append("Failed to add player. ").append(par1EntityPlayerMP).append(" already is in chunk ").append(currentChunk.chunkXPos).append(", ").append(currentChunk.chunkZPosition).toString());
         }
         else
         {
-            par1EntityPlayerMP.listeningChunks.add(currentChunk);
-            par1EntityPlayerMP.playerNetServerHandler.sendPacket(new Packet50PreChunk(currentChunk.chunkXPos, currentChunk.chunkZPos, true));
             players.add(par1EntityPlayerMP);
             par1EntityPlayerMP.loadedChunks.add(currentChunk);
             return;
@@ -63,26 +52,21 @@ class PlayerInstance
             return;
         }
 
+        par1EntityPlayerMP.playerNetServerHandler.sendPacket(new Packet51MapChunk(PlayerManager.func_56689_a(playerManager).getChunkFromChunkCoords(currentChunk.chunkXPos, currentChunk.chunkZPosition), true, 0));
         players.remove(par1EntityPlayerMP);
+        par1EntityPlayerMP.loadedChunks.remove(currentChunk);
 
-        if (players.size() == 0)
+        if (players.isEmpty())
         {
-            long l = (long)chunkX + 0x7fffffffL | (long)chunkZ + 0x7fffffffL << 32;
-            PlayerManager.getPlayerInstances(playerManager).remove(l);
+            long l = (long)currentChunk.chunkXPos + 0x7fffffffL | (long)currentChunk.chunkZPosition + 0x7fffffffL << 32;
+            PlayerManager.func_56688_b(playerManager).remove(l);
 
             if (numBlocksToUpdate > 0)
             {
-                PlayerManager.getPlayerInstancesToUpdate(playerManager).remove(this);
+                PlayerManager.func_56690_c(playerManager).remove(this);
             }
 
-            playerManager.getMinecraftServer().chunkProviderServer.dropChunk(chunkX, chunkZ);
-        }
-
-        par1EntityPlayerMP.loadedChunks.remove(currentChunk);
-
-        if (par1EntityPlayerMP.listeningChunks.contains(currentChunk))
-        {
-            par1EntityPlayerMP.playerNetServerHandler.sendPacket(new Packet50PreChunk(chunkX, chunkZ, false));
+            playerManager.getMinecraftServer().chunkProviderServer.dropChunk(currentChunk.chunkXPos, currentChunk.chunkZPosition);
         }
     }
 
@@ -93,7 +77,7 @@ class PlayerInstance
     {
         if (numBlocksToUpdate == 0)
         {
-            PlayerManager.getPlayerInstancesToUpdate(playerManager).add(this);
+            PlayerManager.func_56690_c(playerManager).add(this);
         }
 
         field_48475_h |= 1 << (par2 >> 4);
@@ -119,21 +103,27 @@ class PlayerInstance
      */
     public void sendPacketToPlayersInInstance(Packet par1Packet)
     {
-        for (int i = 0; i < players.size(); i++)
-        {
-            EntityPlayerMP entityplayermp = (EntityPlayerMP)players.get(i);
+        Iterator iterator = players.iterator();
 
-            if (entityplayermp.listeningChunks.contains(currentChunk) && !entityplayermp.loadedChunks.contains(currentChunk))
+        do
+        {
+            if (!iterator.hasNext())
+            {
+                break;
+            }
+
+            EntityPlayerMP entityplayermp = (EntityPlayerMP)iterator.next();
+
+            if (!entityplayermp.loadedChunks.contains(currentChunk))
             {
                 entityplayermp.playerNetServerHandler.sendPacket(par1Packet);
             }
         }
+        while (true);
     }
 
     public void onUpdate()
     {
-        WorldServer worldserver = playerManager.getMinecraftServer();
-
         if (numBlocksToUpdate == 0)
         {
             return;
@@ -141,49 +131,50 @@ class PlayerInstance
 
         if (numBlocksToUpdate == 1)
         {
-            int i = chunkX * 16 + (blocksToUpdate[0] >> 12 & 0xf);
+            int i = currentChunk.chunkXPos * 16 + (blocksToUpdate[0] >> 12 & 0xf);
             int l = blocksToUpdate[0] & 0xff;
-            int k1 = chunkZ * 16 + (blocksToUpdate[0] >> 8 & 0xf);
-            sendPacketToPlayersInInstance(new Packet53BlockChange(i, l, k1, worldserver));
+            int k1 = currentChunk.chunkZPosition * 16 + (blocksToUpdate[0] >> 8 & 0xf);
+            sendPacketToPlayersInInstance(new Packet53BlockChange(i, l, k1, PlayerManager.func_56689_a(playerManager)));
 
-            if (worldserver.func_48084_h(i, l, k1))
+            if (PlayerManager.func_56689_a(playerManager).func_48084_h(i, l, k1))
             {
-                updateTileEntity(worldserver.getBlockTileEntity(i, l, k1));
+                updateTileEntity(PlayerManager.func_56689_a(playerManager).getBlockTileEntity(i, l, k1));
             }
         }
         else if (numBlocksToUpdate == 64)
         {
-            int j = chunkX * 16;
-            int i1 = chunkZ * 16;
-            sendPacketToPlayersInInstance(new Packet51MapChunk(worldserver.getChunkFromChunkCoords(chunkX, chunkZ), false, field_48475_h));
+            int j = currentChunk.chunkXPos * 16;
+            int i1 = currentChunk.chunkZPosition * 16;
+            sendPacketToPlayersInInstance(new Packet51MapChunk(PlayerManager.func_56689_a(playerManager).getChunkFromChunkCoords(currentChunk.chunkXPos, currentChunk.chunkZPosition), false, field_48475_h));
 
             for (int l1 = 0; l1 < 16; l1++)
             {
                 if ((field_48475_h & 1 << l1) != 0)
                 {
                     int j2 = l1 << 4;
-                    List list = worldserver.getTileEntityList(j, j2, i1, j + 16, j2 + 16, i1 + 16);
+                    List list = PlayerManager.func_56689_a(playerManager).getTileEntityList(j, j2, i1, j + 16, j2 + 16, i1 + 16);
+                    TileEntity tileentity;
 
-                    for (int l2 = 0; l2 < list.size(); l2++)
+                    for (Iterator iterator = list.iterator(); iterator.hasNext(); updateTileEntity(tileentity))
                     {
-                        updateTileEntity((TileEntity)list.get(l2));
+                        tileentity = (TileEntity)iterator.next();
                     }
                 }
             }
         }
         else
         {
-            sendPacketToPlayersInInstance(new Packet52MultiBlockChange(chunkX, chunkZ, blocksToUpdate, numBlocksToUpdate, worldserver));
+            sendPacketToPlayersInInstance(new Packet52MultiBlockChange(currentChunk.chunkXPos, currentChunk.chunkZPosition, blocksToUpdate, numBlocksToUpdate, PlayerManager.func_56689_a(playerManager)));
 
             for (int k = 0; k < numBlocksToUpdate; k++)
             {
-                int j1 = chunkX * 16 + (blocksToUpdate[k] >> 12 & 0xf);
+                int j1 = currentChunk.chunkXPos * 16 + (blocksToUpdate[k] >> 12 & 0xf);
                 int i2 = blocksToUpdate[k] & 0xff;
-                int k2 = chunkZ * 16 + (blocksToUpdate[k] >> 8 & 0xf);
+                int k2 = currentChunk.chunkZPosition * 16 + (blocksToUpdate[k] >> 8 & 0xf);
 
-                if (worldserver.func_48084_h(j1, i2, k2))
+                if (PlayerManager.func_56689_a(playerManager).func_48084_h(j1, i2, k2))
                 {
-                    updateTileEntity(worldserver.getBlockTileEntity(j1, i2, k2));
+                    updateTileEntity(PlayerManager.func_56689_a(playerManager).getBlockTileEntity(j1, i2, k2));
                 }
             }
         }
@@ -206,5 +197,10 @@ class PlayerInstance
                 sendPacketToPlayersInInstance(packet);
             }
         }
+    }
+
+    static ChunkCoordIntPair func_56548_a(PlayerInstance par0PlayerInstance)
+    {
+        return par0PlayerInstance.currentChunk;
     }
 }

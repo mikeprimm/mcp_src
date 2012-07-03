@@ -204,7 +204,8 @@ public class TileEntityFurnace extends TileEntity implements IInventory
 
                         if (furnaceItemStacks[1].stackSize == 0)
                         {
-                            furnaceItemStacks[1] = null;
+                            Item item = furnaceItemStacks[1].getItem().getContainerItem();
+                            furnaceItemStacks[1] = item == null ? null : new ItemStack(item);
                         }
                     }
                 }
@@ -307,18 +308,44 @@ public class TileEntityFurnace extends TileEntity implements IInventory
      * Returns the number of ticks that the supplied fuel item will keep the furnace burning, or 0 if the item isn't
      * fuel
      */
-    public static int getItemBurnTime(ItemStack par1ItemStack)
+    public static int getItemBurnTime(ItemStack par0ItemStack)
     {
-        if (par1ItemStack == null)
+        if (par0ItemStack == null)
         {
             return 0;
         }
 
-        int i = par1ItemStack.getItem().shiftedIndex;
+        int i = par0ItemStack.getItem().shiftedIndex;
+        Item item = par0ItemStack.getItem();
 
-        if (i < 256 && Block.blocksList[i].blockMaterial == Material.wood)
+        if (i < 256 && Block.blocksList[i] != null)
         {
-            return 300;
+            Block block = Block.blocksList[i];
+
+            if (block == Block.field_55136_bO)
+            {
+                return 150;
+            }
+
+            if (block.blockMaterial == Material.wood)
+            {
+                return 300;
+            }
+        }
+
+        if ((item instanceof ItemTool) && ((ItemTool)item).func_56458_b().equals("WOOD"))
+        {
+            return 200;
+        }
+
+        if ((item instanceof ItemSword) && ((ItemSword)item).func_56462_b().equals("WOOD"))
+        {
+            return 200;
+        }
+
+        if ((item instanceof ItemHoe) && ((ItemHoe)item).func_56463_b().equals("WOOD"))
+        {
+            return 200;
         }
 
         if (i == Item.stick.shiftedIndex)

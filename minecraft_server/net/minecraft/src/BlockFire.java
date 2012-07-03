@@ -22,6 +22,8 @@ public class BlockFire extends Block
     public void initializeBlock()
     {
         setBurnRate(Block.planks.blockID, 5, 20);
+        setBurnRate(Block.field_55135_bN.blockID, 5, 20);
+        setBurnRate(Block.field_55136_bO.blockID, 5, 20);
         setBurnRate(Block.fence.blockID, 5, 20);
         setBurnRate(Block.stairCompactPlanks.blockID, 5, 20);
         setBurnRate(Block.wood.blockID, 5, 5);
@@ -128,7 +130,7 @@ public class BlockFire extends Block
 
         if (!flag && !canNeighborBurn(par1World, par2, par3, par4))
         {
-            if (!par1World.isBlockNormalCube(par2, par3 - 1, par4) || i > 3)
+            if (!par1World.func_58038_s(par2, par3 - 1, par4) || i > 3)
             {
                 par1World.setBlockWithNotify(par2, par3, par4, 0);
             }
@@ -142,7 +144,7 @@ public class BlockFire extends Block
             return;
         }
 
-        boolean flag1 = par1World.func_48089_z(par2, par3, par4);
+        boolean flag1 = par1World.isBlockHighHumidity(par2, par3, par4);
         byte byte0 = 0;
 
         if (flag1)
@@ -334,7 +336,7 @@ public class BlockFire extends Block
      */
     public boolean canPlaceBlockAt(World par1World, int par2, int par3, int par4)
     {
-        return par1World.isBlockNormalCube(par2, par3 - 1, par4) || canNeighborBurn(par1World, par2, par3, par4);
+        return par1World.func_58038_s(par2, par3 - 1, par4) || canNeighborBurn(par1World, par2, par3, par4);
     }
 
     /**
@@ -343,14 +345,9 @@ public class BlockFire extends Block
      */
     public void onNeighborBlockChange(World par1World, int par2, int par3, int par4, int par5)
     {
-        if (!par1World.isBlockNormalCube(par2, par3 - 1, par4) && !canNeighborBurn(par1World, par2, par3, par4))
+        if (!par1World.func_58038_s(par2, par3 - 1, par4) && !canNeighborBurn(par1World, par2, par3, par4))
         {
             par1World.setBlockWithNotify(par2, par3, par4, 0);
-            return;
-        }
-        else
-        {
-            return;
         }
     }
 
@@ -364,7 +361,7 @@ public class BlockFire extends Block
             return;
         }
 
-        if (!par1World.isBlockNormalCube(par2, par3 - 1, par4) && !canNeighborBurn(par1World, par2, par3, par4))
+        if (!par1World.func_58038_s(par2, par3 - 1, par4) && !canNeighborBurn(par1World, par2, par3, par4))
         {
             par1World.setBlockWithNotify(par2, par3, par4, 0);
             return;

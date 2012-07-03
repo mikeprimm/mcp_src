@@ -175,6 +175,11 @@ public class EntityMinecart extends Entity implements IInventory
         setBeenAttacked();
         func_41018_e_(func_41020_o() + par2 * 10);
 
+        if ((par1DamageSource.getEntity() instanceof EntityPlayer) && ((EntityPlayer)par1DamageSource.getEntity()).capabilities.isCreativeMode)
+        {
+            func_41018_e_(100);
+        }
+
         if (func_41020_o() > 40)
         {
             if (riddenByEntity != null)
@@ -373,7 +378,7 @@ public class EntityMinecart extends Entity implements IInventory
 
         if (BlockRail.isRailBlock(l))
         {
-            Vec3D vec3d = func_182_g(posX, posY, posZ);
+            Vec3 vec3 = func_182_g(posX, posY, posZ);
             int i1 = worldObj.getBlockMetadata(i, j, k);
             posY = j;
             boolean flag = false;
@@ -431,11 +436,24 @@ public class EntityMinecart extends Entity implements IInventory
             motionX = (d13 * d9) / d11;
             motionZ = (d13 * d10) / d11;
 
+            if (riddenByEntity != null)
+            {
+                double d16 = riddenByEntity.motionX * riddenByEntity.motionX + riddenByEntity.motionZ * riddenByEntity.motionZ;
+                double d19 = motionX * motionX + motionZ * motionZ;
+
+                if (d16 > 0.0001D && d19 < 0.01D)
+                {
+                    motionX += riddenByEntity.motionX * 0.10000000000000001D;
+                    motionZ += riddenByEntity.motionZ * 0.10000000000000001D;
+                    flag1 = false;
+                }
+            }
+
             if (flag1)
             {
-                double d16 = Math.sqrt(motionX * motionX + motionZ * motionZ);
+                double d17 = Math.sqrt(motionX * motionX + motionZ * motionZ);
 
-                if (d16 < 0.029999999999999999D)
+                if (d17 < 0.029999999999999999D)
                 {
                     motionX *= 0.0D;
                     motionY *= 0.0D;
@@ -449,52 +467,41 @@ public class EntityMinecart extends Entity implements IInventory
                 }
             }
 
-            double d17 = 0.0D;
-            double d18 = (double)i + 0.5D + (double)ai[0][0] * 0.5D;
-            double d19 = (double)k + 0.5D + (double)ai[0][2] * 0.5D;
-            double d20 = (double)i + 0.5D + (double)ai[1][0] * 0.5D;
-            double d21 = (double)k + 0.5D + (double)ai[1][2] * 0.5D;
-            d9 = d20 - d18;
-            d10 = d21 - d19;
+            double d18 = 0.0D;
+            double d20 = (double)i + 0.5D + (double)ai[0][0] * 0.5D;
+            double d21 = (double)k + 0.5D + (double)ai[0][2] * 0.5D;
+            double d22 = (double)i + 0.5D + (double)ai[1][0] * 0.5D;
+            double d23 = (double)k + 0.5D + (double)ai[1][2] * 0.5D;
+            d9 = d22 - d20;
+            d10 = d23 - d21;
 
             if (d9 == 0.0D)
             {
                 posX = (double)i + 0.5D;
-                d17 = posZ - (double)k;
+                d18 = posZ - (double)k;
             }
             else if (d10 == 0.0D)
             {
                 posZ = (double)k + 0.5D;
-                d17 = posX - (double)i;
+                d18 = posX - (double)i;
             }
             else
             {
-                double d22 = posX - d18;
-                double d24 = posZ - d19;
-                double d26 = (d22 * d9 + d24 * d10) * 2D;
-                d17 = d26;
+                double d24 = posX - d20;
+                double d26 = posZ - d21;
+                d18 = (d24 * d9 + d26 * d10) * 2D;
             }
 
-            posX = d18 + d9 * d17;
-            posZ = d19 + d10 * d17;
+            posX = d20 + d9 * d18;
+            posZ = d21 + d10 * d18;
             setPosition(posX, posY + (double)yOffset, posZ);
-            double d23 = motionX;
-            double d25 = motionZ;
+            double d25 = motionX;
+            double d27 = motionZ;
 
             if (riddenByEntity != null)
             {
-                d23 *= 0.75D;
                 d25 *= 0.75D;
-            }
-
-            if (d23 < -d2)
-            {
-                d23 = -d2;
-            }
-
-            if (d23 > d2)
-            {
-                d23 = d2;
+                d27 *= 0.75D;
             }
 
             if (d25 < -d2)
@@ -507,7 +514,17 @@ public class EntityMinecart extends Entity implements IInventory
                 d25 = d2;
             }
 
-            moveEntity(d23, 0.0D, d25);
+            if (d27 < -d2)
+            {
+                d27 = -d2;
+            }
+
+            if (d27 > d2)
+            {
+                d27 = d2;
+            }
+
+            moveEntity(d25, 0.0D, d27);
 
             if (ai[0][1] != 0 && MathHelper.floor_double(posX) - i == ai[0][0] && MathHelper.floor_double(posZ) - k == ai[0][2])
             {
@@ -528,18 +545,18 @@ public class EntityMinecart extends Entity implements IInventory
             {
                 if (minecartType == 2)
                 {
-                    double d27 = MathHelper.sqrt_double(pushX * pushX + pushZ * pushZ);
+                    double d28 = MathHelper.sqrt_double(pushX * pushX + pushZ * pushZ);
 
-                    if (d27 > 0.01D)
+                    if (d28 > 0.01D)
                     {
-                        pushX /= d27;
-                        pushZ /= d27;
-                        double d29 = 0.040000000000000001D;
+                        pushX /= d28;
+                        pushZ /= d28;
+                        double d30 = 0.040000000000000001D;
                         motionX *= 0.80000001192092896D;
                         motionY *= 0.0D;
                         motionZ *= 0.80000001192092896D;
-                        motionX += pushX * d29;
-                        motionZ += pushZ * d29;
+                        motionX += pushX * d30;
+                        motionZ += pushZ * d30;
                     }
                     else
                     {
@@ -554,20 +571,20 @@ public class EntityMinecart extends Entity implements IInventory
                 motionZ *= 0.95999997854232788D;
             }
 
-            Vec3D vec3d1 = func_182_g(posX, posY, posZ);
+            Vec3 vec3_1 = func_182_g(posX, posY, posZ);
 
-            if (vec3d1 != null && vec3d != null)
+            if (vec3_1 != null && vec3 != null)
             {
-                double d28 = (vec3d.yCoord - vec3d1.yCoord) * 0.050000000000000003D;
+                double d29 = (vec3.yCoord - vec3_1.yCoord) * 0.050000000000000003D;
                 double d14 = Math.sqrt(motionX * motionX + motionZ * motionZ);
 
                 if (d14 > 0.0D)
                 {
-                    motionX = (motionX / d14) * (d14 + d28);
-                    motionZ = (motionZ / d14) * (d14 + d28);
+                    motionX = (motionX / d14) * (d14 + d29);
+                    motionZ = (motionZ / d14) * (d14 + d29);
                 }
 
-                setPosition(posX, vec3d1.yCoord, posZ);
+                setPosition(posX, vec3_1.yCoord, posZ);
             }
 
             int k1 = MathHelper.floor_double(posX);
@@ -582,12 +599,12 @@ public class EntityMinecart extends Entity implements IInventory
 
             if (minecartType == 2)
             {
-                double d30 = MathHelper.sqrt_double(pushX * pushX + pushZ * pushZ);
+                double d31 = MathHelper.sqrt_double(pushX * pushX + pushZ * pushZ);
 
-                if (d30 > 0.01D && motionX * motionX + motionZ * motionZ > 0.001D)
+                if (d31 > 0.01D && motionX * motionX + motionZ * motionZ > 0.001D)
                 {
-                    pushX /= d30;
-                    pushZ /= d30;
+                    pushX /= d31;
+                    pushZ /= d31;
 
                     if (pushX * motionX + pushZ * motionZ < 0.0D)
                     {
@@ -604,13 +621,13 @@ public class EntityMinecart extends Entity implements IInventory
 
             if (flag)
             {
-                double d31 = Math.sqrt(motionX * motionX + motionZ * motionZ);
+                double d32 = Math.sqrt(motionX * motionX + motionZ * motionZ);
 
-                if (d31 > 0.01D)
+                if (d32 > 0.01D)
                 {
-                    double d32 = 0.059999999999999998D;
-                    motionX += (motionX / d31) * d32;
-                    motionZ += (motionZ / d31) * d32;
+                    double d33 = 0.059999999999999998D;
+                    motionX += (motionX / d32) * d33;
+                    motionZ += (motionZ / d32) * d33;
                 }
                 else if (i1 == 1)
                 {
@@ -635,6 +652,8 @@ public class EntityMinecart extends Entity implements IInventory
                     }
                 }
             }
+
+            func_56098_S();
         }
         else
         {
@@ -704,7 +723,7 @@ public class EntityMinecart extends Entity implements IInventory
         setRotation(rotationYaw, rotationPitch);
         List list = worldObj.getEntitiesWithinAABBExcludingEntity(this, boundingBox.expand(0.20000000298023224D, 0.0D, 0.20000000298023224D));
 
-        if (list != null && list.size() > 0)
+        if (list != null && !list.isEmpty())
         {
             for (int j1 = 0; j1 < list.size(); j1++)
             {
@@ -740,7 +759,7 @@ public class EntityMinecart extends Entity implements IInventory
         setMinecartPowered(fuel > 0);
     }
 
-    public Vec3D func_182_g(double par1, double par3, double par5)
+    public Vec3 func_182_g(double par1, double par3, double par5)
     {
         int i = MathHelper.floor_double(par1);
         int j = MathHelper.floor_double(par3);
@@ -794,8 +813,7 @@ public class EntityMinecart extends Entity implements IInventory
             {
                 double d10 = par1 - d1;
                 double d11 = par5 - d3;
-                double d12 = (d10 * d7 + d11 * d9) * 2D;
-                d = d12;
+                d = (d10 * d7 + d11 * d9) * 2D;
             }
 
             par1 = d1 + d7 * d;
@@ -812,7 +830,7 @@ public class EntityMinecart extends Entity implements IInventory
                 par3 += 0.5D;
             }
 
-            return Vec3D.createVector(par1, par3, par5);
+            return Vec3.func_58052_a().func_58076_a(par1, par3, par5);
         }
         else
         {
@@ -932,9 +950,9 @@ public class EntityMinecart extends Entity implements IInventory
             {
                 double d4 = par1Entity.posX - posX;
                 double d5 = par1Entity.posZ - posZ;
-                Vec3D vec3d = Vec3D.createVector(d4, 0.0D, d5).normalize();
-                Vec3D vec3d1 = Vec3D.createVector(MathHelper.cos((rotationYaw * (float)Math.PI) / 180F), 0.0D, MathHelper.sin((rotationYaw * (float)Math.PI) / 180F)).normalize();
-                double d6 = Math.abs(vec3d.dotProduct(vec3d1));
+                Vec3 vec3 = Vec3.func_58052_a().func_58076_a(d4, 0.0D, d5).normalize();
+                Vec3 vec3_1 = Vec3.func_58052_a().func_58076_a(MathHelper.cos((rotationYaw * (float)Math.PI) / 180F), 0.0D, MathHelper.sin((rotationYaw * (float)Math.PI) / 180F)).normalize();
+                double d6 = Math.abs(vec3.dotProduct(vec3_1));
 
                 if (d6 < 0.80000001192092896D)
                 {

@@ -44,7 +44,7 @@ public class EntityPainting extends Entity
             }
         }
 
-        if (arraylist.size() > 0)
+        if (!arraylist.isEmpty())
         {
             art = (EnumArt)arraylist.get(rand.nextInt(arraylist.size()));
         }
@@ -159,7 +159,7 @@ public class EntityPainting extends Entity
      */
     public boolean onValidSurface()
     {
-        if (worldObj.getCollidingBoundingBoxes(this, boundingBox).size() > 0)
+        if (!worldObj.getCollidingBoundingBoxes(this, boundingBox).isEmpty())
         {
             return false;
         }
@@ -216,9 +216,11 @@ public class EntityPainting extends Entity
 
         List list = worldObj.getEntitiesWithinAABBExcludingEntity(this, boundingBox);
 
-        for (int l1 = 0; l1 < list.size(); l1++)
+        for (Iterator iterator = list.iterator(); iterator.hasNext();)
         {
-            if (list.get(l1) instanceof EntityPainting)
+            Entity entity = (Entity)iterator.next();
+
+            if (entity instanceof EntityPainting)
             {
                 return false;
             }
@@ -244,6 +246,18 @@ public class EntityPainting extends Entity
         {
             setDead();
             setBeenAttacked();
+            EntityPlayer entityplayer = null;
+
+            if (par1DamageSource.getEntity() instanceof EntityPlayer)
+            {
+                entityplayer = (EntityPlayer)par1DamageSource.getEntity();
+            }
+
+            if (entityplayer != null && entityplayer.capabilities.isCreativeMode)
+            {
+                return true;
+            }
+
             worldObj.spawnEntityInWorld(new EntityItem(worldObj, posX, posY, posZ, new ItemStack(Item.painting)));
         }
 

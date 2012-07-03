@@ -21,6 +21,7 @@ public class ItemTool extends Item
         setMaxDamage(par3EnumToolMaterial.getMaxUses());
         efficiencyOnProperMaterial = par3EnumToolMaterial.getEfficiencyOnProperMaterial();
         damageVsEntity = par2 + par3EnumToolMaterial.getDamageVsEntity();
+        func_56455_a(CreativeTabs.field_56397_i);
     }
 
     /**
@@ -29,9 +30,14 @@ public class ItemTool extends Item
      */
     public float getStrVsBlock(ItemStack par1ItemStack, Block par2Block)
     {
-        for (int i = 0; i < blocksEffectiveAgainst.length; i++)
+        Block ablock[] = blocksEffectiveAgainst;
+        int i = ablock.length;
+
+        for (int j = 0; j < i; j++)
         {
-            if (blocksEffectiveAgainst[i] == par2Block)
+            Block block = ablock[j];
+
+            if (block == par2Block)
             {
                 return efficiencyOnProperMaterial;
             }
@@ -50,9 +56,13 @@ public class ItemTool extends Item
         return true;
     }
 
-    public boolean onBlockDestroyed(ItemStack par1ItemStack, int par2, int par3, int par4, int par5, EntityLiving par6EntityLiving)
+    public boolean func_58049_a(ItemStack par1ItemStack, World par2World, int par3, int par4, int par5, int par6, EntityLiving par7EntityLiving)
     {
-        par1ItemStack.damageItem(1, par6EntityLiving);
+        if ((double)Block.blocksList[par3].func_58033_f(par2World, par4, par5, par6) != 0.0D)
+        {
+            par1ItemStack.damageItem(1, par7EntityLiving);
+        }
+
         return true;
     }
 
@@ -70,5 +80,10 @@ public class ItemTool extends Item
     public int getItemEnchantability()
     {
         return toolMaterial.getEnchantability();
+    }
+
+    public String func_56458_b()
+    {
+        return toolMaterial.toString();
     }
 }

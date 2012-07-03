@@ -11,10 +11,10 @@ public abstract class Packet
     /** Maps packet class to packet id */
     private static Map packetClassToIdMap = new HashMap();
 
-    /** list of the clients packets id */
+    /** List of the client's packet IDs. */
     private static Set clientPacketIdList = new HashSet();
 
-    /** list of the servers packets id */
+    /** List of the server's packet IDs. */
     private static Set serverPacketIdList = new HashSet();
 
     /** the system time in milliseconds when this packet was created. */
@@ -91,6 +91,28 @@ public abstract class Packet
         return null;
     }
 
+    public static void func_55102_a(DataOutputStream par0DataOutputStream, byte par1ArrayOfByte[]) throws IOException
+    {
+        par0DataOutputStream.writeShort(par1ArrayOfByte.length);
+        par0DataOutputStream.write(par1ArrayOfByte);
+    }
+
+    public static byte[] func_55103_b(DataInputStream par0DataInputStream) throws IOException
+    {
+        short word0 = par0DataInputStream.readShort();
+
+        if (word0 < 0)
+        {
+            throw new IOException("Key was smaller than nothing!  Weird key!");
+        }
+        else
+        {
+            byte abyte0[] = new byte[word0];
+            par0DataInputStream.read(abyte0);
+            return abyte0;
+        }
+    }
+
     /**
      * Returns the ID of this packet.
      */
@@ -156,7 +178,7 @@ public abstract class Packet
     }
 
     /**
-     * writes a string to the datastream
+     * Writes a String to the DataOutputStream
      */
     public static void writeString(String par0Str, DataOutputStream par1DataOutputStream) throws IOException
     {
@@ -173,7 +195,7 @@ public abstract class Packet
     }
 
     /**
-     * reads a string from the datastream
+     * Reads a string from a packet
      */
     public static String readString(DataInputStream par0DataInputStream, int par1) throws IOException
     {
@@ -219,24 +241,26 @@ public abstract class Packet
      */
     public abstract int getPacketSize();
 
+    public String toString()
+    {
+        String s = getClass().getSimpleName();
+        return s;
+    }
+
     /**
      * Reads a ItemStack from the InputStream
      */
-    protected ItemStack readItemStack(DataInputStream par1DataInputStream) throws IOException
+    public static ItemStack readItemStack(DataInputStream par0DataInputStream) throws IOException
     {
         ItemStack itemstack = null;
-        short word0 = par1DataInputStream.readShort();
+        short word0 = par0DataInputStream.readShort();
 
         if (word0 >= 0)
         {
-            byte byte0 = par1DataInputStream.readByte();
-            short word1 = par1DataInputStream.readShort();
+            byte byte0 = par0DataInputStream.readByte();
+            short word1 = par0DataInputStream.readShort();
             itemstack = new ItemStack(word0, byte0, word1);
-
-            if (Item.itemsList[word0].isDamageable() || Item.itemsList[word0].func_46003_i())
-            {
-                itemstack.stackTagCompound = readNBTTagCompound(par1DataInputStream);
-            }
+            itemstack.stackTagCompound = readNBTTagCompound(par0DataInputStream);
         }
 
         return itemstack;
@@ -245,31 +269,34 @@ public abstract class Packet
     /**
      * Writes the ItemStack's ID (short), then size (byte), then damage. (short)
      */
-    protected void writeItemStack(ItemStack par1ItemStack, DataOutputStream par2DataOutputStream) throws IOException
+    public static void writeItemStack(ItemStack par0ItemStack, DataOutputStream par1DataOutputStream) throws IOException
     {
-        if (par1ItemStack == null)
+        if (par0ItemStack == null)
         {
-            par2DataOutputStream.writeShort(-1);
+            par1DataOutputStream.writeShort(-1);
         }
         else
         {
-            par2DataOutputStream.writeShort(par1ItemStack.itemID);
-            par2DataOutputStream.writeByte(par1ItemStack.stackSize);
-            par2DataOutputStream.writeShort(par1ItemStack.getItemDamage());
+            par1DataOutputStream.writeShort(par0ItemStack.itemID);
+            par1DataOutputStream.writeByte(par0ItemStack.stackSize);
+            par1DataOutputStream.writeShort(par0ItemStack.getItemDamage());
+            NBTTagCompound nbttagcompound = null;
 
-            if (par1ItemStack.getItem().isDamageable() || par1ItemStack.getItem().func_46003_i())
+            if (par0ItemStack.getItem().isDamageable() || par0ItemStack.getItem().func_46003_i())
             {
-                writeNBTTagCompound(par1ItemStack.stackTagCompound, par2DataOutputStream);
+                nbttagcompound = par0ItemStack.stackTagCompound;
             }
+
+            writeNBTTagCompound(nbttagcompound, par1DataOutputStream);
         }
     }
 
     /**
      * Reads a compressed NBTTagCompound from the InputStream
      */
-    protected NBTTagCompound readNBTTagCompound(DataInputStream par1DataInputStream) throws IOException
+    public static NBTTagCompound readNBTTagCompound(DataInputStream par0DataInputStream) throws IOException
     {
-        short word0 = par1DataInputStream.readShort();
+        short word0 = par0DataInputStream.readShort();
 
         if (word0 < 0)
         {
@@ -278,7 +305,7 @@ public abstract class Packet
         else
         {
             byte abyte0[] = new byte[word0];
-            par1DataInputStream.readFully(abyte0);
+            par0DataInputStream.readFully(abyte0);
             return CompressedStreamTools.decompress(abyte0);
         }
     }
@@ -286,17 +313,17 @@ public abstract class Packet
     /**
      * Writes a compressed NBTTagCompound to the OutputStream
      */
-    protected void writeNBTTagCompound(NBTTagCompound par1NBTTagCompound, DataOutputStream par2DataOutputStream) throws IOException
+    protected static void writeNBTTagCompound(NBTTagCompound par0NBTTagCompound, DataOutputStream par1DataOutputStream) throws IOException
     {
-        if (par1NBTTagCompound == null)
+        if (par0NBTTagCompound == null)
         {
-            par2DataOutputStream.writeShort(-1);
+            par1DataOutputStream.writeShort(-1);
         }
         else
         {
-            byte abyte0[] = CompressedStreamTools.compress(par1NBTTagCompound);
-            par2DataOutputStream.writeShort((short)abyte0.length);
-            par2DataOutputStream.write(abyte0);
+            byte abyte0[] = CompressedStreamTools.compress(par0NBTTagCompound);
+            par1DataOutputStream.writeShort((short)abyte0.length);
+            par1DataOutputStream.write(abyte0);
         }
     }
 
@@ -304,7 +331,7 @@ public abstract class Packet
     {
         addIdClassMapping(0, true, true, net.minecraft.src.Packet0KeepAlive.class);
         addIdClassMapping(1, true, true, net.minecraft.src.Packet1Login.class);
-        addIdClassMapping(2, true, true, net.minecraft.src.Packet2Handshake.class);
+        addIdClassMapping(2, false, true, net.minecraft.src.Packet2ClientProtocol.class);
         addIdClassMapping(3, true, true, net.minecraft.src.Packet3Chat.class);
         addIdClassMapping(4, true, false, net.minecraft.src.Packet4UpdateTime.class);
         addIdClassMapping(5, true, false, net.minecraft.src.Packet5PlayerInventory.class);
@@ -343,14 +370,15 @@ public abstract class Packet
         addIdClassMapping(41, true, false, net.minecraft.src.Packet41EntityEffect.class);
         addIdClassMapping(42, true, false, net.minecraft.src.Packet42RemoveEntityEffect.class);
         addIdClassMapping(43, true, false, net.minecraft.src.Packet43Experience.class);
-        addIdClassMapping(50, true, false, net.minecraft.src.Packet50PreChunk.class);
         addIdClassMapping(51, true, false, net.minecraft.src.Packet51MapChunk.class);
         addIdClassMapping(52, true, false, net.minecraft.src.Packet52MultiBlockChange.class);
         addIdClassMapping(53, true, false, net.minecraft.src.Packet53BlockChange.class);
         addIdClassMapping(54, true, false, net.minecraft.src.Packet54PlayNoteBlock.class);
+        addIdClassMapping(55, true, false, net.minecraft.src.Packet55BlockDestroy.class);
         addIdClassMapping(60, true, false, net.minecraft.src.Packet60Explosion.class);
         addIdClassMapping(61, true, false, net.minecraft.src.Packet61DoorChange.class);
-        addIdClassMapping(70, true, false, net.minecraft.src.Packet70Bed.class);
+        addIdClassMapping(62, true, false, net.minecraft.src.Packet62LevelSound.class);
+        addIdClassMapping(70, true, false, net.minecraft.src.Packet70GameEvent.class);
         addIdClassMapping(71, true, false, net.minecraft.src.Packet71Weather.class);
         addIdClassMapping(100, true, false, net.minecraft.src.Packet100OpenWindow.class);
         addIdClassMapping(101, true, true, net.minecraft.src.Packet101CloseWindow.class);
@@ -367,7 +395,12 @@ public abstract class Packet
         addIdClassMapping(200, true, false, net.minecraft.src.Packet200Statistic.class);
         addIdClassMapping(201, true, false, net.minecraft.src.Packet201PlayerInfo.class);
         addIdClassMapping(202, true, true, net.minecraft.src.Packet202PlayerAbilities.class);
+        addIdClassMapping(203, true, true, net.minecraft.src.Packet203AutoComplete.class);
+        addIdClassMapping(204, false, true, net.minecraft.src.Packet204ClientInfo.class);
+        addIdClassMapping(205, false, true, net.minecraft.src.Packet205ClientCommand.class);
         addIdClassMapping(250, true, true, net.minecraft.src.Packet250CustomPayload.class);
+        addIdClassMapping(252, true, true, net.minecraft.src.Packet252SharedKey.class);
+        addIdClassMapping(253, true, false, net.minecraft.src.Packet253ServerAuthData.class);
         addIdClassMapping(254, false, true, net.minecraft.src.Packet254ServerPing.class);
         addIdClassMapping(255, true, true, net.minecraft.src.Packet255KickDisconnect.class);
     }

@@ -29,7 +29,7 @@ public class EntityWolf extends EntityTameable
         texture = "/mob/wolf.png";
         setSize(0.6F, 0.8F);
         moveSpeed = 0.3F;
-        getNavigator().func_48656_a(true);
+        getNavigator().setAvoidsWater(true);
         tasks.addTask(1, new EntityAISwimming(this));
         tasks.addTask(2, aiSit);
         tasks.addTask(3, new EntityAILeapAtTarget(this, 0.4F));
@@ -207,11 +207,11 @@ public class EntityWolf extends EntityTameable
 
         if (looksWithInterest)
         {
-            field_25038_b = field_25038_b + (1.0F - field_25038_b) * 0.4F;
+            field_25038_b += (1.0F - field_25038_b) * 0.4F;
         }
         else
         {
-            field_25038_b = field_25038_b + (0.0F - field_25038_b) * 0.4F;
+            field_25038_b += (0.0F - field_25038_b) * 0.4F;
         }
 
         if (looksWithInterest)
@@ -309,44 +309,7 @@ public class EntityWolf extends EntityTameable
     {
         ItemStack itemstack = par1EntityPlayer.inventory.getCurrentItem();
 
-        if (!isTamed())
-        {
-            if (itemstack != null && itemstack.itemID == Item.bone.shiftedIndex && !isAngry())
-            {
-                if (!par1EntityPlayer.capabilities.isCreativeMode)
-                {
-                    itemstack.stackSize--;
-                }
-
-                if (itemstack.stackSize <= 0)
-                {
-                    par1EntityPlayer.inventory.setInventorySlotContents(par1EntityPlayer.inventory.currentItem, null);
-                }
-
-                if (!worldObj.isRemote)
-                {
-                    if (rand.nextInt(3) == 0)
-                    {
-                        setTamed(true);
-                        setPathToEntity(null);
-                        setAttackTarget(null);
-                        aiSit.func_48210_a(true);
-                        setEntityHealth(20);
-                        setOwner(par1EntityPlayer.username);
-                        func_48370_a(true);
-                        worldObj.setEntityState(this, (byte)7);
-                    }
-                    else
-                    {
-                        func_48370_a(false);
-                        worldObj.setEntityState(this, (byte)6);
-                    }
-                }
-
-                return true;
-            }
-        }
-        else
+        if (isTamed())
         {
             if (itemstack != null && (Item.itemsList[itemstack.itemID] instanceof ItemFood))
             {
@@ -376,6 +339,40 @@ public class EntityWolf extends EntityTameable
                 isJumping = false;
                 setPathToEntity(null);
             }
+        }
+        else if (itemstack != null && itemstack.itemID == Item.bone.shiftedIndex && !isAngry())
+        {
+            if (!par1EntityPlayer.capabilities.isCreativeMode)
+            {
+                itemstack.stackSize--;
+            }
+
+            if (itemstack.stackSize <= 0)
+            {
+                par1EntityPlayer.inventory.setInventorySlotContents(par1EntityPlayer.inventory.currentItem, null);
+            }
+
+            if (!worldObj.isRemote)
+            {
+                if (rand.nextInt(3) == 0)
+                {
+                    setTamed(true);
+                    setPathToEntity(null);
+                    setAttackTarget(null);
+                    aiSit.func_48210_a(true);
+                    setEntityHealth(20);
+                    setOwner(par1EntityPlayer.username);
+                    func_48370_a(true);
+                    worldObj.setEntityState(this, (byte)7);
+                }
+                else
+                {
+                    func_48370_a(false);
+                    worldObj.setEntityState(this, (byte)6);
+                }
+            }
+
+            return true;
         }
 
         return super.interact(par1EntityPlayer);
@@ -410,7 +407,7 @@ public class EntityWolf extends EntityTameable
     }
 
     /**
-     * gets if the wolf is angry
+     * Determines whether this wolf is angry or not.
      */
     public boolean isAngry()
     {
@@ -418,7 +415,7 @@ public class EntityWolf extends EntityTameable
     }
 
     /**
-     * sets if the wolf is angry or not
+     * Sets whether this wolf is angry or not.
      */
     public void setAngry(boolean par1)
     {

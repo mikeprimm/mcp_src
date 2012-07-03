@@ -6,6 +6,7 @@ public class BlockOreStorage extends Block
     {
         super(par1, Material.iron);
         blockIndexInTexture = par2;
+        func_56326_a(CreativeTabs.field_56387_b);
     }
 
     /**

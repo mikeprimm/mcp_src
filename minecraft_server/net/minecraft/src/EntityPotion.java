@@ -68,14 +68,14 @@ public class EntityPotion extends EntityThrowable
                 {
                     for (Iterator iterator = list1.iterator(); iterator.hasNext();)
                     {
-                        Entity entity = (Entity)iterator.next();
-                        double d = getDistanceSqToEntity(entity);
+                        EntityLiving entityliving = (EntityLiving)iterator.next();
+                        double d = getDistanceSqToEntity(entityliving);
 
                         if (d < 16D)
                         {
                             double d1 = 1.0D - Math.sqrt(d) / 4D;
 
-                            if (entity == par1MovingObjectPosition.entityHit)
+                            if (entityliving == par1MovingObjectPosition.entityHit)
                             {
                                 d1 = 1.0D;
                             }
@@ -89,7 +89,7 @@ public class EntityPotion extends EntityThrowable
 
                                 if (Potion.potionTypes[i].isInstant())
                                 {
-                                    Potion.potionTypes[i].affectEntity(thrower, (EntityLiving)entity, potioneffect.getAmplifier(), d1);
+                                    Potion.potionTypes[i].affectEntity(thrower, entityliving, potioneffect.getAmplifier(), d1);
                                 }
                                 else
                                 {
@@ -97,7 +97,7 @@ public class EntityPotion extends EntityThrowable
 
                                     if (j > 20)
                                     {
-                                        ((EntityLiving)entity).addPotionEffect(new PotionEffect(i, j, potioneffect.getAmplifier()));
+                                        entityliving.addPotionEffect(new PotionEffect(i, j, potioneffect.getAmplifier()));
                                     }
                                 }
                             }

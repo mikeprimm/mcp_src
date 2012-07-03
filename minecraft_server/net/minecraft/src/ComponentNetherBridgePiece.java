@@ -71,8 +71,7 @@ abstract class ComponentNetherBridgePiece extends StructureComponent
             }
         }
 
-        ComponentNetherBridgeEnd var17 = ComponentNetherBridgeEnd.func_40301_a(par3List, par4Random, par5, par6, par7, par8, par9);
-        return var17;
+        return ComponentNetherBridgeEnd.func_40301_a(par3List, par4Random, par5, par6, par7, par8, par9);
     }
 
     /**
@@ -82,8 +81,7 @@ abstract class ComponentNetherBridgePiece extends StructureComponent
     {
         if (Math.abs(par4 - par1ComponentNetherBridgeStartPiece.getBoundingBox().minX) > 112 || Math.abs(par6 - par1ComponentNetherBridgeStartPiece.getBoundingBox().minZ) > 112)
         {
-            ComponentNetherBridgeEnd componentnetherbridgeend = ComponentNetherBridgeEnd.func_40301_a(par2List, par3Random, par4, par5, par6, par7, par8);
-            return componentnetherbridgeend;
+            return ComponentNetherBridgeEnd.func_40301_a(par2List, par3Random, par4, par5, par6, par7, par8);
         }
 
         List list = par1ComponentNetherBridgeStartPiece.field_40294_b;

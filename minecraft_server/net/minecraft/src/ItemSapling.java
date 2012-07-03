@@ -16,4 +16,16 @@ public class ItemSapling extends ItemBlock
     {
         return par1;
     }
+
+    public String getItemNameIS(ItemStack par1ItemStack)
+    {
+        int i = par1ItemStack.getItemDamage();
+
+        if (i < 0 || i >= BlockSapling.field_55137_a.length)
+        {
+            i = 0;
+        }
+
+        return (new StringBuilder()).append(super.getItemName()).append(".").append(BlockSapling.field_55137_a[i]).toString();
+    }
 }

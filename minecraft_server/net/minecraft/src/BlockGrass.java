@@ -9,6 +9,7 @@ public class BlockGrass extends Block
         super(par1, Material.grass);
         blockIndexInTexture = 3;
         setTickRandomly(true);
+        func_56326_a(CreativeTabs.field_56387_b);
     }
 
     /**

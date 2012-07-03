@@ -6,11 +6,15 @@ public class ItemBucketMilk extends Item
     {
         super(par1);
         setMaxStackSize(1);
+        func_56455_a(CreativeTabs.field_56383_f);
     }
 
     public ItemStack onFoodEaten(ItemStack par1ItemStack, World par2World, EntityPlayer par3EntityPlayer)
     {
-        par1ItemStack.stackSize--;
+        if (!par3EntityPlayer.capabilities.isCreativeMode)
+        {
+            par1ItemStack.stackSize--;
+        }
 
         if (!par2World.isRemote)
         {

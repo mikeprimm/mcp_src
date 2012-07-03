@@ -38,6 +38,7 @@ public class ItemFood extends Item
         healAmount = par2;
         isWolfsFavoriteMeat = par4;
         saturationModifier = par3;
+        func_56455_a(CreativeTabs.field_56396_h);
     }
 
     public ItemFood(int par1, int par2, boolean par3)
@@ -50,13 +51,16 @@ public class ItemFood extends Item
         par1ItemStack.stackSize--;
         par3EntityPlayer.getFoodStats().addStats(this);
         par2World.playSoundAtEntity(par3EntityPlayer, "random.burp", 0.5F, par2World.rand.nextFloat() * 0.1F + 0.9F);
+        func_56459_d(par1ItemStack, par2World, par3EntityPlayer);
+        return par1ItemStack;
+    }
 
+    protected void func_56459_d(ItemStack par1ItemStack, World par2World, EntityPlayer par3EntityPlayer)
+    {
         if (!par2World.isRemote && potionId > 0 && par2World.rand.nextFloat() < potionEffectProbability)
         {
             par3EntityPlayer.addPotionEffect(new PotionEffect(potionId, potionDuration * 20, potionAmplifier));
         }
-
-        return par1ItemStack;
     }
 
     /**
@@ -129,13 +133,5 @@ public class ItemFood extends Item
     {
         alwaysEdible = true;
         return this;
-    }
-
-    /**
-     * set name of item from language file
-     */
-    public Item setItemName(String par1Str)
-    {
-        return super.setItemName(par1Str);
     }
 }

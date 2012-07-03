@@ -1,6 +1,6 @@
 package net.minecraft.src;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class BlockCauldron extends Block
@@ -24,23 +24,19 @@ public class BlockCauldron extends Block
         return par1 != 0 ? 154 : 155;
     }
 
-    /**
-     * Adds to the supplied array any colliding bounding boxes with the passed in bounding box. Args: world, x, y, z,
-     * axisAlignedBB, arrayList
-     */
-    public void getCollidingBoundingBoxes(World par1World, int par2, int par3, int par4, AxisAlignedBB par5AxisAlignedBB, ArrayList par6ArrayList)
+    public void func_56330_a(World par1World, int par2, int par3, int par4, AxisAlignedBB par5AxisAlignedBB, List par6List, Entity par7Entity)
     {
         setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 0.3125F, 1.0F);
-        super.getCollidingBoundingBoxes(par1World, par2, par3, par4, par5AxisAlignedBB, par6ArrayList);
+        super.func_56330_a(par1World, par2, par3, par4, par5AxisAlignedBB, par6List, par7Entity);
         float f = 0.125F;
         setBlockBounds(0.0F, 0.0F, 0.0F, f, 1.0F, 1.0F);
-        super.getCollidingBoundingBoxes(par1World, par2, par3, par4, par5AxisAlignedBB, par6ArrayList);
+        super.func_56330_a(par1World, par2, par3, par4, par5AxisAlignedBB, par6List, par7Entity);
         setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, f);
-        super.getCollidingBoundingBoxes(par1World, par2, par3, par4, par5AxisAlignedBB, par6ArrayList);
+        super.func_56330_a(par1World, par2, par3, par4, par5AxisAlignedBB, par6List, par7Entity);
         setBlockBounds(1.0F - f, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
-        super.getCollidingBoundingBoxes(par1World, par2, par3, par4, par5AxisAlignedBB, par6ArrayList);
+        super.func_56330_a(par1World, par2, par3, par4, par5AxisAlignedBB, par6List, par7Entity);
         setBlockBounds(0.0F, 0.0F, 1.0F - f, 1.0F, 1.0F, 1.0F);
-        super.getCollidingBoundingBoxes(par1World, par2, par3, par4, par5AxisAlignedBB, par6ArrayList);
+        super.func_56330_a(par1World, par2, par3, par4, par5AxisAlignedBB, par6List, par7Entity);
         setBlockBoundsForItemRender();
     }
 
@@ -77,11 +73,7 @@ public class BlockCauldron extends Block
         return false;
     }
 
-    /**
-     * Called upon block activation (left or right click on the block.). The three integers represent x,y,z of the
-     * block.
-     */
-    public boolean blockActivated(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer)
+    public boolean func_56323_a(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer, int par6, float par7, float par8, float par9)
     {
         if (par1World.isRemote)
         {
@@ -120,6 +112,10 @@ public class BlockCauldron extends Block
             {
                 par1World.spawnEntityInWorld(new EntityItem(par1World, (double)par2 + 0.5D, (double)par3 + 1.5D, (double)par4 + 0.5D, itemstack1));
             }
+            else if (par5EntityPlayer instanceof EntityPlayerMP)
+            {
+                ((EntityPlayerMP)par5EntityPlayer).func_28017_a(par5EntityPlayer.inventorySlots);
+            }
 
             itemstack.stackSize--;
 
@@ -132,6 +128,21 @@ public class BlockCauldron extends Block
         }
 
         return true;
+    }
+
+    public void func_56325_f(World par1World, int par2, int par3, int par4)
+    {
+        if (par1World.rand.nextInt(20) != 1)
+        {
+            return;
+        }
+
+        int i = par1World.getBlockMetadata(par2, par3, par4);
+
+        if (i < 3)
+        {
+            par1World.setBlockMetadataWithNotify(par2, par3, par4, i + 1);
+        }
     }
 
     /**

@@ -3,7 +3,7 @@ package net.minecraft.src;
 public class EntityAIPanic extends EntityAIBase
 {
     private EntityCreature field_48208_a;
-    private float field_48206_b;
+    private float speed;
     private double field_48207_c;
     private double field_48204_d;
     private double field_48205_e;
@@ -11,7 +11,7 @@ public class EntityAIPanic extends EntityAIBase
     public EntityAIPanic(EntityCreature par1EntityCreature, float par2)
     {
         field_48208_a = par1EntityCreature;
-        field_48206_b = par2;
+        speed = par2;
         setMutexBits(1);
     }
 
@@ -25,17 +25,17 @@ public class EntityAIPanic extends EntityAIBase
             return false;
         }
 
-        Vec3D vec3d = RandomPositionGenerator.func_48396_a(field_48208_a, 5, 4);
+        Vec3 vec3 = RandomPositionGenerator.func_48396_a(field_48208_a, 5, 4);
 
-        if (vec3d == null)
+        if (vec3 == null)
         {
             return false;
         }
         else
         {
-            field_48207_c = vec3d.xCoord;
-            field_48204_d = vec3d.yCoord;
-            field_48205_e = vec3d.zCoord;
+            field_48207_c = vec3.xCoord;
+            field_48204_d = vec3.yCoord;
+            field_48205_e = vec3.zCoord;
             return true;
         }
     }
@@ -45,7 +45,7 @@ public class EntityAIPanic extends EntityAIBase
      */
     public void startExecuting()
     {
-        field_48208_a.getNavigator().func_48658_a(field_48207_c, field_48204_d, field_48205_e, field_48206_b);
+        field_48208_a.getNavigator().tryMoveToXYZ(field_48207_c, field_48204_d, field_48205_e, speed);
     }
 
     /**

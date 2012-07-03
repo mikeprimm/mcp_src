@@ -49,14 +49,7 @@ public class ThreadedFileIOBase implements Runnable
 
             try
             {
-                if (!isThreadWaiting)
-                {
-                    Thread.sleep(10L);
-                }
-                else
-                {
-                    Thread.sleep(0L);
-                }
+                Thread.sleep(isThreadWaiting ? 0L : 10L);
             }
             catch (InterruptedException interruptedexception1)
             {

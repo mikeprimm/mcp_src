@@ -8,5 +8,10 @@ public class WorldServerMulti extends WorldServer
     {
         super(par1MinecraftServer, par2ISaveHandler, par3Str, par4, par5WorldSettings);
         mapStorage = par6WorldServer.mapStorage;
+        worldInfo = new DerivedWorldInfo(par6WorldServer.getWorldInfo());
+    }
+
+    protected void func_56370_A() throws MinecraftException
+    {
     }
 }

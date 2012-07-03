@@ -2,19 +2,18 @@ package net.minecraft.src;
 
 import net.minecraft.server.MinecraftServer;
 
-public final class ThreadServerApplication extends Thread
+public class ThreadServerApplication extends Thread
 {
-    /** Reference to the MinecraftServer object. */
-    final MinecraftServer mcServer;
+    final MinecraftServer field_56543_a;
 
-    public ThreadServerApplication(String par1Str, MinecraftServer par2MinecraftServer)
+    public ThreadServerApplication(MinecraftServer par1MinecraftServer, String par2Str)
     {
-        super(par1Str);
-        mcServer = par2MinecraftServer;
+        super(par2Str);
+        field_56543_a = par1MinecraftServer;
     }
 
     public void run()
     {
-        mcServer.run();
+        field_56543_a.run();
     }
 }

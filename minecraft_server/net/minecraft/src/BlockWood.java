@@ -2,9 +2,15 @@ package net.minecraft.src;
 
 public class BlockWood extends Block
 {
+    public static final String field_56347_a[] =
+    {
+        "oak", "spruce", "birch", "jungle"
+    };
+
     public BlockWood(int par1)
     {
         super(par1, 4, Material.wood);
+        func_56326_a(CreativeTabs.field_56387_b);
     }
 
     /**

@@ -15,13 +15,6 @@ public class ComponentNetherBridgeThrone extends ComponentNetherBridgePiece
     }
 
     /**
-     * 'Initiates construction of the Structure Component picked, at the current Location of StructGen'
-     */
-    public void buildComponent(StructureComponent structurecomponent, List list, Random random)
-    {
-    }
-
-    /**
      * Creates and returns a new component piece. Or null if it could not find enough room to place it.
      */
     public static ComponentNetherBridgeThrone createValidComponent(List par0List, Random par1Random, int par2, int par3, int par4, int par5, int par6)
@@ -39,8 +32,8 @@ public class ComponentNetherBridgeThrone extends ComponentNetherBridgePiece
     }
 
     /**
-     * 'second Part of Structure generating, this for example places Spiderwebs, Mob Spawners, it closes Mineshafts at
-     * the end, it adds Fences...'
+     * second Part of Structure generating, this for example places Spiderwebs, Mob Spawners, it closes Mineshafts at
+     * the end, it adds Fences...
      */
     public boolean addComponentParts(World par1World, Random par2Random, StructureBoundingBox par3StructureBoundingBox)
     {

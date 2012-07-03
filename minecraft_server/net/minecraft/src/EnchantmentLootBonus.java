@@ -18,7 +18,7 @@ public class EnchantmentLootBonus extends Enchantment
      */
     public int getMinEnchantability(int par1)
     {
-        return 20 + (par1 - 1) * 12;
+        return 15 + (par1 - 1) * 9;
     }
 
     /**

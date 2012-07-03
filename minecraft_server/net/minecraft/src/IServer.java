@@ -62,14 +62,9 @@ public interface IServer
      */
     public abstract String[] getPlayerNamesAsList();
 
-    /**
-     * Returns the name of the currently loaded world
-     */
-    public abstract String getWorldName();
+    public abstract String func_58018_H();
 
     public abstract String getPlugin();
-
-    public abstract void func_40010_o();
 
     /**
      * Handle a command received by an RCon instance

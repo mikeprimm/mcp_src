@@ -133,23 +133,30 @@ public class VillageCollection
 
     private void addNewDoorsToVillageOrCreateVillage()
     {
-        for (int i = 0; i < newDoors.size(); i++)
+        Iterator iterator = newDoors.iterator();
+
+        do
         {
-            VillageDoorInfo villagedoorinfo = (VillageDoorInfo)newDoors.get(i);
+            if (!iterator.hasNext())
+            {
+                break;
+            }
+
+            VillageDoorInfo villagedoorinfo = (VillageDoorInfo)iterator.next();
             boolean flag = false;
-            Iterator iterator = villageList.iterator();
+            Iterator iterator1 = villageList.iterator();
 
             do
             {
-                if (!iterator.hasNext())
+                if (!iterator1.hasNext())
                 {
                     break;
                 }
 
-                Village village1 = (Village)iterator.next();
-                int j = (int)village1.getCenter().getEuclideanDistanceTo(villagedoorinfo.posX, villagedoorinfo.posY, villagedoorinfo.posZ);
+                Village village1 = (Village)iterator1.next();
+                int i = (int)village1.getCenter().getEuclideanDistanceTo(villagedoorinfo.posX, villagedoorinfo.posY, villagedoorinfo.posZ);
 
-                if (j > 32 + village1.getVillageRadius())
+                if (i > 32 + village1.getVillageRadius())
                 {
                     continue;
                 }
@@ -167,6 +174,7 @@ public class VillageCollection
                 villageList.add(village);
             }
         }
+        while (true);
 
         newDoors.clear();
     }

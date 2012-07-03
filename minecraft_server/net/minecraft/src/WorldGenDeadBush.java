@@ -22,7 +22,7 @@ public class WorldGenDeadBush extends WorldGenerator
             int l = (par4 + par2Random.nextInt(4)) - par2Random.nextInt(4);
             int i1 = (par5 + par2Random.nextInt(8)) - par2Random.nextInt(8);
 
-            if (par1World.isAirBlock(k, l, i1) && ((BlockFlower)Block.blocksList[deadBushID]).canBlockStay(par1World, k, l, i1))
+            if (par1World.isAirBlock(k, l, i1) && Block.blocksList[deadBushID].canBlockStay(par1World, k, l, i1))
             {
                 par1World.setBlock(k, l, i1, deadBushID);
             }

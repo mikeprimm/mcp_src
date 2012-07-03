@@ -131,7 +131,7 @@ public class AchievementList
         killCow = (new Achievement(14, "killCow", 7, -3, Item.leather, buildSword)).registerAchievement();
         flyPig = (new Achievement(15, "flyPig", 8, -4, Item.saddle, killCow)).setSpecial().registerAchievement();
         snipeSkeleton = (new Achievement(16, "snipeSkeleton", 7, 0, Item.bow, killEnemy)).setSpecial().registerAchievement();
-        diamonds = (new Achievement(17, "diamonds", -1, 5, Item.diamond, acquireIron)).registerAchievement();
+        diamonds = (new Achievement(17, "diamonds", -1, 5, Item.field_56457_n, acquireIron)).registerAchievement();
         portal = (new Achievement(18, "portal", -1, 7, Block.obsidian, diamonds)).registerAchievement();
         ghast = (new Achievement(19, "ghast", -4, 8, Item.ghastTear, portal)).setSpecial().registerAchievement();
         blazeRod = (new Achievement(20, "blazeRod", 0, 9, Item.blazeRod, portal)).registerAchievement();

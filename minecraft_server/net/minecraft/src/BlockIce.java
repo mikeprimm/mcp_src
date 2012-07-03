@@ -9,6 +9,7 @@ public class BlockIce extends BlockBreakable
         super(par1, par2, Material.ice, false);
         slipperiness = 0.98F;
         setTickRandomly(true);
+        func_56326_a(CreativeTabs.field_56387_b);
     }
 
     /**
@@ -17,12 +18,34 @@ public class BlockIce extends BlockBreakable
      */
     public void harvestBlock(World par1World, EntityPlayer par2EntityPlayer, int par3, int par4, int par5, int par6)
     {
-        super.harvestBlock(par1World, par2EntityPlayer, par3, par4, par5, par6);
-        Material material = par1World.getBlockMaterial(par3, par4 - 1, par5);
+        par2EntityPlayer.addStat(StatList.mineBlockStatArray[blockID], 1);
+        par2EntityPlayer.addExhaustion(0.025F);
 
-        if (material.blocksMovement() || material.isLiquid())
+        if (canSilkHarvest() && EnchantmentHelper.getSilkTouchModifier(par2EntityPlayer.inventory))
         {
-            par1World.setBlockWithNotify(par3, par4, par5, Block.waterMoving.blockID);
+            ItemStack itemstack = createStackedBlock(par6);
+
+            if (itemstack != null)
+            {
+                dropBlockAsItem_do(par1World, par3, par4, par5, itemstack);
+            }
+        }
+        else
+        {
+            if (par1World.worldProvider.isHellWorld)
+            {
+                par1World.setBlockWithNotify(par3, par4, par5, 0);
+                return;
+            }
+
+            int i = EnchantmentHelper.getFortuneModifier(par2EntityPlayer.inventory);
+            dropBlockAsItem(par1World, par3, par4, par5, par6, i);
+            Material material = par1World.getBlockMaterial(par3, par4 - 1, par5);
+
+            if (material.blocksMovement() || material.isLiquid())
+            {
+                par1World.setBlockWithNotify(par3, par4, par5, Block.waterMoving.blockID);
+            }
         }
     }
 
@@ -41,6 +64,12 @@ public class BlockIce extends BlockBreakable
     {
         if (par1World.getSavedLightValue(EnumSkyBlock.Block, par2, par3, par4) > 11 - Block.lightOpacity[blockID])
         {
+            if (par1World.worldProvider.isHellWorld)
+            {
+                par1World.setBlockWithNotify(par2, par3, par4, 0);
+                return;
+            }
+
             dropBlockAsItem(par1World, par2, par3, par4, par1World.getBlockMetadata(par2, par3, par4), 0);
             par1World.setBlockWithNotify(par2, par3, par4, Block.waterStill.blockID);
         }
@@ -53,14 +82,5 @@ public class BlockIce extends BlockBreakable
     public int getMobilityFlag()
     {
         return 0;
-    }
-
-    /**
-     * Returns an item stack containing a single instance of the current block type. 'i' is the block's subtype/damage
-     * and is ignored for blocks which do not support subtypes. Blocks which cannot be harvested should return null.
-     */
-    protected ItemStack createStackedBlock(int par1)
-    {
-        return null;
     }
 }

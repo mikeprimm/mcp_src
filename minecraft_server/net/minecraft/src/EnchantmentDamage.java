@@ -12,7 +12,7 @@ public class EnchantmentDamage extends Enchantment
     };
     private static final int levelEnchantability[] =
     {
-        16, 8, 8
+        11, 8, 8
     };
     private static final int thresholdEnchantability[] =
     {

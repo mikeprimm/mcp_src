@@ -20,7 +20,8 @@ public class Packet51MapChunk extends Packet
      * The y-position of the highest chunk Section in the transmitted chunk, in chunk coordinates.
      */
     public int yChMax;
-    public byte chunkData[];
+    private byte chunkData[];
+    private byte field_56282_g[];
 
     /**
      * Whether to initialize the Chunk before applying the effect of the Packet51MapChunk.
@@ -46,7 +47,6 @@ public class Packet51MapChunk extends Packet
 
         if (par2)
         {
-            par3 = 65535;
             par1Chunk.field_50025_o = true;
         }
 
@@ -150,6 +150,7 @@ public class Packet51MapChunk extends Packet
 
         try
         {
+            field_56282_g = (byte[])abyte0.clone();
             deflater.setInput(abyte0, 0, i1);
             deflater.finish();
             chunkData = new byte[i1];
@@ -194,13 +195,13 @@ public class Packet51MapChunk extends Packet
             k += 256;
         }
 
-        chunkData = new byte[k];
+        field_56282_g = new byte[k];
         Inflater inflater = new Inflater();
         inflater.setInput(temp, 0, tempLength);
 
         try
         {
-            inflater.inflate(chunkData);
+            inflater.inflate(field_56282_g);
         }
         catch (DataFormatException dataformatexception)
         {

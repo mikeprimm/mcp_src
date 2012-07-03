@@ -51,22 +51,6 @@ public class EntitySquid extends EntityWaterMob
     }
 
     /**
-     * (abstract) Protected helper method to write subclass entity data to NBT.
-     */
-    public void writeEntityToNBT(NBTTagCompound par1NBTTagCompound)
-    {
-        super.writeEntityToNBT(par1NBTTagCompound);
-    }
-
-    /**
-     * (abstract) Protected helper method to read subclass entity data from NBT.
-     */
-    public void readEntityFromNBT(NBTTagCompound par1NBTTagCompound)
-    {
-        super.readEntityFromNBT(par1NBTTagCompound);
-    }
-
-    /**
      * Returns the sound this mob makes while it's alive.
      */
     protected String getLivingSound()
@@ -120,14 +104,6 @@ public class EntitySquid extends EntityWaterMob
     }
 
     /**
-     * Called when a player interacts with a mob. e.g. gets milk from a cow, gets into the saddle on a pig.
-     */
-    public boolean interact(EntityPlayer par1EntityPlayer)
-    {
-        return super.interact(par1EntityPlayer);
-    }
-
-    /**
      * Checks if this entity is inside water (if inWater field is true as a result of handleWaterMovement() returning
      * true)
      */
@@ -173,14 +149,14 @@ public class EntitySquid extends EntityWaterMob
                 }
                 else
                 {
-                    field_21053_aq = field_21053_aq * 0.8F;
+                    field_21053_aq *= 0.8F;
                 }
             }
             else
             {
                 tentacleAngle = 0.0F;
-                randomMotionSpeed = randomMotionSpeed * 0.9F;
-                field_21053_aq = field_21053_aq * 0.99F;
+                randomMotionSpeed *= 0.9F;
+                field_21053_aq *= 0.99F;
             }
 
             if (!worldObj.isRemote)
@@ -193,7 +169,7 @@ public class EntitySquid extends EntityWaterMob
             float f1 = MathHelper.sqrt_double(motionX * motionX + motionZ * motionZ);
             renderYawOffset += ((-(float)Math.atan2(motionX, motionZ) * 180F) / (float)Math.PI - renderYawOffset) * 0.1F;
             rotationYaw = renderYawOffset;
-            field_21061_c = field_21061_c + (float)Math.PI * field_21053_aq * 1.5F;
+            field_21061_c += (float)Math.PI * field_21053_aq * 1.5F;
             field_21063_a += ((-(float)Math.atan2(f1, motionY) * 180F) / (float)Math.PI - field_21063_a) * 0.1F;
         }
         else

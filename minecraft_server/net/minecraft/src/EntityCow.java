@@ -9,7 +9,7 @@ public class EntityCow extends EntityAnimal
         super(par1World);
         texture = "/mob/cow.png";
         setSize(0.9F, 1.3F);
-        getNavigator().func_48656_a(true);
+        getNavigator().setAvoidsWater(true);
         tasks.addTask(0, new EntityAISwimming(this));
         tasks.addTask(1, new EntityAIPanic(this, 0.38F));
         tasks.addTask(2, new EntityAIMate(this, 0.2F));
@@ -31,22 +31,6 @@ public class EntityCow extends EntityAnimal
     public int getMaxHealth()
     {
         return 10;
-    }
-
-    /**
-     * (abstract) Protected helper method to write subclass entity data to NBT.
-     */
-    public void writeEntityToNBT(NBTTagCompound par1NBTTagCompound)
-    {
-        super.writeEntityToNBT(par1NBTTagCompound);
-    }
-
-    /**
-     * (abstract) Protected helper method to read subclass entity data from NBT.
-     */
-    public void readEntityFromNBT(NBTTagCompound par1NBTTagCompound)
-    {
-        super.readEntityFromNBT(par1NBTTagCompound);
     }
 
     /**
@@ -125,7 +109,15 @@ public class EntityCow extends EntityAnimal
 
         if (itemstack != null && itemstack.itemID == Item.bucketEmpty.shiftedIndex)
         {
-            par1EntityPlayer.inventory.setInventorySlotContents(par1EntityPlayer.inventory.currentItem, new ItemStack(Item.bucketMilk));
+            if (--itemstack.stackSize <= 0)
+            {
+                par1EntityPlayer.inventory.setInventorySlotContents(par1EntityPlayer.inventory.currentItem, new ItemStack(Item.bucketMilk));
+            }
+            else if (!par1EntityPlayer.inventory.addItemStackToInventory(new ItemStack(Item.bucketMilk)))
+            {
+                par1EntityPlayer.dropPlayerItem(new ItemStack(Item.bucketMilk.shiftedIndex, 1, 0));
+            }
+
             return true;
         }
         else

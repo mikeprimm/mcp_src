@@ -21,7 +21,6 @@ public class RegionFile
     {
         lastModified = 0L;
         fileName = par1File;
-        debugln((new StringBuilder()).append("REGION LOAD ").append(fileName).toString());
         sizeDelta = 0;
 
         try
@@ -96,30 +95,6 @@ public class RegionFile
         }
     }
 
-    private void debug(String s)
-    {
-    }
-
-    private void debugln(String par1Str)
-    {
-        debug((new StringBuilder()).append(par1Str).append("\n").toString());
-    }
-
-    private void debug(String par1Str, int par2, int par3, String par4Str)
-    {
-        debug((new StringBuilder()).append("REGION ").append(par1Str).append(" ").append(fileName.getName()).append("[").append(par2).append(",").append(par3).append("] = ").append(par4Str).toString());
-    }
-
-    private void debug(String par1Str, int par2, int par3, int par4, String par5Str)
-    {
-        debug((new StringBuilder()).append("REGION ").append(par1Str).append(" ").append(fileName.getName()).append("[").append(par2).append(",").append(par3).append("] ").append(par4).append("B = ").append(par5Str).toString());
-    }
-
-    private void debugln(String par1Str, int par2, int par3, String par4Str)
-    {
-        debug(par1Str, par2, par3, (new StringBuilder()).append(par4Str).append("\n").toString());
-    }
-
     /**
      * args: x, y - get uncompressed chunk stream from the region file
      */
@@ -127,7 +102,6 @@ public class RegionFile
     {
         if (outOfBounds(par1, par2))
         {
-            debugln("READ", par1, par2, "out of bounds");
             return null;
         }
 
@@ -145,7 +119,6 @@ public class RegionFile
 
             if (j + k > sectorFree.size())
             {
-                debugln("READ", par1, par2, "invalid sector");
                 return null;
             }
 
@@ -154,13 +127,11 @@ public class RegionFile
 
             if (l > 4096 * k)
             {
-                debugln("READ", par1, par2, (new StringBuilder()).append("invalid length: ").append(l).append(" > 4096 * ").append(k).toString());
                 return null;
             }
 
             if (l <= 0)
             {
-                debugln("READ", par1, par2, (new StringBuilder()).append("invalid length: ").append(l).append(" < 1").toString());
                 return null;
             }
 
@@ -170,29 +141,24 @@ public class RegionFile
             {
                 byte abyte0[] = new byte[l - 1];
                 dataFile.read(abyte0);
-                DataInputStream datainputstream = new DataInputStream(new BufferedInputStream(new GZIPInputStream(new ByteArrayInputStream(abyte0))));
-                return datainputstream;
+                return new DataInputStream(new BufferedInputStream(new GZIPInputStream(new ByteArrayInputStream(abyte0))));
             }
 
             if (byte0 == 2)
             {
                 byte abyte1[] = new byte[l - 1];
                 dataFile.read(abyte1);
-                DataInputStream datainputstream1 = new DataInputStream(new BufferedInputStream(new InflaterInputStream(new ByteArrayInputStream(abyte1))));
-                return datainputstream1;
+                return new DataInputStream(new BufferedInputStream(new InflaterInputStream(new ByteArrayInputStream(abyte1))));
             }
             else
             {
-                debugln("READ", par1, par2, (new StringBuilder()).append("unknown version ").append(byte0).toString());
                 return null;
             }
         }
         catch (IOException ioexception)
         {
-            debugln("READ", par1, par2, "exception");
+            return null;
         }
-
-        return null;
     }
 
     /**
@@ -229,7 +195,6 @@ public class RegionFile
 
             if (j != 0 && i1 == j1)
             {
-                debug("SAVE", par1, par2, par4, "rewrite");
                 write(j, par3ArrayOfByte, par4);
             }
             else
@@ -282,7 +247,6 @@ public class RegionFile
 
                 if (i2 >= j1)
                 {
-                    debug("SAVE", par1, par2, par4, "reuse");
                     int k = l1;
                     setOffset(par1, par2, k << 8 | j1);
 
@@ -295,7 +259,6 @@ public class RegionFile
                 }
                 else
                 {
-                    debug("SAVE", par1, par2, par4, "grow");
                     dataFile.seek(dataFile.length());
                     int l = sectorFree.size();
 
@@ -324,7 +287,6 @@ public class RegionFile
      */
     private void write(int par1, byte par2ArrayOfByte[], int par3) throws IOException
     {
-        debugln((new StringBuilder()).append(" ").append(par1).toString());
         dataFile.seek(par1 * 4096);
         dataFile.writeInt(par3 + 1);
         dataFile.writeByte(2);

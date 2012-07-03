@@ -29,7 +29,7 @@ public class ItemAxe extends ItemTool
     {
         blocksEffectiveAgainst = (new Block[]
                 {
-                    Block.planks, Block.bookShelf, Block.wood, Block.chest, Block.stairDouble, Block.stairSingle, Block.pumpkin, Block.pumpkinLantern
+                    Block.planks, Block.bookShelf, Block.wood, Block.chest, Block.field_55134_aj, Block.field_55133_ak, Block.pumpkin, Block.pumpkinLantern
                 });
     }
 }

@@ -107,11 +107,7 @@ public class BlockFurnace extends BlockContainer
         }
     }
 
-    /**
-     * Called upon block activation (left or right click on the block.). The three integers represent x,y,z of the
-     * block.
-     */
-    public boolean blockActivated(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer)
+    public boolean func_56323_a(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer, int par6, float par7, float par8, float par9)
     {
         if (par1World.isRemote)
         {
@@ -156,10 +152,7 @@ public class BlockFurnace extends BlockContainer
         }
     }
 
-    /**
-     * Returns the TileEntity used by this block.
-     */
-    public TileEntity getBlockEntity()
+    public TileEntity func_56351_a(World par1World)
     {
         return new TileEntityFurnace();
     }
@@ -192,10 +185,7 @@ public class BlockFurnace extends BlockContainer
         }
     }
 
-    /**
-     * Called whenever the block is removed.
-     */
-    public void onBlockRemoval(World par1World, int par2, int par3, int par4)
+    public void func_56322_a(World par1World, int par2, int par3, int par4, int par5, int par6)
     {
         if (!keepFurnaceInventory)
         {
@@ -251,6 +241,6 @@ public class BlockFurnace extends BlockContainer
             }
         }
 
-        super.onBlockRemoval(par1World, par2, par3, par4);
+        super.func_56322_a(par1World, par2, par3, par4, par5, par6);
     }
 }

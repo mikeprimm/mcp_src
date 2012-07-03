@@ -8,6 +8,7 @@ public class BlockButton extends Block
     {
         super(par1, par2, Material.circuits);
         setTickRandomly(true);
+        func_56326_a(CreativeTabs.field_56385_d);
     }
 
     /**
@@ -90,11 +91,7 @@ public class BlockButton extends Block
         return par1World.isBlockNormalCube(par2, par3, par4 + 1);
     }
 
-    /**
-     * Called when a block is placed using an item. Used often for taking the facing and figuring out how to position
-     * the item. Args: x, y, z, facing
-     */
-    public void onBlockPlaced(World par1World, int par2, int par3, int par4, int par5)
+    public void func_56327_a(World par1World, int par2, int par3, int par4, int par5, float par6, float par7, float par8)
     {
         int i = par1World.getBlockMetadata(par2, par3, par4);
         int j = i & 8;
@@ -244,14 +241,10 @@ public class BlockButton extends Block
      */
     public void onBlockClicked(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer)
     {
-        blockActivated(par1World, par2, par3, par4, par5EntityPlayer);
+        func_56323_a(par1World, par2, par3, par4, par5EntityPlayer, 0, 0.0F, 0.0F, 0.0F);
     }
 
-    /**
-     * Called upon block activation (left or right click on the block.). The three integers represent x,y,z of the
-     * block.
-     */
-    public boolean blockActivated(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer)
+    public boolean func_56323_a(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer, int par6, float par7, float par8, float par9)
     {
         int i = par1World.getBlockMetadata(par2, par3, par4);
         int j = i & 7;
@@ -292,31 +285,26 @@ public class BlockButton extends Block
         return true;
     }
 
-    /**
-     * Called whenever the block is removed.
-     */
-    public void onBlockRemoval(World par1World, int par2, int par3, int par4)
+    public void func_56322_a(World par1World, int par2, int par3, int par4, int par5, int par6)
     {
-        int i = par1World.getBlockMetadata(par2, par3, par4);
-
-        if ((i & 8) > 0)
+        if ((par6 & 8) > 0)
         {
             par1World.notifyBlocksOfNeighborChange(par2, par3, par4, blockID);
-            int j = i & 7;
+            int i = par6 & 7;
 
-            if (j == 1)
+            if (i == 1)
             {
                 par1World.notifyBlocksOfNeighborChange(par2 - 1, par3, par4, blockID);
             }
-            else if (j == 2)
+            else if (i == 2)
             {
                 par1World.notifyBlocksOfNeighborChange(par2 + 1, par3, par4, blockID);
             }
-            else if (j == 3)
+            else if (i == 3)
             {
                 par1World.notifyBlocksOfNeighborChange(par2, par3, par4 - 1, blockID);
             }
-            else if (j == 4)
+            else if (i == 4)
             {
                 par1World.notifyBlocksOfNeighborChange(par2, par3, par4 + 1, blockID);
             }
@@ -326,7 +314,7 @@ public class BlockButton extends Block
             }
         }
 
-        super.onBlockRemoval(par1World, par2, par3, par4);
+        super.func_56322_a(par1World, par2, par3, par4, par5, par6);
     }
 
     /**

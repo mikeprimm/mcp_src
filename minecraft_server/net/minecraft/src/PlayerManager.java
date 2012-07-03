@@ -1,32 +1,24 @@
 package net.minecraft.src;
 
-import java.util.ArrayList;
-import java.util.List;
-import net.minecraft.server.MinecraftServer;
+import java.util.*;
 
 public class PlayerManager
 {
+    private final WorldServer field_56692_a;
+
     /** players in the current instance */
-    public List players;
+    private final List players = new ArrayList();
 
     /** the hash of all playerInstances created */
-    private LongHashMap playerInstances;
+    private final LongHashMap playerInstances = new LongHashMap();
 
     /** the playerInstances(chunks) that need to be updated */
-    private List playerInstancesToUpdate;
-
-    /** Reference to the MinecraftServer object. */
-    private MinecraftServer mcServer;
-
-    /**
-     * Holds the player dimension object. 0 is the surface, -1 is the Nether.
-     */
-    private int playerDimension;
+    private final List playerInstancesToUpdate = new ArrayList();
 
     /**
      * Number of chunks the server sends to the client. Valid 3<=x<=15. In server.properties.
      */
-    private int playerViewRadius;
+    private final int playerViewRadius;
     private final int xzDirectionsConst[][] =
     {
         {
@@ -40,26 +32,21 @@ public class PlayerManager
         }
     };
 
-    public PlayerManager(MinecraftServer par1MinecraftServer, int par2, int par3)
+    public PlayerManager(WorldServer par1WorldServer, int par2)
     {
-        players = new ArrayList();
-        playerInstances = new LongHashMap();
-        playerInstancesToUpdate = new ArrayList();
-
-        if (par3 > 15)
+        if (par2 > 15)
         {
             throw new IllegalArgumentException("Too big view radius!");
         }
 
-        if (par3 < 3)
+        if (par2 < 3)
         {
             throw new IllegalArgumentException("Too small view radius!");
         }
         else
         {
-            playerViewRadius = par3;
-            mcServer = par1MinecraftServer;
-            playerDimension = par2;
+            playerViewRadius = par2;
+            field_56692_a = par1WorldServer;
             return;
         }
     }
@@ -69,7 +56,7 @@ public class PlayerManager
      */
     public WorldServer getMinecraftServer()
     {
-        return mcServer.getWorldManager(playerDimension);
+        return field_56692_a;
     }
 
     /**
@@ -77,21 +64,22 @@ public class PlayerManager
      */
     public void updatePlayerInstances()
     {
-        for (int i = 0; i < playerInstancesToUpdate.size(); i++)
+        PlayerInstance playerinstance;
+
+        for (Iterator iterator = playerInstancesToUpdate.iterator(); iterator.hasNext(); playerinstance.onUpdate())
         {
-            ((PlayerInstance)playerInstancesToUpdate.get(i)).onUpdate();
+            playerinstance = (PlayerInstance)iterator.next();
         }
 
         playerInstancesToUpdate.clear();
 
         if (players.isEmpty())
         {
-            WorldServer worldserver = mcServer.getWorldManager(playerDimension);
-            WorldProvider worldprovider = worldserver.worldProvider;
+            WorldProvider worldprovider = field_56692_a.worldProvider;
 
             if (!worldprovider.canRespawnHere())
             {
-                worldserver.chunkProviderServer.unloadAllChunks();
+                field_56692_a.chunkProviderServer.unloadAllChunks();
             }
         }
     }
@@ -134,37 +122,69 @@ public class PlayerManager
         int j = (int)par1EntityPlayerMP.posZ >> 4;
         par1EntityPlayerMP.managedPosX = par1EntityPlayerMP.posX;
         par1EntityPlayerMP.managedPosZ = par1EntityPlayerMP.posZ;
-        int k = 0;
-        int l = playerViewRadius;
+
+        for (int k = i - playerViewRadius; k <= i + playerViewRadius; k++)
+        {
+            for (int l = j - playerViewRadius; l <= j + playerViewRadius; l++)
+            {
+                getPlayerInstance(k, l, true).addPlayer(par1EntityPlayerMP);
+            }
+        }
+
+        players.add(par1EntityPlayerMP);
+        func_56691_b(par1EntityPlayerMP);
+    }
+
+    public void func_56691_b(EntityPlayerMP par1EntityPlayerMP)
+    {
+        ArrayList arraylist = new ArrayList(par1EntityPlayerMP.loadedChunks);
+        int i = 0;
+        int j = playerViewRadius;
+        int k = (int)par1EntityPlayerMP.posX >> 4;
+        int l = (int)par1EntityPlayerMP.posZ >> 4;
         int i1 = 0;
         int j1 = 0;
-        getPlayerInstance(i, j, true).addPlayer(par1EntityPlayerMP);
+        ChunkCoordIntPair chunkcoordintpair = PlayerInstance.func_56548_a(getPlayerInstance(k, l, true));
+        par1EntityPlayerMP.loadedChunks.clear();
 
-        for (int k1 = 1; k1 <= l * 2; k1++)
+        if (arraylist.contains(chunkcoordintpair))
+        {
+            par1EntityPlayerMP.loadedChunks.add(chunkcoordintpair);
+        }
+
+        for (int k1 = 1; k1 <= j * 2; k1++)
         {
             for (int i2 = 0; i2 < 2; i2++)
             {
-                int ai[] = xzDirectionsConst[k++ % 4];
+                int ai[] = xzDirectionsConst[i++ % 4];
 
                 for (int j2 = 0; j2 < k1; j2++)
                 {
                     i1 += ai[0];
                     j1 += ai[1];
-                    getPlayerInstance(i + i1, j + j1, true).addPlayer(par1EntityPlayerMP);
+                    ChunkCoordIntPair chunkcoordintpair1 = PlayerInstance.func_56548_a(getPlayerInstance(k + i1, l + j1, true));
+
+                    if (arraylist.contains(chunkcoordintpair1))
+                    {
+                        par1EntityPlayerMP.loadedChunks.add(chunkcoordintpair1);
+                    }
                 }
             }
         }
 
-        k %= 4;
+        i %= 4;
 
-        for (int l1 = 0; l1 < l * 2; l1++)
+        for (int l1 = 0; l1 < j * 2; l1++)
         {
-            i1 += xzDirectionsConst[k][0];
-            j1 += xzDirectionsConst[k][1];
-            getPlayerInstance(i + i1, j + j1, true).addPlayer(par1EntityPlayerMP);
-        }
+            i1 += xzDirectionsConst[i][0];
+            j1 += xzDirectionsConst[i][1];
+            ChunkCoordIntPair chunkcoordintpair2 = PlayerInstance.func_56548_a(getPlayerInstance(k + i1, l + j1, true));
 
-        players.add(par1EntityPlayerMP);
+            if (arraylist.contains(chunkcoordintpair2))
+            {
+                par1EntityPlayerMP.loadedChunks.add(chunkcoordintpair2);
+            }
+        }
     }
 
     /**
@@ -191,21 +211,17 @@ public class PlayerManager
         players.remove(par1EntityPlayerMP);
     }
 
-    /**
-     * args: targetChunkX, targetChunkZ, playerChunkX, playerChunkZ - return true if the target chunk is outside the
-     * cube of player visibility
-     */
-    private boolean isOutsidePlayerViewRadius(int par1, int par2, int par3, int par4)
+    private boolean func_55302_a(int par1, int par2, int par3, int par4, int par5)
     {
         int i = par1 - par3;
         int j = par2 - par4;
 
-        if (i < -playerViewRadius || i > playerViewRadius)
+        if (i < -par5 || i > par5)
         {
             return false;
         }
 
-        return j >= -playerViewRadius && j <= playerViewRadius;
+        return j >= -par5 && j <= par5;
     }
 
     /**
@@ -226,29 +242,30 @@ public class PlayerManager
 
         int k = (int)par1EntityPlayerMP.managedPosX >> 4;
         int l = (int)par1EntityPlayerMP.managedPosZ >> 4;
-        int i1 = i - k;
-        int j1 = j - l;
+        int i1 = playerViewRadius;
+        int j1 = i - k;
+        int k1 = j - l;
 
-        if (i1 == 0 && j1 == 0)
+        if (j1 == 0 && k1 == 0)
         {
             return;
         }
 
-        for (int k1 = i - playerViewRadius; k1 <= i + playerViewRadius; k1++)
+        for (int l1 = i - i1; l1 <= i + i1; l1++)
         {
-            for (int l1 = j - playerViewRadius; l1 <= j + playerViewRadius; l1++)
+            for (int i2 = j - i1; i2 <= j + i1; i2++)
             {
-                if (!isOutsidePlayerViewRadius(k1, l1, k, l))
+                if (!func_55302_a(l1, i2, k, l, i1))
                 {
-                    getPlayerInstance(k1, l1, true).addPlayer(par1EntityPlayerMP);
+                    getPlayerInstance(l1, i2, true).addPlayer(par1EntityPlayerMP);
                 }
 
-                if (isOutsidePlayerViewRadius(k1 - i1, l1 - j1, i, j))
+                if (func_55302_a(l1 - j1, i2 - k1, i, j, i1))
                 {
                     continue;
                 }
 
-                PlayerInstance playerinstance = getPlayerInstance(k1 - i1, l1 - j1, false);
+                PlayerInstance playerinstance = getPlayerInstance(l1 - j1, i2 - k1, false);
 
                 if (playerinstance != null)
                 {
@@ -257,27 +274,27 @@ public class PlayerManager
             }
         }
 
+        func_56691_b(par1EntityPlayerMP);
         par1EntityPlayerMP.managedPosX = par1EntityPlayerMP.posX;
         par1EntityPlayerMP.managedPosZ = par1EntityPlayerMP.posZ;
     }
 
-    public int getMaxTrackingDistance()
+    public static int func_55303_a(int par0)
     {
-        return playerViewRadius * 16 - 16;
+        return par0 * 16 - 16;
     }
 
-    /**
-     * get the hash of all player instances
-     */
-    static LongHashMap getPlayerInstances(PlayerManager par0PlayerManager)
+    static WorldServer func_56689_a(PlayerManager par0PlayerManager)
+    {
+        return par0PlayerManager.field_56692_a;
+    }
+
+    static LongHashMap func_56688_b(PlayerManager par0PlayerManager)
     {
         return par0PlayerManager.playerInstances;
     }
 
-    /**
-     * retrieve the list of all playerInstances that need to be updated on tick
-     */
-    static List getPlayerInstancesToUpdate(PlayerManager par0PlayerManager)
+    static List func_56690_c(PlayerManager par0PlayerManager)
     {
         return par0PlayerManager.playerInstancesToUpdate;
     }

@@ -154,13 +154,7 @@ public class ChunkProviderHell implements IChunkProvider
                 {
                     int j1 = (j * 16 + i) * 128 + i1;
 
-                    if (i1 >= 127 - hellRNG.nextInt(5))
-                    {
-                        par3ArrayOfByte[j1] = (byte)Block.bedrock.blockID;
-                        continue;
-                    }
-
-                    if (i1 <= 0 + hellRNG.nextInt(5))
+                    if (i1 >= 127 - hellRNG.nextInt(5) || i1 <= 0 + hellRNG.nextInt(5))
                     {
                         par3ArrayOfByte[j1] = (byte)Block.bedrock.blockID;
                         continue;
@@ -511,6 +505,11 @@ public class ChunkProviderHell implements IChunkProvider
         return true;
     }
 
+    public String func_46040_d()
+    {
+        return "HellRandomLevelSource";
+    }
+
     /**
      * Returns a list of creatures of the specified type that can spawn at the given location.
      */
@@ -539,5 +538,10 @@ public class ChunkProviderHell implements IChunkProvider
     public ChunkPosition findClosestStructure(World par1World, String par2Str, int par3, int i, int j)
     {
         return null;
+    }
+
+    public int func_56538_d()
+    {
+        return 0;
     }
 }

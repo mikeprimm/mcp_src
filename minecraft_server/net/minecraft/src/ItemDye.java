@@ -20,6 +20,7 @@ public class ItemDye extends Item
         super(par1);
         setHasSubtypes(true);
         setMaxDamage(0);
+        func_56455_a(CreativeTabs.field_56392_l);
     }
 
     public String getItemNameIS(ItemStack par1ItemStack)
@@ -28,11 +29,7 @@ public class ItemDye extends Item
         return (new StringBuilder()).append(super.getItemName()).append(".").append(dyeColorNames[i]).toString();
     }
 
-    /**
-     * Callback for item usage. If the item does something special on right clicking, he will have one of those. Return
-     * True if something happen and false if it don't. This is for ITEMS, not BLOCKS !
-     */
-    public boolean onItemUse(ItemStack par1ItemStack, EntityPlayer par2EntityPlayer, World par3World, int par4, int par5, int par6, int par7)
+    public boolean func_56454_a(ItemStack par1ItemStack, EntityPlayer par2EntityPlayer, World par3World, int par4, int par5, int par6, int par7, float par8, float par9, float par10)
     {
         if (!par2EntityPlayer.canPlayerEdit(par4, par5, par6))
         {
@@ -86,6 +83,17 @@ public class ItemDye extends Item
                 return true;
             }
 
+            if (i == Block.field_56338_bP.blockID)
+            {
+                if (!par3World.isRemote)
+                {
+                    par3World.setBlockMetadataWithNotify(par4, par5, par6, 8 | BlockDirectional.getDirection(par3World.getBlockMetadata(par4, par5, par6)));
+                    par1ItemStack.stackSize--;
+                }
+
+                return true;
+            }
+
             if (i == Block.grass.blockID)
             {
                 if (!par3World.isRemote)
@@ -93,43 +101,108 @@ public class ItemDye extends Item
                     par1ItemStack.stackSize--;
                     label0:
 
-                    for (int j = 0; j < 128; j++)
+                    for (int k = 0; k < 128; k++)
                     {
-                        int k = par4;
-                        int l = par5 + 1;
-                        int i1 = par6;
+                        int i1 = par4;
+                        int j1 = par5 + 1;
+                        int k1 = par6;
 
-                        for (int j1 = 0; j1 < j / 16; j1++)
+                        for (int l1 = 0; l1 < k / 16; l1++)
                         {
-                            k += itemRand.nextInt(3) - 1;
-                            l += ((itemRand.nextInt(3) - 1) * itemRand.nextInt(3)) / 2;
                             i1 += itemRand.nextInt(3) - 1;
+                            j1 += ((itemRand.nextInt(3) - 1) * itemRand.nextInt(3)) / 2;
+                            k1 += itemRand.nextInt(3) - 1;
 
-                            if (par3World.getBlockId(k, l - 1, i1) != Block.grass.blockID || par3World.isBlockNormalCube(k, l, i1))
+                            if (par3World.getBlockId(i1, j1 - 1, k1) != Block.grass.blockID || par3World.isBlockNormalCube(i1, j1, k1))
                             {
                                 continue label0;
                             }
                         }
 
-                        if (par3World.getBlockId(k, l, i1) != 0)
+                        if (par3World.getBlockId(i1, j1, k1) != 0)
                         {
                             continue;
                         }
 
                         if (itemRand.nextInt(10) != 0)
                         {
-                            par3World.setBlockAndMetadataWithNotify(k, l, i1, Block.tallGrass.blockID, 1);
+                            if (Block.tallGrass.canBlockStay(par3World, i1, j1, k1))
+                            {
+                                par3World.setBlockAndMetadataWithNotify(i1, j1, k1, Block.tallGrass.blockID, 1);
+                            }
+
                             continue;
                         }
 
                         if (itemRand.nextInt(3) != 0)
                         {
-                            par3World.setBlockWithNotify(k, l, i1, Block.plantYellow.blockID);
+                            if (Block.plantYellow.canBlockStay(par3World, i1, j1, k1))
+                            {
+                                par3World.setBlockWithNotify(i1, j1, k1, Block.plantYellow.blockID);
+                            }
+
+                            continue;
                         }
-                        else
+
+                        if (Block.plantRed.canBlockStay(par3World, i1, j1, k1))
                         {
-                            par3World.setBlockWithNotify(k, l, i1, Block.plantRed.blockID);
+                            par3World.setBlockWithNotify(i1, j1, k1, Block.plantRed.blockID);
                         }
+                    }
+                }
+
+                return true;
+            }
+        }
+        else if (par1ItemStack.getItemDamage() == 3)
+        {
+            int j = par3World.getBlockId(par4, par5, par6);
+            int l = par3World.getBlockMetadata(par4, par5, par6);
+
+            if (j == Block.wood.blockID && l == 3)
+            {
+                if (par7 == 0)
+                {
+                    return false;
+                }
+
+                if (par7 == 1)
+                {
+                    return false;
+                }
+
+                if (par7 == 2)
+                {
+                    par6--;
+                }
+
+                if (par7 == 3)
+                {
+                    par6++;
+                }
+
+                if (par7 == 4)
+                {
+                    par4--;
+                }
+
+                if (par7 == 5)
+                {
+                    par4++;
+                }
+
+                if (par3World.isAirBlock(par4, par5, par6))
+                {
+                    par3World.setBlockWithNotify(par4, par5, par6, Block.field_56338_bP.blockID);
+
+                    if (par3World.getBlockId(par4, par5, par6) == Block.field_56338_bP.blockID)
+                    {
+                        Block.blocksList[Block.field_56338_bP.blockID].func_56327_a(par3World, par4, par5, par6, par7, par8, par9, par10);
+                    }
+
+                    if (!par2EntityPlayer.capabilities.isCreativeMode)
+                    {
+                        par1ItemStack.stackSize--;
                     }
                 }
 
@@ -140,10 +213,7 @@ public class ItemDye extends Item
         return false;
     }
 
-    /**
-     * Called when a player right clicks a entity with a item.
-     */
-    public void useItemOnEntity(ItemStack par1ItemStack, EntityLiving par2EntityLiving)
+    public boolean func_56452_a(ItemStack par1ItemStack, EntityLiving par2EntityLiving)
     {
         if (par2EntityLiving instanceof EntitySheep)
         {
@@ -155,6 +225,12 @@ public class ItemDye extends Item
                 entitysheep.setFleeceColor(i);
                 par1ItemStack.stackSize--;
             }
+
+            return true;
+        }
+        else
+        {
+            return false;
         }
     }
 }

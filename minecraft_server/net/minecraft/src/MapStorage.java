@@ -109,9 +109,16 @@ public class MapStorage
      */
     public void saveAllData()
     {
-        for (int i = 0; i < loadedDataList.size(); i++)
+        Iterator iterator = loadedDataList.iterator();
+
+        do
         {
-            WorldSavedData worldsaveddata = (WorldSavedData)loadedDataList.get(i);
+            if (!iterator.hasNext())
+            {
+                break;
+            }
+
+            WorldSavedData worldsaveddata = (WorldSavedData)iterator.next();
 
             if (worldsaveddata.isDirty())
             {
@@ -119,6 +126,7 @@ public class MapStorage
                 worldsaveddata.setDirty(false);
             }
         }
+        while (true);
     }
 
     /**

@@ -12,7 +12,7 @@ public class EnchantmentProtection extends Enchantment
     };
     private static final int levelEnchantability[] =
     {
-        16, 8, 6, 8, 6
+        11, 8, 6, 8, 6
     };
     private static final int thresholdEnchantability[] =
     {
@@ -87,7 +87,7 @@ public class EnchantmentProtection extends Enchantment
             return i * 2;
         }
 
-        if (protectionType == 3 && par2DamageSource == DamageSource.explosion)
+        if (protectionType == 3 && par2DamageSource == DamageSource.explosion || par2DamageSource == DamageSource.field_58044_m)
         {
             return i;
         }

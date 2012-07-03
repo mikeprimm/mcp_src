@@ -11,6 +11,7 @@ public class ItemSword extends Item
         toolMaterial = par2EnumToolMaterial;
         maxStackSize = 1;
         setMaxDamage(par2EnumToolMaterial.getMaxUses());
+        func_56455_a(CreativeTabs.field_56394_j);
         weaponDamage = 4 + par2EnumToolMaterial.getDamageVsEntity();
     }
 
@@ -33,9 +34,13 @@ public class ItemSword extends Item
         return true;
     }
 
-    public boolean onBlockDestroyed(ItemStack par1ItemStack, int par2, int par3, int par4, int par5, EntityLiving par6EntityLiving)
+    public boolean func_58049_a(ItemStack par1ItemStack, World par2World, int par3, int par4, int par5, int par6, EntityLiving par7EntityLiving)
     {
-        par1ItemStack.damageItem(2, par6EntityLiving);
+        if ((double)Block.blocksList[par3].func_58033_f(par2World, par4, par5, par6) != 0.0D)
+        {
+            par1ItemStack.damageItem(2, par7EntityLiving);
+        }
+
         return true;
     }
 
@@ -86,5 +91,10 @@ public class ItemSword extends Item
     public int getItemEnchantability()
     {
         return toolMaterial.getEnchantability();
+    }
+
+    public String func_56462_b()
+    {
+        return toolMaterial.toString();
     }
 }

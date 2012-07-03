@@ -33,9 +33,13 @@ public class CraftingManager
                 {
                     "###", '#', Item.reed
                 });
-        addRecipe(new ItemStack(Item.book, 1), new Object[]
+        addShapelessRecipe(new ItemStack(Item.book, 1), new Object[]
                 {
-                    "#", "#", "#", '#', Item.paper
+                    Item.paper, Item.paper, Item.paper, Item.leather
+                });
+        addShapelessRecipe(new ItemStack(Item.field_55176_bF, 1), new Object[]
+                {
+                    Item.book, new ItemStack(Item.dyePowder, 1, 0), Item.feather
                 });
         addRecipe(new ItemStack(Block.fence, 2), new Object[]
                 {
@@ -51,7 +55,7 @@ public class CraftingManager
                 });
         addRecipe(new ItemStack(Block.jukebox, 1), new Object[]
                 {
-                    "###", "#X#", "###", '#', Block.planks, 'X', Item.diamond
+                    "###", "#X#", "###", '#', Block.planks, 'X', Item.field_56457_n
                 });
         addRecipe(new ItemStack(Block.music, 1), new Object[]
                 {
@@ -85,29 +89,41 @@ public class CraftingManager
                 {
                     "X#X", "#X#", "X#X", 'X', Item.gunpowder, '#', Block.sand
                 });
-        addRecipe(new ItemStack(Block.stairSingle, 6, 3), new Object[]
+        addRecipe(new ItemStack(Block.field_55133_ak, 6, 3), new Object[]
                 {
                     "###", '#', Block.cobblestone
                 });
-        addRecipe(new ItemStack(Block.stairSingle, 6, 0), new Object[]
+        addRecipe(new ItemStack(Block.field_55133_ak, 6, 0), new Object[]
                 {
                     "###", '#', Block.stone
                 });
-        addRecipe(new ItemStack(Block.stairSingle, 6, 1), new Object[]
+        addRecipe(new ItemStack(Block.field_55133_ak, 6, 1), new Object[]
                 {
                     "###", '#', Block.sandStone
                 });
-        addRecipe(new ItemStack(Block.stairSingle, 6, 2), new Object[]
-                {
-                    "###", '#', Block.planks
-                });
-        addRecipe(new ItemStack(Block.stairSingle, 6, 4), new Object[]
+        addRecipe(new ItemStack(Block.field_55133_ak, 6, 4), new Object[]
                 {
                     "###", '#', Block.brick
                 });
-        addRecipe(new ItemStack(Block.stairSingle, 6, 5), new Object[]
+        addRecipe(new ItemStack(Block.field_55133_ak, 6, 5), new Object[]
                 {
                     "###", '#', Block.stoneBrick
+                });
+        addRecipe(new ItemStack(Block.field_55136_bO, 6, 0), new Object[]
+                {
+                    "###", '#', new ItemStack(Block.planks, 1, 0)
+                });
+        addRecipe(new ItemStack(Block.field_55136_bO, 6, 2), new Object[]
+                {
+                    "###", '#', new ItemStack(Block.planks, 1, 2)
+                });
+        addRecipe(new ItemStack(Block.field_55136_bO, 6, 1), new Object[]
+                {
+                    "###", '#', new ItemStack(Block.planks, 1, 1)
+                });
+        addRecipe(new ItemStack(Block.field_55136_bO, 6, 3), new Object[]
+                {
+                    "###", '#', new ItemStack(Block.planks, 1, 3)
                 });
         addRecipe(new ItemStack(Block.ladder, 3), new Object[]
                 {
@@ -228,7 +244,19 @@ public class CraftingManager
                 });
         addRecipe(new ItemStack(Block.stairCompactPlanks, 4), new Object[]
                 {
-                    "#  ", "## ", "###", '#', Block.planks
+                    "#  ", "## ", "###", '#', new ItemStack(Block.planks, 1, 0)
+                });
+        addRecipe(new ItemStack(Block.field_58035_bX, 4), new Object[]
+                {
+                    "#  ", "## ", "###", '#', new ItemStack(Block.planks, 1, 2)
+                });
+        addRecipe(new ItemStack(Block.field_58036_bW, 4), new Object[]
+                {
+                    "#  ", "## ", "###", '#', new ItemStack(Block.planks, 1, 1)
+                });
+        addRecipe(new ItemStack(Block.field_58034_bY, 4), new Object[]
+                {
+                    "#  ", "## ", "###", '#', new ItemStack(Block.planks, 1, 3)
                 });
         addRecipe(new ItemStack(Item.fishingRod, 1), new Object[]
                 {
@@ -250,17 +278,29 @@ public class CraftingManager
                 {
                     "#  ", "## ", "###", '#', Block.netherBrick
                 });
+        addRecipe(new ItemStack(Block.field_56339_bQ, 4), new Object[]
+                {
+                    "#  ", "## ", "###", '#', Block.sandStone
+                });
         addRecipe(new ItemStack(Item.painting, 1), new Object[]
                 {
                     "###", "#X#", "###", '#', Item.stick, 'X', Block.cloth
                 });
-        addRecipe(new ItemStack(Item.appleGold, 1), new Object[]
+        addRecipe(new ItemStack(Item.appleGold, 1, 0), new Object[]
                 {
                     "###", "#X#", "###", '#', Item.goldNugget, 'X', Item.appleRed
+                });
+        addRecipe(new ItemStack(Item.appleGold, 1, 1), new Object[]
+                {
+                    "###", "#X#", "###", '#', Block.blockGold, 'X', Item.appleRed
                 });
         addRecipe(new ItemStack(Block.lever, 1), new Object[]
                 {
                     "X", "#", '#', Block.cobblestone, 'X', Item.stick
+                });
+        addRecipe(new ItemStack(Block.field_56334_bT, 2), new Object[]
+                {
+                    "I", "S", "#", '#', Block.planks, 'S', Item.stick, 'I', Item.ingotIron
                 });
         addRecipe(new ItemStack(Block.torchRedstoneActive, 1), new Object[]
                 {
@@ -313,7 +353,7 @@ public class CraftingManager
                 });
         addRecipe(new ItemStack(Block.enchantmentTable, 1), new Object[]
                 {
-                    " B ", "D#D", "###", '#', Block.obsidian, 'B', Item.book, 'D', Item.diamond
+                    " B ", "D#D", "###", '#', Block.obsidian, 'B', Item.book, 'D', Item.field_56457_n
                 });
         addShapelessRecipe(new ItemStack(Item.eyeOfEnder, 1), new Object[]
                 {
@@ -344,13 +384,16 @@ public class CraftingManager
         if (par2ArrayOfObj[i] instanceof String[])
         {
             String as[] = (String[])par2ArrayOfObj[i++];
+            String as1[] = as;
+            int l = as1.length;
 
-            for (int l = 0; l < as.length; l++)
+            for (int j1 = 0; j1 < l; j1++)
             {
-                String s2 = as[l];
+                String s2 = as1[j1];
+                String s3 = s2;
                 k++;
-                j = s2.length();
-                s = (new StringBuilder()).append(s).append(s2).toString();
+                j = s3.length();
+                s = (new StringBuilder()).append(s).append(s3).toString();
             }
         }
         else
@@ -472,22 +515,22 @@ public class CraftingManager
         if (i == 2 && itemstack.itemID == itemstack1.itemID && itemstack.stackSize == 1 && itemstack1.stackSize == 1 && Item.itemsList[itemstack.itemID].isDamageable())
         {
             Item item = Item.itemsList[itemstack.itemID];
-            int l = item.getMaxDamage() - itemstack.getItemDamageForDisplay();
-            int i1 = item.getMaxDamage() - itemstack1.getItemDamageForDisplay();
-            int j1 = l + i1 + (item.getMaxDamage() * 10) / 100;
-            int k1 = item.getMaxDamage() - j1;
+            int k = item.getMaxDamage() - itemstack.getItemDamageForDisplay();
+            int l = item.getMaxDamage() - itemstack1.getItemDamageForDisplay();
+            int i1 = k + l + (item.getMaxDamage() * 10) / 100;
+            int j1 = item.getMaxDamage() - i1;
 
-            if (k1 < 0)
+            if (j1 < 0)
             {
-                k1 = 0;
+                j1 = 0;
             }
 
-            return new ItemStack(itemstack.itemID, 1, k1);
+            return new ItemStack(itemstack.itemID, 1, j1);
         }
 
-        for (int k = 0; k < recipes.size(); k++)
+        for (Iterator iterator = recipes.iterator(); iterator.hasNext();)
         {
-            IRecipe irecipe = (IRecipe)recipes.get(k);
+            IRecipe irecipe = (IRecipe)iterator.next();
 
             if (irecipe.matches(par1InventoryCrafting))
             {

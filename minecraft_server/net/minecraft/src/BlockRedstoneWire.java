@@ -66,7 +66,7 @@ public class BlockRedstoneWire extends Block
      */
     public boolean canPlaceBlockAt(World par1World, int par2, int par3, int par4)
     {
-        return par1World.isBlockNormalCube(par2, par3 - 1, par4) || par1World.getBlockId(par2, par3 - 1, par4) == Block.glowStone.blockID;
+        return par1World.func_58038_s(par2, par3 - 1, par4) || par1World.getBlockId(par2, par3 - 1, par4) == Block.glowStone.blockID;
     }
 
     /**
@@ -78,11 +78,11 @@ public class BlockRedstoneWire extends Block
         calculateCurrentChanges(par1World, par2, par3, par4, par2, par3, par4);
         ArrayList arraylist = new ArrayList(blocksNeedingUpdate);
         blocksNeedingUpdate.clear();
+        ChunkPosition chunkposition;
 
-        for (int i = 0; i < arraylist.size(); i++)
+        for (Iterator iterator = arraylist.iterator(); iterator.hasNext(); par1World.notifyBlocksOfNeighborChange(chunkposition.x, chunkposition.y, chunkposition.z, blockID))
         {
-            ChunkPosition chunkposition = (ChunkPosition)arraylist.get(i);
-            par1World.notifyBlocksOfNeighborChange(chunkposition.x, chunkposition.y, chunkposition.z, blockID);
+            chunkposition = (ChunkPosition)iterator.next();
         }
     }
 
@@ -315,12 +315,9 @@ public class BlockRedstoneWire extends Block
         }
     }
 
-    /**
-     * Called whenever the block is removed.
-     */
-    public void onBlockRemoval(World par1World, int par2, int par3, int par4)
+    public void func_56322_a(World par1World, int par2, int par3, int par4, int par5, int par6)
     {
-        super.onBlockRemoval(par1World, par2, par3, par4);
+        super.func_56322_a(par1World, par2, par3, par4, par5, par6);
 
         if (par1World.isRemote)
         {
@@ -413,14 +410,14 @@ public class BlockRedstoneWire extends Block
         int i = par1World.getBlockMetadata(par2, par3, par4);
         boolean flag = canPlaceBlockAt(par1World, par2, par3, par4);
 
-        if (!flag)
+        if (flag)
         {
-            dropBlockAsItem(par1World, par2, par3, par4, i, 0);
-            par1World.setBlockWithNotify(par2, par3, par4, 0);
+            updateAndPropagateCurrentStrength(par1World, par2, par3, par4);
         }
         else
         {
-            updateAndPropagateCurrentStrength(par1World, par2, par3, par4);
+            dropBlockAsItem(par1World, par2, par3, par4, i, 0);
+            par1World.setBlockWithNotify(par2, par3, par4, 0);
         }
 
         super.onNeighborBlockChange(par1World, par2, par3, par4, par5);

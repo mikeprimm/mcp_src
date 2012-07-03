@@ -258,7 +258,8 @@ public class StatList
         replaceSimilarBlocks(par0ArrayOfStatBase, Block.redstoneRepeaterActive.blockID, Block.redstoneRepeaterIdle.blockID);
         replaceSimilarBlocks(par0ArrayOfStatBase, Block.torchRedstoneActive.blockID, Block.torchRedstoneIdle.blockID);
         replaceSimilarBlocks(par0ArrayOfStatBase, Block.mushroomRed.blockID, Block.mushroomBrown.blockID);
-        replaceSimilarBlocks(par0ArrayOfStatBase, Block.stairDouble.blockID, Block.stairSingle.blockID);
+        replaceSimilarBlocks(par0ArrayOfStatBase, Block.field_55134_aj.blockID, Block.field_55133_ak.blockID);
+        replaceSimilarBlocks(par0ArrayOfStatBase, Block.field_55135_bN.blockID, Block.field_55136_bO.blockID);
         replaceSimilarBlocks(par0ArrayOfStatBase, Block.grass.blockID, Block.dirt.blockID);
         replaceSimilarBlocks(par0ArrayOfStatBase, Block.tilledField.blockID, Block.dirt.blockID);
     }

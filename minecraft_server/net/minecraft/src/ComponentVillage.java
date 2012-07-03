@@ -7,10 +7,12 @@ abstract class ComponentVillage extends StructureComponent
 {
     /** The number of villagers that have been spawned in this component. */
     private int villagersSpawned;
+    protected ComponentVillageStartPiece field_56309_k;
 
-    protected ComponentVillage(int par1)
+    protected ComponentVillage(ComponentVillageStartPiece par1ComponentVillageStartPiece, int par2)
     {
-        super(par1);
+        super(par2);
+        field_56309_k = par1ComponentVillageStartPiece;
     }
 
     /**
@@ -139,5 +141,99 @@ abstract class ComponentVillage extends StructureComponent
     protected int getVillagerType(int par1)
     {
         return 0;
+    }
+
+    protected int func_56307_d(int par1, int par2)
+    {
+        if (field_56309_k.field_56314_b)
+        {
+            if (par1 == Block.wood.blockID)
+            {
+                return Block.sandStone.blockID;
+            }
+
+            if (par1 == Block.cobblestone.blockID)
+            {
+                return Block.sandStone.blockID;
+            }
+
+            if (par1 == Block.planks.blockID)
+            {
+                return Block.sandStone.blockID;
+            }
+
+            if (par1 == Block.stairCompactPlanks.blockID)
+            {
+                return Block.field_56339_bQ.blockID;
+            }
+
+            if (par1 == Block.stairCompactCobblestone.blockID)
+            {
+                return Block.field_56339_bQ.blockID;
+            }
+
+            if (par1 == Block.gravel.blockID)
+            {
+                return Block.sandStone.blockID;
+            }
+        }
+
+        return par1;
+    }
+
+    protected int func_56308_e(int par1, int par2)
+    {
+        if (field_56309_k.field_56314_b)
+        {
+            if (par1 == Block.wood.blockID)
+            {
+                return 0;
+            }
+
+            if (par1 == Block.cobblestone.blockID)
+            {
+                return 0;
+            }
+
+            if (par1 == Block.planks.blockID)
+            {
+                return 2;
+            }
+        }
+
+        return par2;
+    }
+
+    /**
+     * current Position depends on currently set Coordinates mode, is computed here
+     */
+    protected void placeBlockAtCurrentPosition(World par1World, int par2, int par3, int par4, int par5, int par6, StructureBoundingBox par7StructureBoundingBox)
+    {
+        int i = func_56307_d(par2, par3);
+        int j = func_56308_e(par2, par3);
+        super.placeBlockAtCurrentPosition(par1World, i, j, par4, par5, par6, par7StructureBoundingBox);
+    }
+
+    /**
+     * arguments: (World worldObj, StructureBoundingBox structBB, int minX, int minY, int minZ, int maxX, int maxY, int
+     * maxZ, int placeBlockId, int replaceBlockId, boolean alwaysreplace)
+     */
+    protected void fillWithBlocks(World par1World, StructureBoundingBox par2StructureBoundingBox, int par3, int par4, int par5, int par6, int par7, int par8, int par9, int par10, boolean par11)
+    {
+        int i = func_56307_d(par9, 0);
+        int j = func_56308_e(par9, 0);
+        int k = func_56307_d(par10, 0);
+        int l = func_56308_e(par10, 0);
+        super.func_56290_a(par1World, par2StructureBoundingBox, par3, par4, par5, par6, par7, par8, i, j, k, l, par11);
+    }
+
+    /**
+     * Overwrites air and liquids from selected position downwards, stops at hitting anything else.
+     */
+    protected void fillCurrentPositionBlocksDownwards(World par1World, int par2, int par3, int par4, int par5, int par6, StructureBoundingBox par7StructureBoundingBox)
+    {
+        int i = func_56307_d(par2, par3);
+        int j = func_56308_e(par2, par3);
+        super.fillCurrentPositionBlocksDownwards(par1World, i, j, par4, par5, par6, par7StructureBoundingBox);
     }
 }

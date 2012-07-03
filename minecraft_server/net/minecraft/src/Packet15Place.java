@@ -4,13 +4,16 @@ import java.io.*;
 
 public class Packet15Place extends Packet
 {
-    public int xPosition;
-    public int yPosition;
-    public int zPosition;
+    private int xPosition;
+    private int yPosition;
+    private int zPosition;
 
     /** The offset to use for block/item placement. */
-    public int direction;
-    public ItemStack itemStack;
+    private int direction;
+    private ItemStack itemStack;
+    private float field_56251_f;
+    private float field_56252_g;
+    private float field_56253_h;
 
     public Packet15Place()
     {
@@ -26,6 +29,9 @@ public class Packet15Place extends Packet
         zPosition = par1DataInputStream.readInt();
         direction = par1DataInputStream.read();
         itemStack = readItemStack(par1DataInputStream);
+        field_56251_f = (float)par1DataInputStream.read() / 16F;
+        field_56252_g = (float)par1DataInputStream.read() / 16F;
+        field_56253_h = (float)par1DataInputStream.read() / 16F;
     }
 
     /**
@@ -38,6 +44,9 @@ public class Packet15Place extends Packet
         par1DataOutputStream.writeInt(zPosition);
         par1DataOutputStream.write(direction);
         writeItemStack(itemStack, par1DataOutputStream);
+        par1DataOutputStream.write((int)(field_56251_f * 16F));
+        par1DataOutputStream.write((int)(field_56252_g * 16F));
+        par1DataOutputStream.write((int)(field_56253_h * 16F));
     }
 
     /**
@@ -53,6 +62,46 @@ public class Packet15Place extends Packet
      */
     public int getPacketSize()
     {
-        return 15;
+        return 19;
+    }
+
+    public int func_56250_b()
+    {
+        return xPosition;
+    }
+
+    public int func_56248_c()
+    {
+        return yPosition;
+    }
+
+    public int func_56246_d()
+    {
+        return zPosition;
+    }
+
+    public int func_56245_e()
+    {
+        return direction;
+    }
+
+    public ItemStack func_56249_f()
+    {
+        return itemStack;
+    }
+
+    public float func_56243_g()
+    {
+        return field_56251_f;
+    }
+
+    public float func_56247_h()
+    {
+        return field_56252_g;
+    }
+
+    public float func_56244_i()
+    {
+        return field_56253_h;
     }
 }

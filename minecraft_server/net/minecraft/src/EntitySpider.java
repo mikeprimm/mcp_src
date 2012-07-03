@@ -19,15 +19,6 @@ public class EntitySpider extends EntityMob
     }
 
     /**
-     * Called frequently so the entity can update its state every tick as required. For example, zombies and skeletons
-     * use this to react to sunlight and start to burn.
-     */
-    public void onLivingUpdate()
-    {
-        super.onLivingUpdate();
-    }
-
-    /**
      * Called to update the entity's position/logic.
      */
     public void onUpdate()
@@ -134,22 +125,6 @@ public class EntitySpider extends EntityMob
         {
             super.attackEntity(par1Entity, par2);
         }
-    }
-
-    /**
-     * (abstract) Protected helper method to write subclass entity data to NBT.
-     */
-    public void writeEntityToNBT(NBTTagCompound par1NBTTagCompound)
-    {
-        super.writeEntityToNBT(par1NBTTagCompound);
-    }
-
-    /**
-     * (abstract) Protected helper method to read subclass entity data from NBT.
-     */
-    public void readEntityFromNBT(NBTTagCompound par1NBTTagCompound)
-    {
-        super.readEntityFromNBT(par1NBTTagCompound);
     }
 
     /**

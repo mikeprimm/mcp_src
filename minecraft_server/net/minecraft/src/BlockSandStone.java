@@ -2,9 +2,15 @@ package net.minecraft.src;
 
 public class BlockSandStone extends Block
 {
+    public static final String field_56350_a[] =
+    {
+        "default", "chiseled", "smooth"
+    };
+
     public BlockSandStone(int par1)
     {
         super(par1, 192, Material.rock);
+        func_56326_a(CreativeTabs.field_56387_b);
     }
 
     /**

@@ -1,5 +1,6 @@
 package net.minecraft.src;
 
+import java.util.Iterator;
 import java.util.List;
 
 public class ItemBoat extends Item
@@ -8,6 +9,7 @@ public class ItemBoat extends Item
     {
         super(par1);
         maxStackSize = 1;
+        func_56455_a(CreativeTabs.field_56386_e);
     }
 
     /**
@@ -21,7 +23,7 @@ public class ItemBoat extends Item
         double d = par3EntityPlayer.prevPosX + (par3EntityPlayer.posX - par3EntityPlayer.prevPosX) * (double)f;
         double d1 = (par3EntityPlayer.prevPosY + (par3EntityPlayer.posY - par3EntityPlayer.prevPosY) * (double)f + 1.6200000000000001D) - (double)par3EntityPlayer.yOffset;
         double d2 = par3EntityPlayer.prevPosZ + (par3EntityPlayer.posZ - par3EntityPlayer.prevPosZ) * (double)f;
-        Vec3D vec3d = Vec3D.createVector(d, d1, d2);
+        Vec3 vec3 = Vec3.func_58052_a().func_58076_a(d, d1, d2);
         float f3 = MathHelper.cos(-f2 * 0.01745329F - (float)Math.PI);
         float f4 = MathHelper.sin(-f2 * 0.01745329F - (float)Math.PI);
         float f5 = -MathHelper.cos(-f1 * 0.01745329F);
@@ -30,36 +32,41 @@ public class ItemBoat extends Item
         float f8 = f6;
         float f9 = f3 * f5;
         double d3 = 5D;
-        Vec3D vec3d1 = vec3d.addVector((double)f7 * d3, (double)f8 * d3, (double)f9 * d3);
-        MovingObjectPosition movingobjectposition = par2World.rayTraceBlocks_do(vec3d, vec3d1, true);
+        Vec3 vec3_1 = vec3.addVector((double)f7 * d3, (double)f8 * d3, (double)f9 * d3);
+        MovingObjectPosition movingobjectposition = par2World.rayTraceBlocks_do(vec3, vec3_1, true);
 
         if (movingobjectposition == null)
         {
             return par1ItemStack;
         }
 
-        Vec3D vec3d2 = par3EntityPlayer.getLook(f);
+        Vec3 vec3_2 = par3EntityPlayer.getLook(f);
         boolean flag = false;
         float f10 = 1.0F;
-        List list = par2World.getEntitiesWithinAABBExcludingEntity(par3EntityPlayer, par3EntityPlayer.boundingBox.addCoord(vec3d2.xCoord * d3, vec3d2.yCoord * d3, vec3d2.zCoord * d3).expand(f10, f10, f10));
+        List list = par2World.getEntitiesWithinAABBExcludingEntity(par3EntityPlayer, par3EntityPlayer.boundingBox.addCoord(vec3_2.xCoord * d3, vec3_2.yCoord * d3, vec3_2.zCoord * d3).expand(f10, f10, f10));
+        Iterator iterator = list.iterator();
 
-        for (int l = 0; l < list.size(); l++)
+        do
         {
-            Entity entity = (Entity)list.get(l);
-
-            if (!entity.canBeCollidedWith())
+            if (!iterator.hasNext())
             {
-                continue;
+                break;
             }
 
-            float f11 = entity.getCollisionBorderSize();
-            AxisAlignedBB axisalignedbb = entity.boundingBox.expand(f11, f11, f11);
+            Entity entity = (Entity)iterator.next();
 
-            if (axisalignedbb.isVecInside(vec3d))
+            if (entity.canBeCollidedWith())
             {
-                flag = true;
+                float f11 = entity.getCollisionBorderSize();
+                AxisAlignedBB axisalignedbb = entity.boundingBox.expand(f11, f11, f11);
+
+                if (axisalignedbb.isVecInside(vec3))
+                {
+                    flag = true;
+                }
             }
         }
+        while (true);
 
         if (flag)
         {

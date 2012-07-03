@@ -7,13 +7,17 @@ public class RecipesCrafting
     }
 
     /**
-     * Adds crafting recipes to the CraftingManager
+     * Adds the crafting recipes to the CraftingManager.
      */
     public void addRecipes(CraftingManager par1CraftingManager)
     {
         par1CraftingManager.addRecipe(new ItemStack(Block.chest), new Object[]
                 {
                     "###", "# #", "###", '#', Block.planks
+                });
+        par1CraftingManager.addRecipe(new ItemStack(Block.field_56335_bS), new Object[]
+                {
+                    "###", "#E#", "###", '#', Block.obsidian, 'E', Item.eyeOfEnder
                 });
         par1CraftingManager.addRecipe(new ItemStack(Block.stoneOvenIdle), new Object[]
                 {
@@ -33,7 +37,7 @@ public class RecipesCrafting
                 });
         par1CraftingManager.addRecipe(new ItemStack(Block.sandStone, 1, 1), new Object[]
                 {
-                    "#", "#", '#', new ItemStack(Block.stairSingle, 1, 1)
+                    "#", "#", '#', new ItemStack(Block.field_55133_ak, 1, 1)
                 });
         par1CraftingManager.addRecipe(new ItemStack(Block.stoneBrick, 4), new Object[]
                 {

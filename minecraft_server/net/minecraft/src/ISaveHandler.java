@@ -1,7 +1,6 @@
 package net.minecraft.src;
 
 import java.io.File;
-import java.util.List;
 
 public interface ISaveHandler
 {
@@ -13,17 +12,14 @@ public interface ISaveHandler
     /**
      * Checks the session lock to prevent save collisions
      */
-    public abstract void checkSessionLock();
+    public abstract void checkSessionLock() throws MinecraftException;
 
     /**
      * initializes and returns the chunk loader for the specified world provider
      */
     public abstract IChunkLoader getChunkLoader(WorldProvider worldprovider);
 
-    /**
-     * saves level.dat and backs up the existing one to level.dat_old
-     */
-    public abstract void saveWorldInfoAndPlayer(WorldInfo worldinfo, List list);
+    public abstract void func_56407_a(WorldInfo worldinfo, NBTTagCompound nbttagcompound);
 
     /**
      * used to update level.dat from old format to MCRegion format
@@ -38,4 +34,6 @@ public interface ISaveHandler
      * Gets the file location of the given map
      */
     public abstract File getMapFileFromName(String s);
+
+    public abstract String func_56406_g();
 }

@@ -1,9 +1,8 @@
 package net.minecraft.src;
 
-import java.io.PrintStream;
 import java.util.*;
 
-public class World implements IBlockAccess
+public abstract class World implements IBlockAccess
 {
     /**
      * boolean; if true updates scheduled by scheduleBlockUpdate happen immediately
@@ -12,15 +11,7 @@ public class World implements IBlockAccess
 
     /** A list of all Entities in all currently-loaded chunks */
     public List loadedEntityList;
-    private List unloadedEntityList;
-
-    /**
-     * TreeSet of scheduled ticks which is used as a priority queue for the ticks
-     */
-    private TreeSet scheduledTickTreeSet;
-
-    /** Set of scheduled ticks (used for checking if a tick already exists) */
-    private Set scheduledTickSet;
+    protected List unloadedEntityList;
 
     /** A list of all TileEntities in all currently-loaded chunks */
     public List loadedTileEntityList;
@@ -69,22 +60,11 @@ public class World implements IBlockAccess
     /** true while the server is editing blocks */
     public boolean editingBlocks;
 
-    /**
-     * Contains a timestamp from when the World object was created. Is used in the session.lock file
-     */
-    private long lockTimestamp;
-    protected int autosavePeriod;
-
     /** Whether monsters are enabled or not. (1 = on, 0 = off) */
     public int difficultySetting;
 
     /** RNG for World. */
     public Random rand;
-
-    /**
-     * Used to differentiate between a newly generated world and an already existing world.
-     */
-    public boolean isNewWorld;
     public final WorldProvider worldProvider;
     protected List worldAccesses;
 
@@ -102,14 +82,9 @@ public class World implements IBlockAccess
      * chunkprovider's dummy if possible
      */
     public boolean findingSpawnPoint;
-
-    /**
-     * A flag indicating whether or not all players in the world are sleeping.
-     */
-    private boolean allPlayersSleeping;
     public MapStorage mapStorage;
-    public final VillageCollection villageCollectionObj = new VillageCollection(this);
-    private final VillageSiege villageSiegeObj = new VillageSiege(this);
+    public final VillageCollection villageCollectionObj;
+    protected final VillageSiege villageSiegeObj;
     private ArrayList collidingBoundingBoxes;
     private boolean scanningTileEntities;
 
@@ -132,7 +107,9 @@ public class World implements IBlockAccess
      */
     private List entitiesWithinAABBExcludingEntity;
 
-    /** This is always false on a server */
+    /**
+     * This is set to true when you are a client connected to a multiplayer world, false otherwise.
+     */
     public boolean isRemote;
 
     /**
@@ -163,8 +140,6 @@ public class World implements IBlockAccess
         scheduledUpdatesAreImmediate = false;
         loadedEntityList = new ArrayList();
         unloadedEntityList = new ArrayList();
-        scheduledTickTreeSet = new TreeSet();
-        scheduledTickSet = new HashSet();
         loadedTileEntityList = new ArrayList();
         addedTileEntityList = new ArrayList();
         entityRemoval = new ArrayList();
@@ -176,12 +151,11 @@ public class World implements IBlockAccess
         lastLightningBolt = 0;
         lightningFlash = 0;
         editingBlocks = false;
-        lockTimestamp = System.currentTimeMillis();
-        autosavePeriod = 40;
         rand = new Random();
-        isNewWorld = false;
         worldAccesses = new ArrayList();
         collidingBoundingBoxes = new ArrayList();
+        villageCollectionObj = new VillageCollection(this);
+        villageSiegeObj = new VillageSiege(this);
         spawnHostileMobs = true;
         spawnPeacefulMobs = true;
         activeChunkSet = new HashSet();
@@ -192,7 +166,6 @@ public class World implements IBlockAccess
         saveHandler = par1ISaveHandler;
         mapStorage = new MapStorage(par1ISaveHandler);
         worldInfo = par1ISaveHandler.loadWorldInfo();
-        isNewWorld = worldInfo == null;
 
         if (par4WorldProvider != null)
         {
@@ -207,12 +180,9 @@ public class World implements IBlockAccess
             worldProvider = WorldProvider.getProviderForDimension(0);
         }
 
-        boolean flag = false;
-
         if (worldInfo == null)
         {
             worldInfo = new WorldInfo(par3WorldSettings, par2Str);
-            flag = true;
         }
         else
         {
@@ -222,9 +192,10 @@ public class World implements IBlockAccess
         worldProvider.registerWorld(this);
         chunkProvider = createChunkProvider();
 
-        if (flag)
+        if (!worldInfo.func_56513_t())
         {
-            generateSpawnPoint();
+            func_56362_a(par3WorldSettings);
+            worldInfo.func_56511_c(true);
         }
 
         calculateInitialSkylight();
@@ -234,66 +205,11 @@ public class World implements IBlockAccess
     /**
      * Creates the chunk provider for this world. Called in the constructor. Retrieves provider from worldProvider?
      */
-    protected IChunkProvider createChunkProvider()
+    protected abstract IChunkProvider createChunkProvider();
+
+    protected void func_56362_a(WorldSettings par1WorldSettings)
     {
-        IChunkLoader ichunkloader = saveHandler.getChunkLoader(worldProvider);
-        return new ChunkProvider(this, ichunkloader, worldProvider.getChunkProvider());
-    }
-
-    /**
-     * generates a spawn point for this world
-     */
-    protected void generateSpawnPoint()
-    {
-        if (!worldProvider.canRespawnHere())
-        {
-            worldInfo.setSpawnPosition(0, worldProvider.getAverageGroundLevel(), 0);
-            return;
-        }
-
-        findingSpawnPoint = true;
-        WorldChunkManager worldchunkmanager = worldProvider.worldChunkMgr;
-        List list = worldchunkmanager.getBiomesToSpawnIn();
-        Random random = new Random(getSeed());
-        ChunkPosition chunkposition = worldchunkmanager.findBiomePosition(0, 0, 256, list, random);
-        int i = 0;
-        int j = worldProvider.getAverageGroundLevel();
-        int k = 0;
-
-        if (chunkposition != null)
-        {
-            i = chunkposition.x;
-            k = chunkposition.z;
-        }
-        else
-        {
-            System.out.println("Unable to find spawn biome");
-        }
-
-        int l = 0;
-
-        do
-        {
-            if (worldProvider.canCoordinateBeSpawn(i, k))
-            {
-                break;
-            }
-
-            i += random.nextInt(64) - random.nextInt(64);
-            k += random.nextInt(64) - random.nextInt(64);
-        }
-        while (++l != 1000);
-
-        worldInfo.setSpawnPosition(i, j, k);
-        findingSpawnPoint = false;
-    }
-
-    /**
-     * Gets the hard-coded portal location to use when entering this dimension
-     */
-    public ChunkCoordinates getEntrancePortalLocation()
-    {
-        return worldProvider.getEntrancePortalLocation();
+        worldInfo.func_56511_c(true);
     }
 
     /**
@@ -307,41 +223,6 @@ public class World implements IBlockAccess
         for (i = 63; !isAirBlock(par1, i + 1, par2); i++) { }
 
         return getBlockId(par1, i, par2);
-    }
-
-    /**
-     * Saves the data for this World. If passed true, then only save up to 2 chunks, otherwise, save all chunks.
-     */
-    public void saveWorld(boolean par1, IProgressUpdate par2IProgressUpdate)
-    {
-        if (!chunkProvider.canSave())
-        {
-            return;
-        }
-
-        if (par2IProgressUpdate != null)
-        {
-            par2IProgressUpdate.displaySavingString("Saving level");
-        }
-
-        saveLevel();
-
-        if (par2IProgressUpdate != null)
-        {
-            par2IProgressUpdate.displayLoadingString("Saving chunks");
-        }
-
-        chunkProvider.saveChunks(par1, par2IProgressUpdate);
-    }
-
-    /**
-     * Saves the global data associated with this World
-     */
-    private void saveLevel()
-    {
-        checkSessionLock();
-        saveHandler.saveWorldInfoAndPlayer(worldInfo, playerEntities);
-        mapStorage.saveAllData();
     }
 
     /**
@@ -460,13 +341,13 @@ public class World implements IBlockAccess
     /**
      * Returns whether a chunk exists at chunk coordinates x, y
      */
-    private boolean chunkExists(int par1, int par2)
+    protected boolean chunkExists(int par1, int par2)
     {
         return chunkProvider.chunkExists(par1, par2);
     }
 
     /**
-     * Returns a chunk looked up by block coordinates. Args: x, y
+     * Returns a chunk looked up by block coordinates. Args: x, z
      */
     public Chunk getChunkFromBlockCoords(int par1, int par2)
     {
@@ -671,9 +552,11 @@ public class World implements IBlockAccess
      */
     public void markBlockNeedsUpdate(int par1, int par2, int par3)
     {
-        for (int i = 0; i < worldAccesses.size(); i++)
+        IWorldAccess iworldaccess;
+
+        for (Iterator iterator = worldAccesses.iterator(); iterator.hasNext(); iworldaccess.markBlockNeedsUpdate(par1, par2, par3))
         {
-            ((IWorldAccess)worldAccesses.get(i)).markBlockNeedsUpdate(par1, par2, par3);
+            iworldaccess = (IWorldAccess)iterator.next();
         }
     }
 
@@ -714,17 +597,21 @@ public class World implements IBlockAccess
      */
     public void markBlockAsNeedsUpdate(int par1, int par2, int par3)
     {
-        for (int i = 0; i < worldAccesses.size(); i++)
+        IWorldAccess iworldaccess;
+
+        for (Iterator iterator = worldAccesses.iterator(); iterator.hasNext(); iworldaccess.markBlockRangeNeedsUpdate(par1, par2, par3, par1, par2, par3))
         {
-            ((IWorldAccess)worldAccesses.get(i)).markBlockRangeNeedsUpdate(par1, par2, par3, par1, par2, par3);
+            iworldaccess = (IWorldAccess)iterator.next();
         }
     }
 
     public void markBlocksDirty(int par1, int par2, int par3, int par4, int par5, int par6)
     {
-        for (int i = 0; i < worldAccesses.size(); i++)
+        IWorldAccess iworldaccess;
+
+        for (Iterator iterator = worldAccesses.iterator(); iterator.hasNext(); iworldaccess.markBlockRangeNeedsUpdate(par1, par2, par3, par4, par5, par6))
         {
-            ((IWorldAccess)worldAccesses.get(i)).markBlockRangeNeedsUpdate(par1, par2, par3, par4, par5, par6);
+            iworldaccess = (IWorldAccess)iterator.next();
         }
     }
 
@@ -809,7 +696,7 @@ public class World implements IBlockAccess
         {
             int i = getBlockId(par1, par2, par3);
 
-            if (i == Block.stairSingle.blockID || i == Block.tilledField.blockID || i == Block.stairCompactCobblestone.blockID || i == Block.stairCompactPlanks.blockID)
+            if (i == Block.field_55133_ak.blockID || i == Block.field_55136_bO.blockID || i == Block.tilledField.blockID || i == Block.stairCompactCobblestone.blockID || i == Block.stairCompactPlanks.blockID)
             {
                 int j = getBlockLightValue_do(par1, par2 + 1, par3, false);
                 int k = getBlockLightValue_do(par1 + 1, par2, par3, false);
@@ -941,24 +828,27 @@ public class World implements IBlockAccess
 
         Chunk chunk = getChunkFromChunkCoords(par2 >> 4, par4 >> 4);
         chunk.setLightValue(par1EnumSkyBlock, par2 & 0xf, par3, par4 & 0xf, par5);
+        IWorldAccess iworldaccess;
 
-        for (int i = 0; i < worldAccesses.size(); i++)
+        for (Iterator iterator = worldAccesses.iterator(); iterator.hasNext(); iworldaccess.markBlockNeedsUpdate2(par2, par3, par4))
         {
-            ((IWorldAccess)worldAccesses.get(i)).markBlockNeedsUpdate2(par2, par3, par4);
+            iworldaccess = (IWorldAccess)iterator.next();
         }
     }
 
     public void func_48086_o(int par1, int par2, int par3)
     {
-        for (int i = 0; i < worldAccesses.size(); i++)
+        IWorldAccess iworldaccess;
+
+        for (Iterator iterator = worldAccesses.iterator(); iterator.hasNext(); iworldaccess.markBlockNeedsUpdate2(par1, par2, par3))
         {
-            ((IWorldAccess)worldAccesses.get(i)).markBlockNeedsUpdate2(par1, par2, par3);
+            iworldaccess = (IWorldAccess)iterator.next();
         }
     }
 
     /**
      * Returns how bright the block is shown as which is the block's light value looked up in a lookup table (light
-     * values aren't linear for brihgtness). Args: x, y, z
+     * values aren't linear for brightness). Args: x, y, z
      */
     public float getLightBrightness(int par1, int par2, int par3)
     {
@@ -976,41 +866,41 @@ public class World implements IBlockAccess
     /**
      * ray traces all blocks, including non-collideable ones
      */
-    public MovingObjectPosition rayTraceBlocks(Vec3D par1Vec3D, Vec3D par2Vec3D)
+    public MovingObjectPosition rayTraceBlocks(Vec3 par1Vec3, Vec3 par2Vec3)
     {
-        return rayTraceBlocks_do_do(par1Vec3D, par2Vec3D, false, false);
+        return rayTraceBlocks_do_do(par1Vec3, par2Vec3, false, false);
     }
 
-    public MovingObjectPosition rayTraceBlocks_do(Vec3D par1Vec3D, Vec3D par2Vec3D, boolean par3)
+    public MovingObjectPosition rayTraceBlocks_do(Vec3 par1Vec3, Vec3 par2Vec3, boolean par3)
     {
-        return rayTraceBlocks_do_do(par1Vec3D, par2Vec3D, par3, false);
+        return rayTraceBlocks_do_do(par1Vec3, par2Vec3, par3, false);
     }
 
-    public MovingObjectPosition rayTraceBlocks_do_do(Vec3D par1Vec3D, Vec3D par2Vec3D, boolean par3, boolean par4)
+    public MovingObjectPosition rayTraceBlocks_do_do(Vec3 par1Vec3, Vec3 par2Vec3, boolean par3, boolean par4)
     {
-        if (Double.isNaN(par1Vec3D.xCoord) || Double.isNaN(par1Vec3D.yCoord) || Double.isNaN(par1Vec3D.zCoord))
+        if (Double.isNaN(par1Vec3.xCoord) || Double.isNaN(par1Vec3.yCoord) || Double.isNaN(par1Vec3.zCoord))
         {
             return null;
         }
 
-        if (Double.isNaN(par2Vec3D.xCoord) || Double.isNaN(par2Vec3D.yCoord) || Double.isNaN(par2Vec3D.zCoord))
+        if (Double.isNaN(par2Vec3.xCoord) || Double.isNaN(par2Vec3.yCoord) || Double.isNaN(par2Vec3.zCoord))
         {
             return null;
         }
 
-        int i = MathHelper.floor_double(par2Vec3D.xCoord);
-        int j = MathHelper.floor_double(par2Vec3D.yCoord);
-        int k = MathHelper.floor_double(par2Vec3D.zCoord);
-        int l = MathHelper.floor_double(par1Vec3D.xCoord);
-        int i1 = MathHelper.floor_double(par1Vec3D.yCoord);
-        int j1 = MathHelper.floor_double(par1Vec3D.zCoord);
+        int i = MathHelper.floor_double(par2Vec3.xCoord);
+        int j = MathHelper.floor_double(par2Vec3.yCoord);
+        int k = MathHelper.floor_double(par2Vec3.zCoord);
+        int l = MathHelper.floor_double(par1Vec3.xCoord);
+        int i1 = MathHelper.floor_double(par1Vec3.yCoord);
+        int j1 = MathHelper.floor_double(par1Vec3.zCoord);
         int k1 = getBlockId(l, i1, j1);
         int i2 = getBlockMetadata(l, i1, j1);
         Block block = Block.blocksList[k1];
 
         if ((!par4 || block == null || block.getCollisionBoundingBoxFromPool(this, l, i1, j1) != null) && k1 > 0 && block.canCollideCheck(i2, par3))
         {
-            MovingObjectPosition movingobjectposition = block.collisionRayTrace(this, l, i1, j1, par1Vec3D, par2Vec3D);
+            MovingObjectPosition movingobjectposition = block.collisionRayTrace(this, l, i1, j1, par1Vec3, par2Vec3);
 
             if (movingobjectposition != null)
             {
@@ -1020,7 +910,7 @@ public class World implements IBlockAccess
 
         for (int l1 = 200; l1-- >= 0;)
         {
-            if (Double.isNaN(par1Vec3D.xCoord) || Double.isNaN(par1Vec3D.yCoord) || Double.isNaN(par1Vec3D.zCoord))
+            if (Double.isNaN(par1Vec3.xCoord) || Double.isNaN(par1Vec3.yCoord) || Double.isNaN(par1Vec3.zCoord))
             {
                 return null;
             }
@@ -1079,23 +969,23 @@ public class World implements IBlockAccess
             double d3 = 999D;
             double d4 = 999D;
             double d5 = 999D;
-            double d6 = par2Vec3D.xCoord - par1Vec3D.xCoord;
-            double d7 = par2Vec3D.yCoord - par1Vec3D.yCoord;
-            double d8 = par2Vec3D.zCoord - par1Vec3D.zCoord;
+            double d6 = par2Vec3.xCoord - par1Vec3.xCoord;
+            double d7 = par2Vec3.yCoord - par1Vec3.yCoord;
+            double d8 = par2Vec3.zCoord - par1Vec3.zCoord;
 
             if (flag)
             {
-                d3 = (d - par1Vec3D.xCoord) / d6;
+                d3 = (d - par1Vec3.xCoord) / d6;
             }
 
             if (flag1)
             {
-                d4 = (d1 - par1Vec3D.yCoord) / d7;
+                d4 = (d1 - par1Vec3.yCoord) / d7;
             }
 
             if (flag2)
             {
-                d5 = (d2 - par1Vec3D.zCoord) / d8;
+                d5 = (d2 - par1Vec3.zCoord) / d8;
             }
 
             byte byte0 = 0;
@@ -1111,9 +1001,9 @@ public class World implements IBlockAccess
                     byte0 = 5;
                 }
 
-                par1Vec3D.xCoord = d;
-                par1Vec3D.yCoord += d7 * d3;
-                par1Vec3D.zCoord += d8 * d3;
+                par1Vec3.xCoord = d;
+                par1Vec3.yCoord += d7 * d3;
+                par1Vec3.zCoord += d8 * d3;
             }
             else if (d4 < d5)
             {
@@ -1126,9 +1016,9 @@ public class World implements IBlockAccess
                     byte0 = 1;
                 }
 
-                par1Vec3D.xCoord += d6 * d4;
-                par1Vec3D.yCoord = d1;
-                par1Vec3D.zCoord += d8 * d4;
+                par1Vec3.xCoord += d6 * d4;
+                par1Vec3.yCoord = d1;
+                par1Vec3.zCoord += d8 * d4;
             }
             else
             {
@@ -1141,34 +1031,34 @@ public class World implements IBlockAccess
                     byte0 = 3;
                 }
 
-                par1Vec3D.xCoord += d6 * d5;
-                par1Vec3D.yCoord += d7 * d5;
-                par1Vec3D.zCoord = d2;
+                par1Vec3.xCoord += d6 * d5;
+                par1Vec3.yCoord += d7 * d5;
+                par1Vec3.zCoord = d2;
             }
 
-            Vec3D vec3d = Vec3D.createVector(par1Vec3D.xCoord, par1Vec3D.yCoord, par1Vec3D.zCoord);
-            l = (int)(vec3d.xCoord = MathHelper.floor_double(par1Vec3D.xCoord));
+            Vec3 vec3 = Vec3.func_58052_a().func_58076_a(par1Vec3.xCoord, par1Vec3.yCoord, par1Vec3.zCoord);
+            l = (int)(vec3.xCoord = MathHelper.floor_double(par1Vec3.xCoord));
 
             if (byte0 == 5)
             {
                 l--;
-                vec3d.xCoord++;
+                vec3.xCoord++;
             }
 
-            i1 = (int)(vec3d.yCoord = MathHelper.floor_double(par1Vec3D.yCoord));
+            i1 = (int)(vec3.yCoord = MathHelper.floor_double(par1Vec3.yCoord));
 
             if (byte0 == 1)
             {
                 i1--;
-                vec3d.yCoord++;
+                vec3.yCoord++;
             }
 
-            j1 = (int)(vec3d.zCoord = MathHelper.floor_double(par1Vec3D.zCoord));
+            j1 = (int)(vec3.zCoord = MathHelper.floor_double(par1Vec3.zCoord));
 
             if (byte0 == 3)
             {
                 j1--;
-                vec3d.zCoord++;
+                vec3.zCoord++;
             }
 
             int j2 = getBlockId(l, i1, j1);
@@ -1177,7 +1067,7 @@ public class World implements IBlockAccess
 
             if ((!par4 || block1 == null || block1.getCollisionBoundingBoxFromPool(this, l, i1, j1) != null) && j2 > 0 && block1.canCollideCheck(k2, par3))
             {
-                MovingObjectPosition movingobjectposition1 = block1.collisionRayTrace(this, l, i1, j1, par1Vec3D, par2Vec3D);
+                MovingObjectPosition movingobjectposition1 = block1.collisionRayTrace(this, l, i1, j1, par1Vec3, par2Vec3);
 
                 if (movingobjectposition1 != null)
                 {
@@ -1190,13 +1080,20 @@ public class World implements IBlockAccess
     }
 
     /**
-     * Plays a sound at the entity's position. Args: entity, sound, unknown1, unknown2
+     * Plays a sound at the entity's position. Args: entity, sound, unknown1, volume (relative to 1.0)
      */
     public void playSoundAtEntity(Entity par1Entity, String par2Str, float par3, float par4)
     {
-        for (int i = 0; i < worldAccesses.size(); i++)
+        if (par1Entity == null || par2Str == null)
         {
-            ((IWorldAccess)worldAccesses.get(i)).playSound(par2Str, par1Entity.posX, par1Entity.posY - (double)par1Entity.yOffset, par1Entity.posZ, par3, par4);
+            return;
+        }
+
+        IWorldAccess iworldaccess;
+
+        for (Iterator iterator = worldAccesses.iterator(); iterator.hasNext(); iworldaccess.playSound(par2Str, par1Entity.posX, par1Entity.posY - (double)par1Entity.yOffset, par1Entity.posZ, par3, par4))
+        {
+            iworldaccess = (IWorldAccess)iterator.next();
         }
     }
 
@@ -1207,9 +1104,16 @@ public class World implements IBlockAccess
      */
     public void playSoundEffect(double par1, double par3, double par5, String par7Str, float par8, float par9)
     {
-        for (int i = 0; i < worldAccesses.size(); i++)
+        if (par7Str == null)
         {
-            ((IWorldAccess)worldAccesses.get(i)).playSound(par7Str, par1, par3, par5, par8, par9);
+            return;
+        }
+
+        IWorldAccess iworldaccess;
+
+        for (Iterator iterator = worldAccesses.iterator(); iterator.hasNext(); iworldaccess.playSound(par7Str, par1, par3, par5, par8, par9))
+        {
+            iworldaccess = (IWorldAccess)iterator.next();
         }
     }
 
@@ -1218,9 +1122,11 @@ public class World implements IBlockAccess
      */
     public void playRecord(String par1Str, int par2, int par3, int par4)
     {
-        for (int i = 0; i < worldAccesses.size(); i++)
+        IWorldAccess iworldaccess;
+
+        for (Iterator iterator = worldAccesses.iterator(); iterator.hasNext(); iworldaccess.playRecord(par1Str, par2, par3, par4))
         {
-            ((IWorldAccess)worldAccesses.get(i)).playRecord(par1Str, par2, par3, par4);
+            iworldaccess = (IWorldAccess)iterator.next();
         }
     }
 
@@ -1229,9 +1135,11 @@ public class World implements IBlockAccess
      */
     public void spawnParticle(String par1Str, double par2, double par4, double par6, double par8, double par10, double par12)
     {
-        for (int i = 0; i < worldAccesses.size(); i++)
+        IWorldAccess iworldaccess;
+
+        for (Iterator iterator = worldAccesses.iterator(); iterator.hasNext(); iworldaccess.spawnParticle(par1Str, par2, par4, par6, par8, par10, par12))
         {
-            ((IWorldAccess)worldAccesses.get(i)).spawnParticle(par1Str, par2, par4, par6, par8, par10, par12);
+            iworldaccess = (IWorldAccess)iterator.next();
         }
     }
 
@@ -1283,9 +1191,11 @@ public class World implements IBlockAccess
      */
     protected void obtainEntitySkin(Entity par1Entity)
     {
-        for (int i = 0; i < worldAccesses.size(); i++)
+        IWorldAccess iworldaccess;
+
+        for (Iterator iterator = worldAccesses.iterator(); iterator.hasNext(); iworldaccess.obtainEntitySkin(par1Entity))
         {
-            ((IWorldAccess)worldAccesses.get(i)).obtainEntitySkin(par1Entity);
+            iworldaccess = (IWorldAccess)iterator.next();
         }
     }
 
@@ -1294,9 +1204,11 @@ public class World implements IBlockAccess
      */
     protected void releaseEntitySkin(Entity par1Entity)
     {
-        for (int i = 0; i < worldAccesses.size(); i++)
+        IWorldAccess iworldaccess;
+
+        for (Iterator iterator = worldAccesses.iterator(); iterator.hasNext(); iworldaccess.releaseEntitySkin(par1Entity))
         {
-            ((IWorldAccess)worldAccesses.get(i)).releaseEntitySkin(par1Entity);
+            iworldaccess = (IWorldAccess)iterator.next();
         }
     }
 
@@ -1320,7 +1232,7 @@ public class World implements IBlockAccess
 
         if (par1Entity instanceof EntityPlayer)
         {
-            playerEntities.remove((EntityPlayer)par1Entity);
+            playerEntities.remove(par1Entity);
             updateAllPlayersSleepingFlag();
         }
     }
@@ -1334,7 +1246,7 @@ public class World implements IBlockAccess
 
         if (par1Entity instanceof EntityPlayer)
         {
-            playerEntities.remove((EntityPlayer)par1Entity);
+            playerEntities.remove(par1Entity);
             updateAllPlayersSleepingFlag();
         }
 
@@ -1387,7 +1299,7 @@ public class World implements IBlockAccess
 
                     if (block != null)
                     {
-                        block.getCollidingBoundingBoxes(this, k1, i2, l1, par2AxisAlignedBB, collidingBoundingBoxes);
+                        block.func_56330_a(this, k1, i2, l1, par2AxisAlignedBB, collidingBoundingBoxes, par1Entity);
                     }
                 }
             }
@@ -1395,21 +1307,63 @@ public class World implements IBlockAccess
 
         double d = 0.25D;
         List list = getEntitiesWithinAABBExcludingEntity(par1Entity, par2AxisAlignedBB.expand(d, d, d));
+        Iterator iterator = list.iterator();
 
-        for (int j2 = 0; j2 < list.size(); j2++)
+        do
         {
-            AxisAlignedBB axisalignedbb = ((Entity)list.get(j2)).getBoundingBox();
+            if (!iterator.hasNext())
+            {
+                break;
+            }
+
+            Entity entity = (Entity)iterator.next();
+            AxisAlignedBB axisalignedbb = entity.getBoundingBox();
 
             if (axisalignedbb != null && axisalignedbb.intersectsWith(par2AxisAlignedBB))
             {
                 collidingBoundingBoxes.add(axisalignedbb);
             }
 
-            axisalignedbb = par1Entity.getCollisionBox((Entity)list.get(j2));
+            axisalignedbb = par1Entity.getCollisionBox(entity);
 
             if (axisalignedbb != null && axisalignedbb.intersectsWith(par2AxisAlignedBB))
             {
                 collidingBoundingBoxes.add(axisalignedbb);
+            }
+        }
+        while (true);
+
+        return collidingBoundingBoxes;
+    }
+
+    public List func_55199_a(AxisAlignedBB par1AxisAlignedBB)
+    {
+        collidingBoundingBoxes.clear();
+        int i = MathHelper.floor_double(par1AxisAlignedBB.minX);
+        int j = MathHelper.floor_double(par1AxisAlignedBB.maxX + 1.0D);
+        int k = MathHelper.floor_double(par1AxisAlignedBB.minY);
+        int l = MathHelper.floor_double(par1AxisAlignedBB.maxY + 1.0D);
+        int i1 = MathHelper.floor_double(par1AxisAlignedBB.minZ);
+        int j1 = MathHelper.floor_double(par1AxisAlignedBB.maxZ + 1.0D);
+
+        for (int k1 = i; k1 < j; k1++)
+        {
+            for (int l1 = i1; l1 < j1; l1++)
+            {
+                if (!blockExists(k1, 64, l1))
+                {
+                    continue;
+                }
+
+                for (int i2 = k - 1; i2 < l; i2++)
+                {
+                    Block block = Block.blocksList[getBlockId(k1, i2, l1)];
+
+                    if (block != null)
+                    {
+                        block.func_56330_a(this, k1, i2, l1, par1AxisAlignedBB, collidingBoundingBoxes, null);
+                    }
+                }
             }
         }
 
@@ -1463,7 +1417,7 @@ public class World implements IBlockAccess
     public int getTopSolidOrLiquidBlock(int par1, int par2)
     {
         Chunk chunk = getChunkFromBlockCoords(par1, par2);
-        int i = chunk.getTopFilledSegment() + 16;
+        int i = chunk.getTopFilledSegment() + 15;
         par1 &= 0xf;
         par2 &= 0xf;
 
@@ -1487,58 +1441,15 @@ public class World implements IBlockAccess
     /**
      * Used to schedule a call to the updateTick method on the specified block.
      */
-    public void scheduleBlockUpdate(int par1, int par2, int par3, int par4, int par5)
+    public void scheduleBlockUpdate(int i, int j, int k, int l, int i1)
     {
-        NextTickListEntry nextticklistentry = new NextTickListEntry(par1, par2, par3, par4);
-        byte byte0 = 8;
-
-        if (scheduledUpdatesAreImmediate)
-        {
-            if (checkChunksExist(nextticklistentry.xCoord - byte0, nextticklistentry.yCoord - byte0, nextticklistentry.zCoord - byte0, nextticklistentry.xCoord + byte0, nextticklistentry.yCoord + byte0, nextticklistentry.zCoord + byte0))
-            {
-                int i = getBlockId(nextticklistentry.xCoord, nextticklistentry.yCoord, nextticklistentry.zCoord);
-
-                if (i == nextticklistentry.blockID && i > 0)
-                {
-                    Block.blocksList[i].updateTick(this, nextticklistentry.xCoord, nextticklistentry.yCoord, nextticklistentry.zCoord, rand);
-                }
-            }
-
-            return;
-        }
-
-        if (checkChunksExist(par1 - byte0, par2 - byte0, par3 - byte0, par1 + byte0, par2 + byte0, par3 + byte0))
-        {
-            if (par4 > 0)
-            {
-                nextticklistentry.setScheduledTime((long)par5 + worldInfo.getWorldTime());
-            }
-
-            if (!scheduledTickSet.contains(nextticklistentry))
-            {
-                scheduledTickSet.add(nextticklistentry);
-                scheduledTickTreeSet.add(nextticklistentry);
-            }
-        }
     }
 
     /**
      * Schedules a block update from the saved information in a chunk. Called when the chunk is loaded.
      */
-    public void scheduleBlockUpdateFromLoad(int par1, int par2, int par3, int par4, int par5)
+    public void scheduleBlockUpdateFromLoad(int i, int j, int k, int l, int i1)
     {
-        NextTickListEntry nextticklistentry = new NextTickListEntry(par1, par2, par3, par4);
-
-        if (par4 > 0)
-        {
-            nextticklistentry.setScheduledTime((long)par5 + worldInfo.getWorldTime());
-        }
-
-        if (!scheduledTickSet.contains(nextticklistentry))
-        {
-            scheduledTickSet.add(nextticklistentry);
-            scheduledTickTreeSet.add(nextticklistentry);
-        }
     }
 
     /**
@@ -1562,69 +1473,7 @@ public class World implements IBlockAccess
 
         Profiler.endStartSection("remove");
         loadedEntityList.removeAll(unloadedEntityList);
-
-        for (int j = 0; j < unloadedEntityList.size(); j++)
-        {
-            Entity entity1 = (Entity)unloadedEntityList.get(j);
-            int i1 = entity1.chunkCoordX;
-            int k1 = entity1.chunkCoordZ;
-
-            if (entity1.addedToChunk && chunkExists(i1, k1))
-            {
-                getChunkFromChunkCoords(i1, k1).removeEntity(entity1);
-            }
-        }
-
-        for (int k = 0; k < unloadedEntityList.size(); k++)
-        {
-            releaseEntitySkin((Entity)unloadedEntityList.get(k));
-        }
-
-        unloadedEntityList.clear();
-        Profiler.endStartSection("regular");
-
-        for (int l = 0; l < loadedEntityList.size(); l++)
-        {
-            Entity entity2 = (Entity)loadedEntityList.get(l);
-
-            if (entity2.ridingEntity != null)
-            {
-                if (!entity2.ridingEntity.isDead && entity2.ridingEntity.riddenByEntity == entity2)
-                {
-                    continue;
-                }
-
-                entity2.ridingEntity.riddenByEntity = null;
-                entity2.ridingEntity = null;
-            }
-
-            if (!entity2.isDead)
-            {
-                updateEntity(entity2);
-            }
-
-            Profiler.startSection("remove");
-
-            if (entity2.isDead)
-            {
-                int j1 = entity2.chunkCoordX;
-                int l1 = entity2.chunkCoordZ;
-
-                if (entity2.addedToChunk && chunkExists(j1, l1))
-                {
-                    getChunkFromChunkCoords(j1, l1).removeEntity(entity2);
-                }
-
-                loadedEntityList.remove(l--);
-                releaseEntitySkin(entity2);
-            }
-
-            Profiler.endSection();
-        }
-
-        Profiler.endStartSection("tileEntities");
-        scanningTileEntities = true;
-        Iterator iterator = loadedTileEntityList.iterator();
+        Iterator iterator = unloadedEntityList.iterator();
 
         do
         {
@@ -1633,16 +1482,87 @@ public class World implements IBlockAccess
                 break;
             }
 
-            TileEntity tileentity = (TileEntity)iterator.next();
+            Entity entity1 = (Entity)iterator.next();
+            int k = entity1.chunkCoordX;
+            int i1 = entity1.chunkCoordZ;
 
-            if (!tileentity.isInvalid() && tileentity.worldObj != null && blockExists(tileentity.xCoord, tileentity.yCoord, tileentity.zCoord))
+            if (entity1.addedToChunk && chunkExists(k, i1))
+            {
+                getChunkFromChunkCoords(k, i1).removeEntity(entity1);
+            }
+        }
+        while (true);
+
+        Entity entity2;
+
+        for (iterator = unloadedEntityList.iterator(); iterator.hasNext(); releaseEntitySkin(entity2))
+        {
+            entity2 = (Entity)iterator.next();
+        }
+
+        unloadedEntityList.clear();
+        Profiler.endStartSection("regular");
+
+        for (int j = 0; j < loadedEntityList.size(); j++)
+        {
+            Entity entity3 = (Entity)loadedEntityList.get(j);
+
+            if (entity3.ridingEntity != null)
+            {
+                if (!entity3.ridingEntity.isDead && entity3.ridingEntity.riddenByEntity == entity3)
+                {
+                    continue;
+                }
+
+                entity3.ridingEntity.riddenByEntity = null;
+                entity3.ridingEntity = null;
+            }
+
+            if (!entity3.isDead)
+            {
+                updateEntity(entity3);
+            }
+
+            Profiler.startSection("remove");
+
+            if (entity3.isDead)
+            {
+                int l = entity3.chunkCoordX;
+                int j1 = entity3.chunkCoordZ;
+
+                if (entity3.addedToChunk && chunkExists(l, j1))
+                {
+                    getChunkFromChunkCoords(l, j1).removeEntity(entity3);
+                }
+
+                loadedEntityList.remove(j--);
+                releaseEntitySkin(entity3);
+            }
+
+            Profiler.endSection();
+        }
+
+        Profiler.endStartSection("tileEntities");
+        scanningTileEntities = true;
+        Iterator j = loadedTileEntityList.iterator();
+
+        do
+        {
+            if (!j.hasNext())
+            {
+                break;
+            }
+
+            TileEntity tileentity = (TileEntity)j.next();
+
+            if (!tileentity.isInvalid() && tileentity.func_56109_j() && blockExists(tileentity.xCoord, tileentity.yCoord, tileentity.zCoord))
             {
                 tileentity.updateEntity();
             }
 
             if (tileentity.isInvalid())
             {
-                iterator.remove();
+                j.remove();
 
                 if (chunkExists(tileentity.xCoord >> 4, tileentity.zCoord >> 4))
                 {
@@ -1834,9 +1754,9 @@ public class World implements IBlockAccess
     {
         List list = getEntitiesWithinAABBExcludingEntity(null, par1AxisAlignedBB);
 
-        for (int i = 0; i < list.size(); i++)
+        for (Iterator iterator = list.iterator(); iterator.hasNext();)
         {
-            Entity entity = (Entity)list.get(i);
+            Entity entity = (Entity)iterator.next();
 
             if (!entity.isDead && entity.preventEntitySpawning)
             {
@@ -1991,7 +1911,7 @@ public class World implements IBlockAccess
         }
 
         boolean flag = false;
-        Vec3D vec3d = Vec3D.createVector(0.0D, 0.0D, 0.0D);
+        Vec3 vec3 = Vec3.func_58052_a().func_58076_a(0.0D, 0.0D, 0.0D);
 
         for (int k1 = i; k1 < j; k1++)
         {
@@ -2011,19 +1931,19 @@ public class World implements IBlockAccess
                     if ((double)l >= d1)
                     {
                         flag = true;
-                        block.velocityToAddToEntity(this, k1, l1, i2, par3Entity, vec3d);
+                        block.velocityToAddToEntity(this, k1, l1, i2, par3Entity, vec3);
                     }
                 }
             }
         }
 
-        if (vec3d.lengthVector() > 0.0D)
+        if (vec3.lengthVector() > 0.0D)
         {
-            vec3d = vec3d.normalize();
+            vec3 = vec3.normalize();
             double d = 0.014D;
-            par3Entity.motionX += vec3d.xCoord * d;
-            par3Entity.motionY += vec3d.yCoord * d;
-            par3Entity.motionZ += vec3d.zCoord * d;
+            par3Entity.motionX += vec3.xCoord * d;
+            par3Entity.motionY += vec3.yCoord * d;
+            par3Entity.motionZ += vec3.zCoord * d;
         }
 
         return flag;
@@ -2127,7 +2047,7 @@ public class World implements IBlockAccess
     /**
      * Gets the percentage of real blocks within within a bounding box, along a specified vector.
      */
-    public float getBlockDensity(Vec3D par1Vec3D, AxisAlignedBB par2AxisAlignedBB)
+    public float getBlockDensity(Vec3 par1Vec3, AxisAlignedBB par2AxisAlignedBB)
     {
         double d = 1.0D / ((par2AxisAlignedBB.maxX - par2AxisAlignedBB.minX) * 2D + 1.0D);
         double d1 = 1.0D / ((par2AxisAlignedBB.maxY - par2AxisAlignedBB.minY) * 2D + 1.0D);
@@ -2145,7 +2065,7 @@ public class World implements IBlockAccess
                     double d4 = par2AxisAlignedBB.minY + (par2AxisAlignedBB.maxY - par2AxisAlignedBB.minY) * (double)f1;
                     double d5 = par2AxisAlignedBB.minZ + (par2AxisAlignedBB.maxZ - par2AxisAlignedBB.minZ) * (double)f2;
 
-                    if (rayTraceBlocks(Vec3D.createVector(d3, d4, d5), par1Vec3D) == null)
+                    if (rayTraceBlocks(Vec3.func_58052_a().func_58076_a(d3, d4, d5), par1Vec3) == null)
                     {
                         i++;
                     }
@@ -2341,6 +2261,35 @@ public class World implements IBlockAccess
         return Block.isNormalCube(getBlockId(par1, par2, par3));
     }
 
+    public boolean func_58038_s(int par1, int par2, int par3)
+    {
+        Block block = Block.blocksList[getBlockId(par1, par2, par3)];
+
+        if (block == null)
+        {
+            return false;
+        }
+
+        if (block.blockMaterial.isOpaque() && block.renderAsNormalBlock())
+        {
+            return true;
+        }
+
+        if (block instanceof BlockStairs)
+        {
+            return (getBlockMetadata(par1, par2, par3) & 4) == 4;
+        }
+
+        if (block instanceof BlockHalfSlab)
+        {
+            return (getBlockMetadata(par1, par2, par3) & 8) == 8;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
     /**
      * Checks if the block is a solid, normal cube. If the chunk does not exist, or is not loaded, it returns the
      * boolean parameter.
@@ -2398,63 +2347,11 @@ public class World implements IBlockAccess
      */
     public void tick()
     {
-        if (getWorldInfo().isHardcoreModeEnabled() && difficultySetting < 3)
-        {
-            difficultySetting = 3;
-        }
-
-        worldProvider.worldChunkMgr.cleanupCache();
         updateWeather();
-
-        if (isAllPlayersFullyAsleep())
-        {
-            boolean flag = false;
-
-            if (spawnHostileMobs)
-            {
-                if (difficultySetting < 1);
-            }
-
-            if (!flag)
-            {
-                long l = worldInfo.getWorldTime() + 24000L;
-                worldInfo.setWorldTime(l - l % 24000L);
-                wakeUpAllPlayers();
-            }
-        }
-
-        Profiler.startSection("mobSpawner");
-        SpawnerAnimals.performSpawning(this, spawnHostileMobs, spawnPeacefulMobs && worldInfo.getWorldTime() % 400L == 0L);
-        Profiler.endStartSection("chunkSource");
-        chunkProvider.unload100OldestChunks();
-        int i = calculateSkylightSubtracted(1.0F);
-
-        if (i != skylightSubtracted)
-        {
-            skylightSubtracted = i;
-        }
-
-        long l1 = worldInfo.getWorldTime() + 1L;
-
-        if (l1 % (long)autosavePeriod == 0L)
-        {
-            Profiler.endStartSection("save");
-            saveWorld(false, null);
-        }
-
-        worldInfo.setWorldTime(l1);
-        Profiler.endStartSection("tickPending");
-        tickUpdates(false);
-        Profiler.endStartSection("tickTiles");
-        tickBlocksAndAmbiance();
-        Profiler.endStartSection("village");
-        villageCollectionObj.tick();
-        villageSiegeObj.tick();
-        Profiler.endSection();
     }
 
     /**
-     * updates rainingStrength and thunderingStrength
+     * Called from World constructor to set rainingStrength and thunderingStrength
      */
     private void calculateInitialWeather()
     {
@@ -2470,7 +2367,7 @@ public class World implements IBlockAccess
     }
 
     /**
-     * update's all weather states.
+     * Updates all weather states.
      */
     protected void updateWeather()
     {
@@ -2576,17 +2473,6 @@ public class World implements IBlockAccess
     }
 
     /**
-     * stops all weather effects
-     */
-    private void clearWeather()
-    {
-        worldInfo.setRainTime(0);
-        worldInfo.setRaining(false);
-        worldInfo.setThunderTime(0);
-        worldInfo.setThundering(false);
-    }
-
-    /**
      * start precipitation in this world (2 ticks after command posted)
      */
     public void commandToggleDownfall()
@@ -2639,8 +2525,6 @@ public class World implements IBlockAccess
 
     protected void func_48094_a(int par1, int par2, Chunk par3Chunk)
     {
-        Profiler.endStartSection("tickChunk");
-        par3Chunk.updateSkylight();
         Profiler.endStartSection("moodSound");
 
         if (ambientTickCountdown == 0)
@@ -2677,109 +2561,29 @@ public class World implements IBlockAccess
     protected void tickBlocksAndAmbiance()
     {
         func_48090_k();
-        int i = 0;
-        int j = 0;
-
-        for (Iterator iterator = activeChunkSet.iterator(); iterator.hasNext(); Profiler.endSection())
-        {
-            ChunkCoordIntPair chunkcoordintpair = (ChunkCoordIntPair)iterator.next();
-            int k = chunkcoordintpair.chunkXPos * 16;
-            int l = chunkcoordintpair.chunkZPos * 16;
-            Profiler.startSection("getChunk");
-            Chunk chunk = getChunkFromChunkCoords(chunkcoordintpair.chunkXPos, chunkcoordintpair.chunkZPos);
-            func_48094_a(k, l, chunk);
-            Profiler.endStartSection("thunder");
-
-            if (rand.nextInt(0x186a0) == 0 && isRaining() && isThundering())
-            {
-                updateLCG = updateLCG * 3 + 0x3c6ef35f;
-                int i1 = updateLCG >> 2;
-                int k1 = k + (i1 & 0xf);
-                int j2 = l + (i1 >> 8 & 0xf);
-                int i3 = getPrecipitationHeight(k1, j2);
-
-                if (canLightningStrikeAt(k1, i3, j2))
-                {
-                    addWeatherEffect(new EntityLightningBolt(this, k1, i3, j2));
-                    lastLightningBolt = 2;
-                }
-            }
-
-            Profiler.endStartSection("iceandsnow");
-
-            if (rand.nextInt(16) == 0)
-            {
-                updateLCG = updateLCG * 3 + 0x3c6ef35f;
-                int j1 = updateLCG >> 2;
-                int l1 = j1 & 0xf;
-                int k2 = j1 >> 8 & 0xf;
-                int j3 = getPrecipitationHeight(l1 + k, k2 + l);
-
-                if (isBlockHydratedIndirectly(l1 + k, j3 - 1, k2 + l))
-                {
-                    setBlockWithNotify(l1 + k, j3 - 1, k2 + l, Block.ice.blockID);
-                }
-
-                if (isRaining() && canSnowAt(l1 + k, j3, k2 + l))
-                {
-                    setBlockWithNotify(l1 + k, j3, k2 + l, Block.snow.blockID);
-                }
-            }
-
-            Profiler.endStartSection("tickTiles");
-            ExtendedBlockStorage aextendedblockstorage[] = chunk.getBlockStorageArray();
-            int i2 = aextendedblockstorage.length;
-
-            for (int l2 = 0; l2 < i2; l2++)
-            {
-                ExtendedBlockStorage extendedblockstorage = aextendedblockstorage[l2];
-
-                if (extendedblockstorage == null || !extendedblockstorage.getNeedsRandomTick())
-                {
-                    continue;
-                }
-
-                for (int k3 = 0; k3 < 3; k3++)
-                {
-                    updateLCG = updateLCG * 3 + 0x3c6ef35f;
-                    int l3 = updateLCG >> 2;
-                    int i4 = l3 & 0xf;
-                    int j4 = l3 >> 8 & 0xf;
-                    int k4 = l3 >> 16 & 0xf;
-                    int l4 = extendedblockstorage.getExtBlockID(i4, k4, j4);
-                    j++;
-                    Block block = Block.blocksList[l4];
-
-                    if (block != null && block.getTickRandomly())
-                    {
-                        i++;
-                        block.updateTick(this, i4 + k, k4 + extendedblockstorage.getYLocation(), j4 + l, rand);
-                    }
-                }
-            }
-        }
     }
 
     /**
-     * Checks if the block is hydrating itself.
+     * checks to see if a given block is both water and is cold enough to freeze
      */
-    public boolean isBlockHydratedDirectly(int par1, int par2, int par3)
+    public boolean isBlockFreezable(int par1, int par2, int par3)
     {
-        return isBlockHydrated(par1, par2, par3, false);
+        return canBlockFreeze(par1, par2, par3, false);
     }
 
     /**
-     * Check if the block is being hydrated by an adjacent block.
+     * checks to see if a given block is both water and has at least one immediately adjacent non-water block
      */
-    public boolean isBlockHydratedIndirectly(int par1, int par2, int par3)
+    public boolean isBlockFreezableNaturally(int par1, int par2, int par3)
     {
-        return isBlockHydrated(par1, par2, par3, true);
+        return canBlockFreeze(par1, par2, par3, true);
     }
 
     /**
-     * (I think)
+     * checks to see if a given block is both water, and cold enough to freeze - if the par4 boolean is set, this will
+     * only return true if there is a non-water block immediately adjacent to the specified block
      */
-    public boolean isBlockHydrated(int par1, int par2, int par3, boolean par4)
+    public boolean canBlockFreeze(int par1, int par2, int par3, boolean par4)
     {
         BiomeGenBase biomegenbase = getBiomeGenForCoords(par1, par3);
         float f = biomegenbase.getFloatTemperature();
@@ -2979,34 +2783,33 @@ public class World implements IBlockAccess
         int j = 0;
         Profiler.startSection("getBrightness");
         int k = getSavedLightValue(par1EnumSkyBlock, par2, par3, par4);
-        int i1 = 0;
-        int k1 = k;
-        int j2 = getBlockId(par2, par3, par4);
-        int i3 = func_48092_f(par2, par3, par4);
+        int l = 0;
+        int i1 = getBlockId(par2, par3, par4);
+        int l1 = func_48092_f(par2, par3, par4);
 
-        if (i3 == 0)
+        if (l1 == 0)
         {
-            i3 = 1;
+            l1 = 1;
         }
 
-        int l3 = 0;
+        int k2 = 0;
 
         if (par1EnumSkyBlock == EnumSkyBlock.Sky)
         {
-            l3 = computeSkyLightValue(k1, par2, par3, par4, j2, i3);
+            k2 = computeSkyLightValue(k, par2, par3, par4, i1, l1);
         }
         else
         {
-            l3 = computeBlockLightValue(k1, par2, par3, par4, j2, i3);
+            k2 = computeBlockLightValue(k, par2, par3, par4, i1, l1);
         }
 
-        i1 = l3;
+        l = k2;
 
-        if (i1 > k)
+        if (l > k)
         {
             lightUpdateBlockList[j++] = 0x20820;
         }
-        else if (i1 < k)
+        else if (l < k)
         {
             if (par1EnumSkyBlock == EnumSkyBlock.Block);
 
@@ -3019,62 +2822,62 @@ public class World implements IBlockAccess
                     break;
                 }
 
-                int l1 = lightUpdateBlockList[i++];
-                int k2 = ((l1 & 0x3f) - 32) + par2;
-                int j3 = ((l1 >> 6 & 0x3f) - 32) + par3;
-                int i4 = ((l1 >> 12 & 0x3f) - 32) + par4;
-                int k4 = l1 >> 18 & 0xf;
-                int i5 = getSavedLightValue(par1EnumSkyBlock, k2, j3, i4);
+                int j1 = lightUpdateBlockList[i++];
+                int i2 = ((j1 & 0x3f) - 32) + par2;
+                int l2 = ((j1 >> 6 & 0x3f) - 32) + par3;
+                int j3 = ((j1 >> 12 & 0x3f) - 32) + par4;
+                int l3 = j1 >> 18 & 0xf;
+                int j4 = getSavedLightValue(par1EnumSkyBlock, i2, l2, j3);
 
-                if (i5 == k4)
+                if (j4 == l3)
                 {
-                    setLightValue(par1EnumSkyBlock, k2, j3, i4, 0);
+                    setLightValue(par1EnumSkyBlock, i2, l2, j3, 0);
 
-                    if (k4 > 0)
+                    if (l3 > 0)
                     {
-                        int l5 = k2 - par2;
-                        int j6 = j3 - par3;
-                        int l6 = i4 - par4;
+                        int i5 = i2 - par2;
+                        int k5 = l2 - par3;
+                        int i6 = j3 - par4;
 
-                        if (l5 < 0)
+                        if (i5 < 0)
                         {
-                            l5 = -l5;
+                            i5 = -i5;
                         }
 
-                        if (j6 < 0)
+                        if (k5 < 0)
                         {
-                            j6 = -j6;
+                            k5 = -k5;
                         }
 
-                        if (l6 < 0)
+                        if (i6 < 0)
                         {
-                            l6 = -l6;
+                            i6 = -i6;
                         }
 
-                        if (l5 + j6 + l6 < 17)
+                        if (i5 + k5 + i6 < 17)
                         {
-                            int j7 = 0;
+                            int k6 = 0;
 
-                            while (j7 < 6)
+                            while (k6 < 6)
                             {
-                                int k7 = (j7 % 2) * 2 - 1;
-                                int l7 = k2 + (((j7 / 2) % 3) / 2) * k7;
-                                int i8 = j3 + (((j7 / 2 + 1) % 3) / 2) * k7;
-                                int j8 = i4 + (((j7 / 2 + 2) % 3) / 2) * k7;
-                                int j5 = getSavedLightValue(par1EnumSkyBlock, l7, i8, j8);
-                                int k8 = Block.lightOpacity[getBlockId(l7, i8, j8)];
+                                int i7 = (k6 % 2) * 2 - 1;
+                                int k7 = i2 + (((k6 / 2) % 3) / 2) * i7;
+                                int l7 = l2 + (((k6 / 2 + 1) % 3) / 2) * i7;
+                                int i8 = j3 + (((k6 / 2 + 2) % 3) / 2) * i7;
+                                int k4 = getSavedLightValue(par1EnumSkyBlock, k7, l7, i8);
+                                int j8 = Block.lightOpacity[getBlockId(k7, l7, i8)];
 
-                                if (k8 == 0)
+                                if (j8 == 0)
                                 {
-                                    k8 = 1;
+                                    j8 = 1;
                                 }
 
-                                if (j5 == k4 - k8 && j < lightUpdateBlockList.length)
+                                if (k4 == l3 - j8 && j < lightUpdateBlockList.length)
                                 {
-                                    lightUpdateBlockList[j++] = (l7 - par2) + 32 + ((i8 - par3) + 32 << 6) + ((j8 - par4) + 32 << 12) + (k4 - k8 << 18);
+                                    lightUpdateBlockList[j++] = (k7 - par2) + 32 + ((l7 - par3) + 32 << 6) + ((i8 - par4) + 32 << 12) + (l3 - j8 << 18);
                                 }
 
-                                j7++;
+                                k6++;
                             }
                         }
                     }
@@ -3095,85 +2898,85 @@ public class World implements IBlockAccess
                 break;
             }
 
-            int l = lightUpdateBlockList[i++];
-            int j1 = ((l & 0x3f) - 32) + par2;
-            int i2 = ((l >> 6 & 0x3f) - 32) + par3;
-            int l2 = ((l >> 12 & 0x3f) - 32) + par4;
-            int k3 = getSavedLightValue(par1EnumSkyBlock, j1, i2, l2);
-            int j4 = getBlockId(j1, i2, l2);
-            int l4 = Block.lightOpacity[j4];
+            int k1 = lightUpdateBlockList[i++];
+            int j2 = ((k1 & 0x3f) - 32) + par2;
+            int i3 = ((k1 >> 6 & 0x3f) - 32) + par3;
+            int k3 = ((k1 >> 12 & 0x3f) - 32) + par4;
+            int i4 = getSavedLightValue(par1EnumSkyBlock, j2, i3, k3);
+            int l4 = getBlockId(j2, i3, k3);
+            int j5 = Block.lightOpacity[l4];
 
-            if (l4 == 0)
+            if (j5 == 0)
             {
-                l4 = 1;
+                j5 = 1;
             }
 
-            int k5 = 0;
+            int l5 = 0;
 
             if (par1EnumSkyBlock == EnumSkyBlock.Sky)
             {
-                k5 = computeSkyLightValue(k3, j1, i2, l2, j4, l4);
+                l5 = computeSkyLightValue(i4, j2, i3, k3, l4, j5);
             }
             else
             {
-                k5 = computeBlockLightValue(k3, j1, i2, l2, j4, l4);
+                l5 = computeBlockLightValue(i4, j2, i3, k3, l4, j5);
             }
 
-            if (k5 != k3)
+            if (l5 != i4)
             {
-                setLightValue(par1EnumSkyBlock, j1, i2, l2, k5);
+                setLightValue(par1EnumSkyBlock, j2, i3, k3, l5);
 
-                if (k5 > k3)
+                if (l5 > i4)
                 {
-                    int i6 = j1 - par2;
-                    int k6 = i2 - par3;
-                    int i7 = l2 - par4;
+                    int j6 = j2 - par2;
+                    int l6 = i3 - par3;
+                    int j7 = k3 - par4;
 
-                    if (i6 < 0)
+                    if (j6 < 0)
                     {
-                        i6 = -i6;
+                        j6 = -j6;
                     }
 
-                    if (k6 < 0)
+                    if (l6 < 0)
                     {
-                        k6 = -k6;
+                        l6 = -l6;
                     }
 
-                    if (i7 < 0)
+                    if (j7 < 0)
                     {
-                        i7 = -i7;
+                        j7 = -j7;
                     }
 
-                    if (i6 + k6 + i7 < 17 && j < lightUpdateBlockList.length - 6)
+                    if (j6 + l6 + j7 < 17 && j < lightUpdateBlockList.length - 6)
                     {
-                        if (getSavedLightValue(par1EnumSkyBlock, j1 - 1, i2, l2) < k5)
+                        if (getSavedLightValue(par1EnumSkyBlock, j2 - 1, i3, k3) < l5)
                         {
-                            lightUpdateBlockList[j++] = (j1 - 1 - par2) + 32 + ((i2 - par3) + 32 << 6) + ((l2 - par4) + 32 << 12);
+                            lightUpdateBlockList[j++] = (j2 - 1 - par2) + 32 + ((i3 - par3) + 32 << 6) + ((k3 - par4) + 32 << 12);
                         }
 
-                        if (getSavedLightValue(par1EnumSkyBlock, j1 + 1, i2, l2) < k5)
+                        if (getSavedLightValue(par1EnumSkyBlock, j2 + 1, i3, k3) < l5)
                         {
-                            lightUpdateBlockList[j++] = ((j1 + 1) - par2) + 32 + ((i2 - par3) + 32 << 6) + ((l2 - par4) + 32 << 12);
+                            lightUpdateBlockList[j++] = ((j2 + 1) - par2) + 32 + ((i3 - par3) + 32 << 6) + ((k3 - par4) + 32 << 12);
                         }
 
-                        if (getSavedLightValue(par1EnumSkyBlock, j1, i2 - 1, l2) < k5)
+                        if (getSavedLightValue(par1EnumSkyBlock, j2, i3 - 1, k3) < l5)
                         {
-                            lightUpdateBlockList[j++] = (j1 - par2) + 32 + ((i2 - 1 - par3) + 32 << 6) + ((l2 - par4) + 32 << 12);
+                            lightUpdateBlockList[j++] = (j2 - par2) + 32 + ((i3 - 1 - par3) + 32 << 6) + ((k3 - par4) + 32 << 12);
                         }
 
-                        if (getSavedLightValue(par1EnumSkyBlock, j1, i2 + 1, l2) < k5)
+                        if (getSavedLightValue(par1EnumSkyBlock, j2, i3 + 1, k3) < l5)
                         {
-                            lightUpdateBlockList[j++] = (j1 - par2) + 32 + (((i2 + 1) - par3) + 32 << 6) + ((l2 - par4) + 32 << 12);
+                            lightUpdateBlockList[j++] = (j2 - par2) + 32 + (((i3 + 1) - par3) + 32 << 6) + ((k3 - par4) + 32 << 12);
                         }
 
-                        if (getSavedLightValue(par1EnumSkyBlock, j1, i2, l2 - 1) < k5)
+                        if (getSavedLightValue(par1EnumSkyBlock, j2, i3, k3 - 1) < l5)
                         {
-                            lightUpdateBlockList[j++] = (j1 - par2) + 32 + ((i2 - par3) + 32 << 6) + ((l2 - 1 - par4) + 32 << 12);
+                            lightUpdateBlockList[j++] = (j2 - par2) + 32 + ((i3 - par3) + 32 << 6) + ((k3 - 1 - par4) + 32 << 12);
                         }
 
-                        if (getSavedLightValue(par1EnumSkyBlock, j1, i2, l2 + 1) < k5)
+                        if (getSavedLightValue(par1EnumSkyBlock, j2, i3, k3 + 1) < l5)
                         {
-                            lightUpdateBlockList[j++] = (j1 - par2) + 32 + ((i2 - par3) + 32 << 6) + (((l2 + 1) - par4) + 32 << 12);
+                            lightUpdateBlockList[j++] = (j2 - par2) + 32 + ((i3 - par3) + 32 << 6) + (((k3 + 1) - par4) + 32 << 12);
                         }
                     }
                 }
@@ -3189,85 +2992,12 @@ public class World implements IBlockAccess
      */
     public boolean tickUpdates(boolean par1)
     {
-        int i = scheduledTickTreeSet.size();
-
-        if (i != scheduledTickSet.size())
-        {
-            throw new IllegalStateException("TickNextTick list out of synch");
-        }
-
-        if (i > 1000)
-        {
-            i = 1000;
-        }
-
-        for (int j = 0; j < i; j++)
-        {
-            NextTickListEntry nextticklistentry = (NextTickListEntry)scheduledTickTreeSet.first();
-
-            if (!par1 && nextticklistentry.scheduledTime > worldInfo.getWorldTime())
-            {
-                break;
-            }
-
-            scheduledTickTreeSet.remove(nextticklistentry);
-            scheduledTickSet.remove(nextticklistentry);
-            byte byte0 = 8;
-
-            if (!checkChunksExist(nextticklistentry.xCoord - byte0, nextticklistentry.yCoord - byte0, nextticklistentry.zCoord - byte0, nextticklistentry.xCoord + byte0, nextticklistentry.yCoord + byte0, nextticklistentry.zCoord + byte0))
-            {
-                continue;
-            }
-
-            int k = getBlockId(nextticklistentry.xCoord, nextticklistentry.yCoord, nextticklistentry.zCoord);
-
-            if (k == nextticklistentry.blockID && k > 0)
-            {
-                Block.blocksList[k].updateTick(this, nextticklistentry.xCoord, nextticklistentry.yCoord, nextticklistentry.zCoord, rand);
-            }
-        }
-
-        return scheduledTickTreeSet.size() != 0;
+        return false;
     }
 
     public List getPendingBlockUpdates(Chunk par1Chunk, boolean par2)
     {
-        ArrayList arraylist = null;
-        ChunkCoordIntPair chunkcoordintpair = par1Chunk.getChunkCoordIntPair();
-        int i = chunkcoordintpair.chunkXPos << 4;
-        int j = i + 16;
-        int k = chunkcoordintpair.chunkZPos << 4;
-        int l = k + 16;
-        Iterator iterator = scheduledTickSet.iterator();
-
-        do
-        {
-            if (!iterator.hasNext())
-            {
-                break;
-            }
-
-            NextTickListEntry nextticklistentry = (NextTickListEntry)iterator.next();
-
-            if (nextticklistentry.xCoord >= i && nextticklistentry.xCoord < j && nextticklistentry.zCoord >= k && nextticklistentry.zCoord < l)
-            {
-                if (par2)
-                {
-                    scheduledTickTreeSet.remove(nextticklistentry);
-                    iterator.remove();
-                }
-
-                if (arraylist == null)
-                {
-                    arraylist = new ArrayList();
-                }
-
-                arraylist.add(nextticklistentry);
-            }
-        }
-        while (true);
-
-        return arraylist;
+        return null;
     }
 
     /**
@@ -3360,11 +3090,6 @@ public class World implements IBlockAccess
         if (blockExists(par1, par2, par3))
         {
             getChunkFromBlockCoords(par1, par3).setChunkModified();
-        }
-
-        for (int i = 0; i < worldAccesses.size(); i++)
-        {
-            ((IWorldAccess)worldAccesses.get(i)).doNothingWithTileEntity(par1, par2, par3, par4TileEntity);
         }
     }
 
@@ -3616,26 +3341,6 @@ public class World implements IBlockAccess
         return entityplayer;
     }
 
-    public EntityPlayer func_48087_a(double par1, double par3, double par5)
-    {
-        double d = -1D;
-        EntityPlayer entityplayer = null;
-
-        for (int i = 0; i < playerEntities.size(); i++)
-        {
-            EntityPlayer entityplayer1 = (EntityPlayer)playerEntities.get(i);
-            double d1 = entityplayer1.getDistanceSq(par1, entityplayer1.posY, par3);
-
-            if ((par5 < 0.0D || d1 < par5 * par5) && (d == -1D || d1 < d))
-            {
-                d = d1;
-                entityplayer = entityplayer1;
-            }
-        }
-
-        return entityplayer;
-    }
-
     /**
      * Returns the closest vulnerable player to this entity within the given radius, or null if none is found
      */
@@ -3692,7 +3397,7 @@ public class World implements IBlockAccess
     /**
      * Checks whether the session lock file was modified by another process
      */
-    public void checkSessionLock()
+    public void checkSessionLock() throws MinecraftException
     {
         saveHandler.checkSessionLock();
     }
@@ -3703,22 +3408,6 @@ public class World implements IBlockAccess
     public void setWorldTime(long par1)
     {
         worldInfo.setWorldTime(par1);
-    }
-
-    /**
-     * Gradually advances the time of the world.
-     */
-    public void advanceTime(long par1)
-    {
-        long l = par1 - worldInfo.getWorldTime();
-
-        for (Iterator iterator = scheduledTickSet.iterator(); iterator.hasNext();)
-        {
-            NextTickListEntry nextticklistentry = (NextTickListEntry)iterator.next();
-            nextticklistentry.scheduledTime += l;
-        }
-
-        setWorldTime(par1);
     }
 
     /**
@@ -3799,79 +3488,6 @@ public class World implements IBlockAccess
      */
     public void updateAllPlayersSleepingFlag()
     {
-        allPlayersSleeping = !playerEntities.isEmpty();
-        Iterator iterator = playerEntities.iterator();
-
-        do
-        {
-            if (!iterator.hasNext())
-            {
-                break;
-            }
-
-            EntityPlayer entityplayer = (EntityPlayer)iterator.next();
-
-            if (entityplayer.isPlayerSleeping())
-            {
-                continue;
-            }
-
-            allPlayersSleeping = false;
-            break;
-        }
-        while (true);
-    }
-
-    /**
-     * Wakes up all players in the world.
-     */
-    protected void wakeUpAllPlayers()
-    {
-        allPlayersSleeping = false;
-        Iterator iterator = playerEntities.iterator();
-
-        do
-        {
-            if (!iterator.hasNext())
-            {
-                break;
-            }
-
-            EntityPlayer entityplayer = (EntityPlayer)iterator.next();
-
-            if (entityplayer.isPlayerSleeping())
-            {
-                entityplayer.wakeUpPlayer(false, false, true);
-            }
-        }
-        while (true);
-
-        clearWeather();
-    }
-
-    /**
-     * Returns whether or not all players in the world are fully asleep.
-     */
-    public boolean isAllPlayersFullyAsleep()
-    {
-        if (allPlayersSleeping && !isRemote)
-        {
-            for (Iterator iterator = playerEntities.iterator(); iterator.hasNext();)
-            {
-                EntityPlayer entityplayer = (EntityPlayer)iterator.next();
-
-                if (!entityplayer.isPlayerFullyAsleep())
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-        else
-        {
-            return false;
-        }
     }
 
     public float getWeightedThunderStrength(float par1)
@@ -3932,10 +3548,13 @@ public class World implements IBlockAccess
         }
     }
 
-    public boolean func_48089_z(int par1, int par2, int par3)
+    /**
+     * Checks to see if the biome rainfall values for a given x,y,z coordinate set are extremely high
+     */
+    public boolean isBlockHighHumidity(int par1, int par2, int par3)
     {
         BiomeGenBase biomegenbase = getBiomeGenForCoords(par1, par3);
-        return biomegenbase.func_48441_d();
+        return biomegenbase.isHighHumidity();
     }
 
     /**
@@ -4011,27 +3630,28 @@ public class World implements IBlockAccess
     }
 
     /**
-     * Gets a random mob for spawning in this world.
-     */
-    public SpawnListEntry getRandomMob(EnumCreatureType par1EnumCreatureType, int par2, int par3, int par4)
-    {
-        List list = getChunkProvider().getPossibleCreatures(par1EnumCreatureType, par2, par3, par4);
-
-        if (list == null || list.isEmpty())
-        {
-            return null;
-        }
-        else
-        {
-            return (SpawnListEntry)WeightedRandom.getRandomItem(rand, list);
-        }
-    }
-
-    /**
      * Returns the location of the closest structure of the specified type. If not found returns null.
      */
     public ChunkPosition findClosestStructure(String par1Str, int par2, int par3, int par4)
     {
         return getChunkProvider().findClosestStructure(this, par1Str, par2, par3, par4);
+    }
+
+    public CrashReport func_55198_a(CrashReport par1CrashReport)
+    {
+        par1CrashReport.func_55285_a((new StringBuilder()).append("World ").append(worldInfo.func_55310_h()).append(" Entities").toString(), new CallableLvl1(this));
+        par1CrashReport.func_55285_a((new StringBuilder()).append("World ").append(worldInfo.func_55310_h()).append(" Players").toString(), new CallableLvl2(this));
+        par1CrashReport.func_55285_a((new StringBuilder()).append("World ").append(worldInfo.func_55310_h()).append(" Chunk Stats").toString(), new CallableLvl3(this));
+        return par1CrashReport;
+    }
+
+    public void func_56361_g(int par1, int par2, int par3, int par4, int par5)
+    {
+        IWorldAccess iworldaccess;
+
+        for (Iterator iterator = worldAccesses.iterator(); iterator.hasNext(); iworldaccess.func_56537_a(par1, par2, par3, par4, par5))
+        {
+            iworldaccess = (IWorldAccess)iterator.next();
+        }
     }
 }

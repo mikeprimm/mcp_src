@@ -102,7 +102,7 @@ public class EntityAIVillagerMate extends EntityAIBase
 
         if (villagerObj.getRNG().nextInt(35) == 0)
         {
-            spawnHeartParticles(villagerObj);
+            worldObj.setEntityState(villagerObj, (byte)12);
         }
     }
 
@@ -121,19 +121,6 @@ public class EntityAIVillagerMate extends EntityAIBase
         entityvillager.setProfession(villagerObj.getRNG().nextInt(5));
         entityvillager.setLocationAndAngles(villagerObj.posX, villagerObj.posY, villagerObj.posZ, 0.0F, 0.0F);
         worldObj.spawnEntityInWorld(entityvillager);
-        spawnHeartParticles(entityvillager);
-    }
-
-    private void spawnHeartParticles(EntityLiving par1EntityLiving)
-    {
-        Random random = par1EntityLiving.getRNG();
-
-        for (int i = 0; i < 5; i++)
-        {
-            double d = random.nextGaussian() * 0.02D;
-            double d1 = random.nextGaussian() * 0.02D;
-            double d2 = random.nextGaussian() * 0.02D;
-            worldObj.spawnParticle("heart", (par1EntityLiving.posX + (double)(random.nextFloat() * par1EntityLiving.width * 2.0F)) - (double)par1EntityLiving.width, par1EntityLiving.posY + 1.0D + (double)(random.nextFloat() * par1EntityLiving.height), (par1EntityLiving.posZ + (double)(random.nextFloat() * par1EntityLiving.width * 2.0F)) - (double)par1EntityLiving.width, d, d1, d2);
-        }
+        worldObj.setEntityState(entityvillager, (byte)12);
     }
 }

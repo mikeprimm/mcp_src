@@ -11,6 +11,7 @@ public class BlockFlower extends Block
         setTickRandomly(true);
         float f = 0.2F;
         setBlockBounds(0.5F - f, 0.0F, 0.5F - f, 0.5F + f, f * 3F, 0.5F + f);
+        func_56326_a(CreativeTabs.field_56388_c);
     }
 
     protected BlockFlower(int par1, int par2)

@@ -6,6 +6,7 @@ public class BlockWorkbench extends Block
     {
         super(par1, Material.wood);
         blockIndexInTexture = 59;
+        func_56326_a(CreativeTabs.field_56388_c);
     }
 
     /**
@@ -33,11 +34,7 @@ public class BlockWorkbench extends Block
         }
     }
 
-    /**
-     * Called upon block activation (left or right click on the block.). The three integers represent x,y,z of the
-     * block.
-     */
-    public boolean blockActivated(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer)
+    public boolean func_56323_a(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer, int par6, float par7, float par8, float par9)
     {
         if (par1World.isRemote)
         {

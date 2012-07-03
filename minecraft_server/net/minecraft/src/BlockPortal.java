@@ -7,6 +7,27 @@ public class BlockPortal extends BlockBreakable
     public BlockPortal(int par1, int par2)
     {
         super(par1, par2, Material.portal, false);
+        setTickRandomly(true);
+    }
+
+    /**
+     * Ticks the block if it's been scheduled
+     */
+    public void updateTick(World par1World, int par2, int par3, int par4, Random par5Random)
+    {
+        super.updateTick(par1World, par2, par3, par4, par5Random);
+
+        if (par1World.worldProvider.func_48567_d() && par5Random.nextInt(2000) < par1World.difficultySetting)
+        {
+            int i;
+
+            for (i = par3; !par1World.func_58038_s(par2, i, par4) && i > 0; i--) { }
+
+            if (i > 0 && !par1World.isBlockNormalCube(par2, i + 1, par4))
+            {
+                ItemMonsterPlacer.func_48390_a(par1World, 57, (double)par2 + 0.5D, (double)i + 1.1000000000000001D, (double)par4 + 0.5D);
+            }
+        }
     }
 
     /**
@@ -174,11 +195,6 @@ public class BlockPortal extends BlockBreakable
         if ((par1World.getBlockId(par2 + i, par3, par4 + j) != Block.obsidian.blockID || par1World.getBlockId(par2 - i, par3, par4 - j) != blockID) && (par1World.getBlockId(par2 - i, par3, par4 - j) != Block.obsidian.blockID || par1World.getBlockId(par2 + i, par3, par4 + j) != blockID))
         {
             par1World.setBlockWithNotify(par2, par3, par4, 0);
-            return;
-        }
-        else
-        {
-            return;
         }
     }
 

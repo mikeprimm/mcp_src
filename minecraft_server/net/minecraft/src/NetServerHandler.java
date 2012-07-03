@@ -1,11 +1,11 @@
 package net.minecraft.src;
 
-import java.io.PrintStream;
+import java.io.*;
 import java.util.*;
 import java.util.logging.Logger;
 import net.minecraft.server.MinecraftServer;
 
-public class NetServerHandler extends NetHandler implements ICommandListener
+public class NetServerHandler extends NetHandler
 {
     /** The logging system. */
     public static Logger logger = Logger.getLogger("Minecraft");
@@ -104,8 +104,8 @@ public class NetServerHandler extends NetHandler implements ICommandListener
             playerEntity.func_30002_A();
             sendPacket(new Packet255KickDisconnect(par1Str));
             netManager.serverShutdown();
-            mcServer.configManager.sendPacketToAllPlayers(new Packet3Chat((new StringBuilder()).append("\247e").append(playerEntity.username).append(" left the game.").toString()));
-            mcServer.configManager.playerLoggedOut(playerEntity);
+            mcServer.func_56173_Y().sendPacketToAllPlayers(new Packet3Chat((new StringBuilder()).append("\247e").append(playerEntity.username).append(" left the game.").toString()));
+            mcServer.func_56173_Y().playerLoggedOut(playerEntity);
             connectionClosed = true;
             return;
         }
@@ -164,7 +164,7 @@ public class NetServerHandler extends NetHandler implements ICommandListener
                 }
 
                 playerEntity.onGround = par1Packet10Flying.onGround;
-                playerEntity.onUpdateEntity(true);
+                playerEntity.func_56152_y();
                 playerEntity.moveEntity(d8, 0.0D, d9);
                 playerEntity.setPositionAndRotation(d2, d4, d6, f, f1);
                 playerEntity.motionX = d8;
@@ -180,7 +180,7 @@ public class NetServerHandler extends NetHandler implements ICommandListener
                     playerEntity.ridingEntity.updateRiderPosition();
                 }
 
-                mcServer.configManager.serverUpdateMountedMovingPlayer(playerEntity);
+                mcServer.func_56173_Y().serverUpdateMountedMovingPlayer(playerEntity);
                 lastPosX = playerEntity.posX;
                 lastPosY = playerEntity.posY;
                 lastPosZ = playerEntity.posZ;
@@ -190,7 +190,7 @@ public class NetServerHandler extends NetHandler implements ICommandListener
 
             if (playerEntity.isPlayerSleeping())
             {
-                playerEntity.onUpdateEntity(true);
+                playerEntity.func_56152_y();
                 playerEntity.setPositionAndRotation(lastPosX, lastPosY, lastPosZ, playerEntity.rotationYaw, playerEntity.rotationPitch);
                 worldserver.updateEntity(playerEntity);
                 return;
@@ -238,7 +238,7 @@ public class NetServerHandler extends NetHandler implements ICommandListener
                 f3 = par1Packet10Flying.pitch;
             }
 
-            playerEntity.onUpdateEntity(true);
+            playerEntity.func_56152_y();
             playerEntity.ySize = 0.0F;
             playerEntity.setPositionAndRotation(lastPosX, lastPosY, lastPosZ, f2, f3);
 
@@ -250,17 +250,20 @@ public class NetServerHandler extends NetHandler implements ICommandListener
             double d11 = d3 - playerEntity.posX;
             double d12 = d5 - playerEntity.posY;
             double d13 = d7 - playerEntity.posZ;
-            double d14 = d11 * d11 + d12 * d12 + d13 * d13;
+            double d14 = Math.min(Math.abs(d11), Math.abs(playerEntity.motionX));
+            double d15 = Math.min(Math.abs(d12), Math.abs(playerEntity.motionY));
+            double d16 = Math.min(Math.abs(d13), Math.abs(playerEntity.motionZ));
+            double d17 = d14 * d14 + d15 * d15 + d16 * d16;
 
-            if (d14 > 100D)
+            if (d17 > 100D && (!mcServer.func_56187_H() || !mcServer.func_56186_G().equals(playerEntity.username)))
             {
-                logger.warning((new StringBuilder()).append(playerEntity.username).append(" moved too quickly!").toString());
-                kickPlayer("You moved too quickly :( (Hacking?)");
+                logger.warning((new StringBuilder()).append(playerEntity.username).append(" moved too quickly! ").append(d11).append(",").append(d12).append(",").append(d13).append(" (").append(d14).append(", ").append(d15).append(", ").append(d16).append(")").toString());
+                teleportTo(lastPosX, lastPosY, lastPosZ, playerEntity.rotationYaw, playerEntity.rotationPitch);
                 return;
             }
 
             float f4 = 0.0625F;
-            boolean flag = worldserver.getCollidingBoundingBoxes(playerEntity, playerEntity.boundingBox.copy().contract(f4, f4, f4)).size() == 0;
+            boolean flag = worldserver.getCollidingBoundingBoxes(playerEntity, playerEntity.boundingBox.copy().contract(f4, f4, f4)).isEmpty();
 
             if (playerEntity.onGround && !par1Packet10Flying.onGround && d12 > 0.0D)
             {
@@ -270,7 +273,7 @@ public class NetServerHandler extends NetHandler implements ICommandListener
             playerEntity.moveEntity(d11, d12, d13);
             playerEntity.onGround = par1Packet10Flying.onGround;
             playerEntity.addMovementStat(d11, d12, d13);
-            double d15 = d12;
+            double d18 = d12;
             d11 = d3 - playerEntity.posX;
             d12 = d5 - playerEntity.posY;
 
@@ -280,10 +283,10 @@ public class NetServerHandler extends NetHandler implements ICommandListener
             }
 
             d13 = d7 - playerEntity.posZ;
-            d14 = d11 * d11 + d12 * d12 + d13 * d13;
+            d17 = d11 * d11 + d12 * d12 + d13 * d13;
             boolean flag1 = false;
 
-            if (d14 > 0.0625D && !playerEntity.isPlayerSleeping() && !playerEntity.itemInWorldManager.isCreative())
+            if (d17 > 0.0625D && !playerEntity.isPlayerSleeping() && !playerEntity.itemInWorldManager.isCreative())
             {
                 flag1 = true;
                 logger.warning((new StringBuilder()).append(playerEntity.username).append(" moved wrongly!").toString());
@@ -292,7 +295,7 @@ public class NetServerHandler extends NetHandler implements ICommandListener
             }
 
             playerEntity.setPositionAndRotation(d3, d5, d7, f2, f3);
-            boolean flag2 = worldserver.getCollidingBoundingBoxes(playerEntity, playerEntity.boundingBox.copy().contract(f4, f4, f4)).size() == 0;
+            boolean flag2 = worldserver.getCollidingBoundingBoxes(playerEntity, playerEntity.boundingBox.copy().contract(f4, f4, f4)).isEmpty();
 
             if (flag && (flag1 || !flag2) && !playerEntity.isPlayerSleeping())
             {
@@ -302,9 +305,9 @@ public class NetServerHandler extends NetHandler implements ICommandListener
 
             AxisAlignedBB axisalignedbb = playerEntity.boundingBox.copy().expand(f4, f4, f4).addCoord(0.0D, -0.55000000000000004D, 0.0D);
 
-            if (!mcServer.allowFlight && !playerEntity.itemInWorldManager.isCreative() && !worldserver.isAABBEmpty(axisalignedbb))
+            if (!mcServer.func_56195_U() && !playerEntity.itemInWorldManager.isCreative() && !worldserver.isAABBEmpty(axisalignedbb))
             {
-                if (d15 >= -0.03125D)
+                if (d18 >= -0.03125D)
                 {
                     playerInAirTime++;
 
@@ -322,7 +325,7 @@ public class NetServerHandler extends NetHandler implements ICommandListener
             }
 
             playerEntity.onGround = par1Packet10Flying.onGround;
-            mcServer.configManager.serverUpdateMountedMovingPlayer(playerEntity);
+            mcServer.func_56173_Y().serverUpdateMountedMovingPlayer(playerEntity);
             playerEntity.handleFalling(playerEntity.posY - d1, par1Packet10Flying.onGround);
         }
     }
@@ -356,7 +359,7 @@ public class NetServerHandler extends NetHandler implements ICommandListener
             return;
         }
 
-        boolean flag = worldserver.disableSpawnProtection = worldserver.worldProvider.worldType != 0 || mcServer.configManager.isOp(playerEntity.username);
+        boolean flag = worldserver.disableSpawnProtection = worldserver.worldProvider.worldType != 0 || mcServer.func_56173_Y().isOp(playerEntity.username) || mcServer.func_56187_H();
         boolean flag1 = false;
 
         if (par1Packet14BlockDig.status == 0)
@@ -385,7 +388,7 @@ public class NetServerHandler extends NetHandler implements ICommandListener
                 return;
             }
 
-            if (j >= mcServer.buildLimit)
+            if (j >= mcServer.func_56175_W())
             {
                 return;
             }
@@ -420,6 +423,15 @@ public class NetServerHandler extends NetHandler implements ICommandListener
                 playerEntity.playerNetServerHandler.sendPacket(new Packet53BlockChange(i, j, k, worldserver));
             }
         }
+        else if (par1Packet14BlockDig.status == 1)
+        {
+            playerEntity.itemInWorldManager.func_56693_c(i, j, k);
+
+            if (worldserver.getBlockId(i, j, k) != 0)
+            {
+                playerEntity.playerNetServerHandler.sendPacket(new Packet53BlockChange(i, j, k, worldserver));
+            }
+        }
         else if (par1Packet14BlockDig.status == 3)
         {
             double d2 = playerEntity.posX - ((double)i + 0.5D);
@@ -441,13 +453,13 @@ public class NetServerHandler extends NetHandler implements ICommandListener
         WorldServer worldserver = mcServer.getWorldManager(playerEntity.dimension);
         ItemStack itemstack = playerEntity.inventory.getCurrentItem();
         boolean flag = false;
-        int i = par1Packet15Place.xPosition;
-        int j = par1Packet15Place.yPosition;
-        int k = par1Packet15Place.zPosition;
-        int l = par1Packet15Place.direction;
-        boolean flag1 = worldserver.disableSpawnProtection = worldserver.worldProvider.worldType != 0 || mcServer.configManager.isOp(playerEntity.username);
+        int i = par1Packet15Place.func_56250_b();
+        int j = par1Packet15Place.func_56248_c();
+        int k = par1Packet15Place.func_56246_d();
+        int l = par1Packet15Place.func_56245_e();
+        boolean flag1 = worldserver.disableSpawnProtection = worldserver.worldProvider.worldType != 0 || mcServer.func_56173_Y().isOp(playerEntity.username) || mcServer.func_56187_H();
 
-        if (par1Packet15Place.direction == 255)
+        if (par1Packet15Place.func_56245_e() == 255)
         {
             if (itemstack == null)
             {
@@ -456,7 +468,7 @@ public class NetServerHandler extends NetHandler implements ICommandListener
 
             playerEntity.itemInWorldManager.itemUsed(playerEntity, worldserver, itemstack);
         }
-        else if (par1Packet15Place.yPosition < mcServer.buildLimit - 1 || par1Packet15Place.direction != 1 && par1Packet15Place.yPosition < mcServer.buildLimit)
+        else if (par1Packet15Place.func_56248_c() < mcServer.func_56175_W() - 1 || par1Packet15Place.func_56245_e() != 1 && par1Packet15Place.func_56248_c() < mcServer.func_56175_W())
         {
             ChunkCoordinates chunkcoordinates = worldserver.getSpawnPoint();
             int i1 = MathHelper.abs(i - chunkcoordinates.posX);
@@ -469,14 +481,14 @@ public class NetServerHandler extends NetHandler implements ICommandListener
 
             if (hasMoved && playerEntity.getDistanceSq((double)i + 0.5D, (double)j + 0.5D, (double)k + 0.5D) < 64D && (j1 > 16 || flag1))
             {
-                playerEntity.itemInWorldManager.activeBlockOrUseItem(playerEntity, worldserver, itemstack, i, j, k, l);
+                playerEntity.itemInWorldManager.func_56696_a(playerEntity, worldserver, itemstack, i, j, k, l, par1Packet15Place.func_56243_g(), par1Packet15Place.func_56247_h(), par1Packet15Place.func_56244_i());
             }
 
             flag = true;
         }
         else
         {
-            playerEntity.playerNetServerHandler.sendPacket(new Packet3Chat((new StringBuilder()).append("\2477Height limit for building is ").append(mcServer.buildLimit).toString()));
+            playerEntity.playerNetServerHandler.sendPacket(new Packet3Chat((new StringBuilder()).append("\2477Height limit for building is ").append(mcServer.func_56175_W()).toString()));
             flag = true;
         }
 
@@ -533,7 +545,7 @@ public class NetServerHandler extends NetHandler implements ICommandListener
             playerEntity.craftingInventory.updateCraftingResults();
             playerEntity.isChangingQuantityOnly = false;
 
-            if (!ItemStack.areItemStacksEqual(playerEntity.inventory.getCurrentItem(), par1Packet15Place.itemStack))
+            if (!ItemStack.areItemStacksEqual(playerEntity.inventory.getCurrentItem(), par1Packet15Place.func_56249_f()))
             {
                 sendPacket(new Packet103SetSlot(playerEntity.craftingInventory.windowId, slot.slotNumber, playerEntity.inventory.getCurrentItem()));
             }
@@ -545,9 +557,15 @@ public class NetServerHandler extends NetHandler implements ICommandListener
     public void handleErrorMessage(String par1Str, Object par2ArrayOfObj[])
     {
         logger.info((new StringBuilder()).append(playerEntity.username).append(" lost connection: ").append(par1Str).toString());
-        mcServer.configManager.sendPacketToAllPlayers(new Packet3Chat((new StringBuilder()).append("\247e").append(playerEntity.username).append(" left the game.").toString()));
-        mcServer.configManager.playerLoggedOut(playerEntity);
+        mcServer.func_56173_Y().sendPacketToAllPlayers(new Packet3Chat((new StringBuilder()).append("\247e").append(playerEntity.username).append(" left the game.").toString()));
+        mcServer.func_56173_Y().playerLoggedOut(playerEntity);
         connectionClosed = true;
+
+        if (mcServer.func_56187_H() && playerEntity.username.equals(mcServer.func_56186_G()))
+        {
+            logger.info("Stopping singleplayer server as player logged out");
+            mcServer.initiateShutdown();
+        }
     }
 
     public void registerPacket(Packet par1Packet)
@@ -561,6 +579,22 @@ public class NetServerHandler extends NetHandler implements ICommandListener
      */
     public void sendPacket(Packet par1Packet)
     {
+        if (par1Packet instanceof Packet3Chat)
+        {
+            Packet3Chat packet3chat = (Packet3Chat)par1Packet;
+            int i = playerEntity.func_55081_K();
+
+            if (i == 2)
+            {
+                return;
+            }
+
+            if (i == 1 && !packet3chat.func_55125_b())
+            {
+                return;
+            }
+        }
+
         netManager.addToSendQueue(par1Packet);
     }
 
@@ -580,6 +614,12 @@ public class NetServerHandler extends NetHandler implements ICommandListener
 
     public void handleChat(Packet3Chat par1Packet3Chat)
     {
+        if (playerEntity.func_55081_K() == 2)
+        {
+            sendPacket(new Packet3Chat("Cannot send chat message."));
+            return;
+        }
+
         String s = par1Packet3Chat.message;
 
         if (s.length() > 100)
@@ -605,14 +645,20 @@ public class NetServerHandler extends NetHandler implements ICommandListener
         }
         else
         {
+            if (playerEntity.func_55081_K() == 1)
+            {
+                sendPacket(new Packet3Chat("Cannot send chat message."));
+                return;
+            }
+
             s = (new StringBuilder()).append("<").append(playerEntity.username).append("> ").append(s).toString();
             logger.info(s);
-            mcServer.configManager.sendPacketToAllPlayers(new Packet3Chat(s));
+            mcServer.func_56173_Y().sendPacketToAllPlayers(new Packet3Chat(s, false));
         }
 
         field_45001_m += 20;
 
-        if (field_45001_m > 200)
+        if (field_45001_m > 200 && !mcServer.func_56173_Y().isOp(playerEntity.username))
         {
             kickPlayer("disconnect.spam");
         }
@@ -623,43 +669,10 @@ public class NetServerHandler extends NetHandler implements ICommandListener
      */
     private void handleSlashCommand(String par1Str)
     {
-        if (par1Str.toLowerCase().startsWith("/me "))
+        if (mcServer.func_56173_Y().isOp(playerEntity.username) || "/seed".equals(par1Str))
         {
-            par1Str = (new StringBuilder()).append("* ").append(playerEntity.username).append(" ").append(par1Str.substring(par1Str.indexOf(" ")).trim()).toString();
-            logger.info(par1Str);
-            mcServer.configManager.sendPacketToAllPlayers(new Packet3Chat(par1Str));
-        }
-        else if (par1Str.toLowerCase().startsWith("/kill"))
-        {
-            playerEntity.attackEntityFrom(DamageSource.generic, 1000);
-        }
-        else if (par1Str.toLowerCase().startsWith("/tell "))
-        {
-            String as[] = par1Str.split(" ");
-
-            if (as.length >= 3)
-            {
-                par1Str = par1Str.substring(par1Str.indexOf(" ")).trim();
-                par1Str = par1Str.substring(par1Str.indexOf(" ")).trim();
-                par1Str = (new StringBuilder()).append("\2477").append(playerEntity.username).append(" whispers ").append(par1Str).toString();
-                logger.info((new StringBuilder()).append(par1Str).append(" to ").append(as[1]).toString());
-
-                if (!mcServer.configManager.sendPacketToPlayer(as[1], new Packet3Chat(par1Str)))
-                {
-                    sendPacket(new Packet3Chat("\247cThere's no player by that name online."));
-                }
-            }
-        }
-        else if (mcServer.configManager.isOp(playerEntity.username))
-        {
-            String s = par1Str.substring(1);
-            logger.info((new StringBuilder()).append(playerEntity.username).append(" issued server command: ").append(s).toString());
-            mcServer.addCommand(s, this);
-        }
-        else
-        {
-            String s1 = par1Str.substring(1);
-            logger.info((new StringBuilder()).append(playerEntity.username).append(" tried command: ").append(s1).toString());
+            logger.info((new StringBuilder()).append(playerEntity.username).append(" issued server command: ").append(par1Str).toString());
+            mcServer.func_55091_s().func_55236_a(playerEntity, par1Str);
         }
     }
 
@@ -712,22 +725,6 @@ public class NetServerHandler extends NetHandler implements ICommandListener
         return netManager.getNumChunkDataPackets();
     }
 
-    /**
-     * Logs the message with a level of INFO.
-     */
-    public void log(String par1Str)
-    {
-        sendPacket(new Packet3Chat((new StringBuilder()).append("\2477").append(par1Str).toString()));
-    }
-
-    /**
-     * Gets the players username.
-     */
-    public String getUsername()
-    {
-        return playerEntity.username;
-    }
-
     public void handleUseEntity(Packet7UseEntity par1Packet7UseEntity)
     {
         WorldServer worldserver = mcServer.getWorldManager(playerEntity.dimension);
@@ -747,7 +744,7 @@ public class NetServerHandler extends NetHandler implements ICommandListener
             {
                 if (par1Packet7UseEntity.isLeftClick == 0)
                 {
-                    playerEntity.useCurrentItemOnEntity(entity);
+                    playerEntity.func_56146_e(entity);
                 }
                 else if (par1Packet7UseEntity.isLeftClick == 1)
                 {
@@ -757,24 +754,46 @@ public class NetServerHandler extends NetHandler implements ICommandListener
         }
     }
 
+    public void func_56678_a(Packet205ClientCommand par1Packet205ClientCommand)
+    {
+        if (par1Packet205ClientCommand.field_56242_a == 1)
+        {
+            if (playerEntity.gameOver)
+            {
+                playerEntity = mcServer.func_56173_Y().recreatePlayerEntity(playerEntity, 0, true);
+            }
+            else if (playerEntity.func_55080_H().getWorldInfo().isHardcoreModeEnabled())
+            {
+                if (mcServer.func_56187_H())
+                {
+                    playerEntity.playerNetServerHandler.kickPlayer("You have died. Game over, man, it's game over!");
+                    mcServer.func_56201_M();
+                }
+                else
+                {
+                    BanEntry banentry = new BanEntry(playerEntity.username);
+                    banentry.func_56718_b("Death in Hardcore");
+                    mcServer.func_56173_Y().func_56429_e().func_56748_a(banentry);
+                    playerEntity.playerNetServerHandler.kickPlayer("You have died. Game over, man, it's game over!");
+                }
+            }
+            else
+            {
+                if (playerEntity.getHealth() > 0)
+                {
+                    return;
+                }
+
+                playerEntity = mcServer.func_56173_Y().recreatePlayerEntity(playerEntity, 0, false);
+            }
+        }
+    }
+
     /**
      * respawns the player
      */
-    public void handleRespawn(Packet9Respawn par1Packet9Respawn)
+    public void handleRespawn(Packet9Respawn packet9respawn)
     {
-        if (playerEntity.gameOver)
-        {
-            playerEntity = mcServer.configManager.recreatePlayerEntity(playerEntity, 0, true);
-        }
-        else
-        {
-            if (playerEntity.getHealth() > 0)
-            {
-                return;
-            }
-
-            playerEntity = mcServer.configManager.recreatePlayerEntity(playerEntity, 0, false);
-        }
     }
 
     public void handleCloseWindow(Packet101CloseWindow par1Packet101CloseWindow)
@@ -831,7 +850,7 @@ public class NetServerHandler extends NetHandler implements ICommandListener
         {
             boolean flag = par1Packet107CreativeSetSlot.slot < 0;
             ItemStack itemstack = par1Packet107CreativeSetSlot.itemStack;
-            boolean flag1 = par1Packet107CreativeSetSlot.slot >= 36 && par1Packet107CreativeSetSlot.slot < 36 + InventoryPlayer.func_25054_e();
+            boolean flag1 = par1Packet107CreativeSetSlot.slot >= 1 && par1Packet107CreativeSetSlot.slot < 36 + InventoryPlayer.func_25054_e();
             boolean flag2 = itemstack == null || itemstack.itemID < Item.itemsList.length && itemstack.itemID >= 0 && Item.itemsList[itemstack.itemID] != null;
             boolean flag3 = itemstack == null || itemstack.getItemDamage() >= 0 && itemstack.getItemDamage() >= 0 && itemstack.stackSize <= 64 && itemstack.stackSize > 0;
 
@@ -924,12 +943,7 @@ public class NetServerHandler extends NetHandler implements ICommandListener
                 int k = par1Packet130UpdateSign.yPosition;
                 int i1 = par1Packet130UpdateSign.zPosition;
                 TileEntitySign tileentitysign1 = (TileEntitySign)tileentity;
-
-                for (int j1 = 0; j1 < 4; j1++)
-                {
-                    tileentitysign1.signText[j1] = par1Packet130UpdateSign.signLines[j1];
-                }
-
+                System.arraycopy(par1Packet130UpdateSign.signLines, 0, tileentitysign1.signText, 0, 4);
                 tileentitysign1.onInventoryChanged();
                 worldserver.markBlockNeedsUpdate(j, k, i1);
             }
@@ -956,8 +970,105 @@ public class NetServerHandler extends NetHandler implements ICommandListener
         return true;
     }
 
-    public void func_50003_a(Packet202PlayerAbilities par1Packet202PlayerAbilities)
+    /**
+     * Handle a player abilities packet.
+     */
+    public void handlePlayerAbilities(Packet202PlayerAbilities par1Packet202PlayerAbilities)
     {
-        playerEntity.capabilities.isFlying = par1Packet202PlayerAbilities.field_50005_b && playerEntity.capabilities.allowFlying;
+        playerEntity.capabilities.isFlying = par1Packet202PlayerAbilities.func_56278_c() && playerEntity.capabilities.allowFlying;
+    }
+
+    public void func_55248_a(Packet203AutoComplete par1Packet203AutoComplete)
+    {
+        StringBuilder stringbuilder = new StringBuilder();
+        String s;
+
+        for (Iterator iterator = mcServer.func_55088_a(playerEntity, par1Packet203AutoComplete.func_55110_b()).iterator(); iterator.hasNext(); stringbuilder.append(s))
+        {
+            s = (String)iterator.next();
+
+            if (stringbuilder.length() > 0)
+            {
+                stringbuilder.append("\0");
+            }
+        }
+
+        playerEntity.playerNetServerHandler.sendPacket(new Packet203AutoComplete(stringbuilder.toString()));
+    }
+
+    public void func_55245_a(Packet204ClientInfo par1Packet204ClientInfo)
+    {
+        playerEntity.func_55079_a(par1Packet204ClientInfo);
+    }
+
+    public void handleCustomPayload(Packet250CustomPayload par1Packet250CustomPayload)
+    {
+        if ("MC|BEdit".equals(par1Packet250CustomPayload.channel))
+        {
+            try
+            {
+                DataInputStream datainputstream = new DataInputStream(new ByteArrayInputStream(par1Packet250CustomPayload.data));
+                ItemStack itemstack = Packet.readItemStack(datainputstream);
+
+                if (!ItemWritableBook.func_55178_a(itemstack.getTagCompound()))
+                {
+                    throw new IOException("Invalid book tag!");
+                }
+
+                ItemStack itemstack2 = playerEntity.inventory.getCurrentItem();
+
+                if (itemstack != null && itemstack.itemID == Item.field_55176_bF.shiftedIndex && itemstack.itemID == itemstack2.itemID)
+                {
+                    itemstack2.setTagCompound(itemstack.getTagCompound());
+                }
+            }
+            catch (Exception exception)
+            {
+                exception.printStackTrace();
+            }
+        }
+        else if ("MC|BSign".equals(par1Packet250CustomPayload.channel))
+        {
+            try
+            {
+                DataInputStream datainputstream1 = new DataInputStream(new ByteArrayInputStream(par1Packet250CustomPayload.data));
+                ItemStack itemstack1 = Packet.readItemStack(datainputstream1);
+
+                if (!ItemEditableBook.func_55182_a(itemstack1.getTagCompound()))
+                {
+                    throw new IOException("Invalid book tag!");
+                }
+
+                ItemStack itemstack3 = playerEntity.inventory.getCurrentItem();
+
+                if (itemstack1 != null && itemstack1.itemID == Item.field_55177_bG.shiftedIndex && itemstack3.itemID == Item.field_55176_bF.shiftedIndex)
+                {
+                    itemstack3.setTagCompound(itemstack1.getTagCompound());
+                    itemstack3.itemID = Item.field_55177_bG.shiftedIndex;
+                }
+            }
+            catch (Exception exception1)
+            {
+                exception1.printStackTrace();
+            }
+        }
+        else if ("MC|TrSel".equals(par1Packet250CustomPayload.channel))
+        {
+            try
+            {
+                DataInputStream datainputstream2 = new DataInputStream(new ByteArrayInputStream(par1Packet250CustomPayload.data));
+                int i = datainputstream2.readInt();
+                Container container = playerEntity.craftingInventory;
+
+                if (container instanceof ContainerMerchant)
+                {
+                    ((ContainerMerchant)container).func_56469_c(i);
+                }
+            }
+            catch (Exception exception2)
+            {
+                exception2.printStackTrace();
+            }
+        }
     }
 }

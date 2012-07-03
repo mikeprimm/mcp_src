@@ -1,5 +1,7 @@
 package net.minecraft.src;
 
+import java.util.List;
+
 public class BlockLilyPad extends BlockFlower
 {
     protected BlockLilyPad(int par1, int par2)
@@ -8,6 +10,7 @@ public class BlockLilyPad extends BlockFlower
         float f = 0.5F;
         float f1 = 0.015625F;
         setBlockBounds(0.5F - f, 0.0F, 0.5F - f, 0.5F + f, f1, 0.5F + f);
+        func_56326_a(CreativeTabs.field_56388_c);
     }
 
     /**
@@ -18,21 +21,21 @@ public class BlockLilyPad extends BlockFlower
         return 23;
     }
 
+    public void func_56330_a(World par1World, int par2, int par3, int par4, AxisAlignedBB par5AxisAlignedBB, List par6List, Entity par7Entity)
+    {
+        if (par7Entity == null || !(par7Entity instanceof EntityBoat))
+        {
+            super.func_56330_a(par1World, par2, par3, par4, par5AxisAlignedBB, par6List, par7Entity);
+        }
+    }
+
     /**
      * Returns a bounding box from the pool of bounding boxes (this means this box can change after the pool has been
      * cleared to be reused)
      */
     public AxisAlignedBB getCollisionBoundingBoxFromPool(World par1World, int par2, int par3, int par4)
     {
-        return AxisAlignedBB.getBoundingBoxFromPool((double)par2 + minX, (double)par3 + minY, (double)par4 + minZ, (double)par2 + maxX, (double)par3 + maxY, (double)par4 + maxZ);
-    }
-
-    /**
-     * Checks to see if its valid to put this block at the specified coordinates. Args: world, x, y, z
-     */
-    public boolean canPlaceBlockAt(World par1World, int par2, int par3, int par4)
-    {
-        return super.canPlaceBlockAt(par1World, par2, par3, par4);
+        return AxisAlignedBB.func_58089_a().func_58067_a((double)par2 + minX, (double)par3 + minY, (double)par4 + minZ, (double)par2 + maxX, (double)par3 + maxY, (double)par4 + maxZ);
     }
 
     /**

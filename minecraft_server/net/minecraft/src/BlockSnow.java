@@ -9,6 +9,7 @@ public class BlockSnow extends Block
         super(par1, par2, Material.snow);
         setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 0.125F, 1.0F);
         setTickRandomly(true);
+        func_56326_a(CreativeTabs.field_56388_c);
     }
 
     /**
@@ -21,7 +22,7 @@ public class BlockSnow extends Block
 
         if (i >= 3)
         {
-            return AxisAlignedBB.getBoundingBoxFromPool((double)par2 + minX, (double)par3 + minY, (double)par4 + minZ, (double)par2 + maxX, (float)par3 + 0.5F, (double)par4 + maxZ);
+            return AxisAlignedBB.func_58089_a().func_58067_a((double)par2 + minX, (double)par3 + minY, (double)par4 + minZ, (double)par2 + maxX, (float)par3 + 0.5F, (double)par4 + maxZ);
         }
         else
         {

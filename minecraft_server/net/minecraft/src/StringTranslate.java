@@ -6,7 +6,7 @@ import java.util.*;
 public class StringTranslate
 {
     /** Is the private singleton instance of StringTranslate. */
-    private static StringTranslate instance = new StringTranslate();
+    private static StringTranslate instance = new StringTranslate("en_US");
 
     /**
      * Contains all key/value pairs to be translated - is loaded from '/lang/en_US.lang' when the StringTranslate is
@@ -17,11 +17,11 @@ public class StringTranslate
     private String currentLanguage;
     private boolean isUnicode;
 
-    private StringTranslate()
+    public StringTranslate(String par1Str)
     {
         translateTable = new Properties();
         loadLanguageList();
-        setLanguage("en_US");
+        setLanguage(par1Str);
     }
 
     /**
@@ -57,6 +57,12 @@ public class StringTranslate
         }
 
         languageList = treemap;
+        languageList.put("en_US", "English (US)");
+    }
+
+    public TreeMap func_55305_b()
+    {
+        return languageList;
     }
 
     private void loadLanguage(Properties par1Properties, String par2Str) throws IOException

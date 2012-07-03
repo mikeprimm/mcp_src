@@ -8,27 +8,27 @@ public class ComponentVillageWell extends ComponentVillage
     private final boolean field_35385_a = true;
     private int averageGroundLevel;
 
-    public ComponentVillageWell(int par1, Random par2Random, int par3, int par4)
+    public ComponentVillageWell(ComponentVillageStartPiece par1ComponentVillageStartPiece, int par2, Random par3Random, int par4, int par5)
     {
-        super(par1);
+        super(par1ComponentVillageStartPiece, par2);
         averageGroundLevel = -1;
-        coordBaseMode = par2Random.nextInt(4);
+        coordBaseMode = par3Random.nextInt(4);
 
         switch (coordBaseMode)
         {
             case 0:
             case 2:
-                boundingBox = new StructureBoundingBox(par3, 64, par4, (par3 + 6) - 1, 78, (par4 + 6) - 1);
+                boundingBox = new StructureBoundingBox(par4, 64, par5, (par4 + 6) - 1, 78, (par5 + 6) - 1);
                 break;
 
             default:
-                boundingBox = new StructureBoundingBox(par3, 64, par4, (par3 + 6) - 1, 78, (par4 + 6) - 1);
+                boundingBox = new StructureBoundingBox(par4, 64, par5, (par4 + 6) - 1, 78, (par5 + 6) - 1);
                 break;
         }
     }
 
     /**
-     * 'Initiates construction of the Structure Component picked, at the current Location of StructGen'
+     * Initiates construction of the Structure Component picked, at the current Location of StructGen
      */
     public void buildComponent(StructureComponent par1StructureComponent, List par2List, Random par3Random)
     {
@@ -39,8 +39,8 @@ public class ComponentVillageWell extends ComponentVillage
     }
 
     /**
-     * 'second Part of Structure generating, this for example places Spiderwebs, Mob Spawners, it closes Mineshafts at
-     * the end, it adds Fences...'
+     * second Part of Structure generating, this for example places Spiderwebs, Mob Spawners, it closes Mineshafts at
+     * the end, it adds Fences...
      */
     public boolean addComponentParts(World par1World, Random par2Random, StructureBoundingBox par3StructureBoundingBox)
     {
@@ -55,8 +55,6 @@ public class ComponentVillageWell extends ComponentVillage
 
             boundingBox.offset(0, (averageGroundLevel - boundingBox.maxY) + 3, 0);
         }
-
-        if (!field_35385_a);
 
         fillWithBlocks(par1World, par3StructureBoundingBox, 1, 0, 1, 4, 12, 4, Block.cobblestone.blockID, Block.waterMoving.blockID, false);
         placeBlockAtCurrentPosition(par1World, 0, 0, 2, 12, 2, par3StructureBoundingBox);

@@ -20,22 +20,16 @@ public abstract class BlockContainer extends Block
     public void onBlockAdded(World par1World, int par2, int par3, int par4)
     {
         super.onBlockAdded(par1World, par2, par3, par4);
-        par1World.setBlockTileEntity(par2, par3, par4, getBlockEntity());
+        par1World.setBlockTileEntity(par2, par3, par4, func_56351_a(par1World));
     }
 
-    /**
-     * Called whenever the block is removed.
-     */
-    public void onBlockRemoval(World par1World, int par2, int par3, int par4)
+    public void func_56322_a(World par1World, int par2, int par3, int par4, int par5, int par6)
     {
-        super.onBlockRemoval(par1World, par2, par3, par4);
+        super.func_56322_a(par1World, par2, par3, par4, par5, par6);
         par1World.removeBlockTileEntity(par2, par3, par4);
     }
 
-    /**
-     * Returns the TileEntity used by this block.
-     */
-    public abstract TileEntity getBlockEntity();
+    public abstract TileEntity func_56351_a(World world);
 
     public void powerBlock(World par1World, int par2, int par3, int par4, int par5, int par6)
     {

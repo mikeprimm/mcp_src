@@ -24,10 +24,13 @@ public class NBTTagIntArray extends NBTBase
     void write(DataOutput par1DataOutput) throws IOException
     {
         par1DataOutput.writeInt(field_48447_a.length);
+        int ai[] = field_48447_a;
+        int i = ai.length;
 
-        for (int i = 0; i < field_48447_a.length; i++)
+        for (int j = 0; j < i; j++)
         {
-            par1DataOutput.writeInt(field_48447_a[i]);
+            int k = ai[j];
+            par1DataOutput.writeInt(k);
         }
     }
 
@@ -73,7 +76,7 @@ public class NBTTagIntArray extends NBTBase
         if (super.equals(par1Obj))
         {
             NBTTagIntArray nbttagintarray = (NBTTagIntArray)par1Obj;
-            return field_48447_a == null && nbttagintarray.field_48447_a == null || field_48447_a != null && field_48447_a.equals(nbttagintarray.field_48447_a);
+            return field_48447_a == null && nbttagintarray.field_48447_a == null || field_48447_a != null && Arrays.equals(field_48447_a, nbttagintarray.field_48447_a);
         }
         else
         {

@@ -1,8 +1,7 @@
 package net.minecraft.src;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.*;
 
 public class AnvilSaveConverter extends SaveFormatOld
 {
@@ -14,6 +13,11 @@ public class AnvilSaveConverter extends SaveFormatOld
     protected int func_48495_a()
     {
         return 19133;
+    }
+
+    public void func_56408_b()
+    {
+        RegionFileCache.clearRegionFileReferences();
     }
 
     /**
@@ -46,16 +50,16 @@ public class AnvilSaveConverter extends SaveFormatOld
         File file1 = new File(file, "DIM-1");
         File file2 = new File(file, "DIM1");
         System.out.println("Scanning folders...");
-        func_48499_a(file, arraylist);
+        func_55215_a(file, arraylist);
 
         if (file1.exists())
         {
-            func_48499_a(file1, arraylist1);
+            func_55215_a(file1, arraylist1);
         }
 
         if (file2.exists())
         {
-            func_48499_a(file2, arraylist2);
+            func_55215_a(file2, arraylist2);
         }
 
         int i = arraylist.size() + arraylist1.size() + arraylist2.size();
@@ -72,9 +76,9 @@ public class AnvilSaveConverter extends SaveFormatOld
             obj = new WorldChunkManager(worldinfo.getSeed(), worldinfo.getTerrainType());
         }
 
-        func_48497_a(new File(file, "region"), arraylist, ((WorldChunkManager)(obj)), 0, i, par2IProgressUpdate);
-        func_48497_a(new File(file1, "region"), arraylist1, new WorldChunkManagerHell(BiomeGenBase.hell, 1.0F, 0.0F), arraylist.size(), i, par2IProgressUpdate);
-        func_48497_a(new File(file2, "region"), arraylist2, new WorldChunkManagerHell(BiomeGenBase.sky, 0.5F, 0.0F), arraylist.size() + arraylist1.size(), i, par2IProgressUpdate);
+        func_55214_a(new File(file, "region"), arraylist, ((WorldChunkManager)(obj)), 0, i, par2IProgressUpdate);
+        func_55214_a(new File(file1, "region"), arraylist1, new WorldChunkManagerHell(BiomeGenBase.hell, 1.0F, 0.0F), arraylist.size(), i, par2IProgressUpdate);
+        func_55214_a(new File(file2, "region"), arraylist2, new WorldChunkManagerHell(BiomeGenBase.sky, 0.5F, 0.0F), arraylist.size() + arraylist1.size(), i, par2IProgressUpdate);
         worldinfo.setSaveVersion(19133);
 
         if (worldinfo.getTerrainType() == WorldType.DEFAULT_1_1)
@@ -114,11 +118,11 @@ public class AnvilSaveConverter extends SaveFormatOld
         }
     }
 
-    private void func_48497_a(File par1File, ArrayList par2ArrayList, WorldChunkManager par3WorldChunkManager, int par4, int par5, IProgressUpdate par6IProgressUpdate)
+    private void func_55214_a(File par1File, Iterable par2Iterable, WorldChunkManager par3WorldChunkManager, int par4, int par5, IProgressUpdate par6IProgressUpdate)
     {
         int i;
 
-        for (Iterator iterator = par2ArrayList.iterator(); iterator.hasNext(); par6IProgressUpdate.setLoadingProgress(i))
+        for (Iterator iterator = par2Iterable.iterator(); iterator.hasNext(); par6IProgressUpdate.setLoadingProgress(i))
         {
             File file = (File)iterator.next();
             func_48496_a(par1File, file, par3WorldChunkManager, par4, par5, par6IProgressUpdate);
@@ -184,21 +188,14 @@ public class AnvilSaveConverter extends SaveFormatOld
         }
     }
 
-    private void func_48499_a(File par1File, ArrayList par2ArrayList)
+    private void func_55215_a(File par1File, Collection par2Collection)
     {
         File file = new File(par1File, "region");
         File afile[] = file.listFiles(new AnvilSaveConverterFileFilter(this));
 
         if (afile != null)
         {
-            File afile1[] = afile;
-            int i = afile1.length;
-
-            for (int j = 0; j < i; j++)
-            {
-                File file1 = afile1[j];
-                par2ArrayList.add(file1);
-            }
+            Collections.addAll(par2Collection, afile);
         }
     }
 }

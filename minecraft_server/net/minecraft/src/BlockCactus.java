@@ -8,6 +8,7 @@ public class BlockCactus extends Block
     {
         super(par1, par2, Material.cactus);
         setTickRandomly(true);
+        func_56326_a(CreativeTabs.field_56388_c);
     }
 
     /**
@@ -45,7 +46,7 @@ public class BlockCactus extends Block
     public AxisAlignedBB getCollisionBoundingBoxFromPool(World par1World, int par2, int par3, int par4)
     {
         float f = 0.0625F;
-        return AxisAlignedBB.getBoundingBoxFromPool((float)par2 + f, par3, (float)par4 + f, (float)(par2 + 1) - f, (float)(par3 + 1) - f, (float)(par4 + 1) - f);
+        return AxisAlignedBB.func_58089_a().func_58067_a((float)par2 + f, par3, (float)par4 + f, (float)(par2 + 1) - f, (float)(par3 + 1) - f, (float)(par4 + 1) - f);
     }
 
     /**

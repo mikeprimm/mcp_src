@@ -11,6 +11,7 @@ public class BlockChest extends BlockContainer
         super(par1, Material.wood);
         random = new Random();
         blockIndexInTexture = 26;
+        func_56326_a(CreativeTabs.field_56388_c);
     }
 
     /**
@@ -250,24 +251,7 @@ public class BlockChest extends BlockContainer
      */
     public int getBlockTextureFromSide(int par1)
     {
-        if (par1 == 1)
-        {
-            return blockIndexInTexture - 1;
-        }
-
-        if (par1 == 0)
-        {
-            return blockIndexInTexture - 1;
-        }
-
-        if (par1 == 3)
-        {
-            return blockIndexInTexture + 1;
-        }
-        else
-        {
-            return blockIndexInTexture;
-        }
+        return 4;
     }
 
     /**
@@ -363,10 +347,7 @@ public class BlockChest extends BlockContainer
         }
     }
 
-    /**
-     * Called whenever the block is removed.
-     */
-    public void onBlockRemoval(World par1World, int par2, int par3, int par4)
+    public void func_56322_a(World par1World, int par2, int par3, int par4, int par5, int par6)
     {
         TileEntityChest tileentitychest = (TileEntityChest)par1World.getBlockTileEntity(par2, par3, par4);
 
@@ -411,14 +392,10 @@ public class BlockChest extends BlockContainer
             }
         }
 
-        super.onBlockRemoval(par1World, par2, par3, par4);
+        super.func_56322_a(par1World, par2, par3, par4, par5, par6);
     }
 
-    /**
-     * Called upon block activation (left or right click on the block.). The three integers represent x,y,z of the
-     * block.
-     */
-    public boolean blockActivated(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer)
+    public boolean func_56323_a(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer, int par6, float par7, float par8, float par9)
     {
         Object obj = (TileEntityChest)par1World.getBlockTileEntity(par2, par3, par4);
 
@@ -459,22 +436,22 @@ public class BlockChest extends BlockContainer
 
         if (par1World.getBlockId(par2 - 1, par3, par4) == blockID)
         {
-            obj = new InventoryLargeChest("Large chest", (TileEntityChest)par1World.getBlockTileEntity(par2 - 1, par3, par4), ((IInventory)(obj)));
+            obj = new InventoryLargeChest("container.chestDouble", (TileEntityChest)par1World.getBlockTileEntity(par2 - 1, par3, par4), ((IInventory)(obj)));
         }
 
         if (par1World.getBlockId(par2 + 1, par3, par4) == blockID)
         {
-            obj = new InventoryLargeChest("Large chest", ((IInventory)(obj)), (TileEntityChest)par1World.getBlockTileEntity(par2 + 1, par3, par4));
+            obj = new InventoryLargeChest("container.chestDouble", ((IInventory)(obj)), (TileEntityChest)par1World.getBlockTileEntity(par2 + 1, par3, par4));
         }
 
         if (par1World.getBlockId(par2, par3, par4 - 1) == blockID)
         {
-            obj = new InventoryLargeChest("Large chest", (TileEntityChest)par1World.getBlockTileEntity(par2, par3, par4 - 1), ((IInventory)(obj)));
+            obj = new InventoryLargeChest("container.chestDouble", (TileEntityChest)par1World.getBlockTileEntity(par2, par3, par4 - 1), ((IInventory)(obj)));
         }
 
         if (par1World.getBlockId(par2, par3, par4 + 1) == blockID)
         {
-            obj = new InventoryLargeChest("Large chest", ((IInventory)(obj)), (TileEntityChest)par1World.getBlockTileEntity(par2, par3, par4 + 1));
+            obj = new InventoryLargeChest("container.chestDouble", ((IInventory)(obj)), (TileEntityChest)par1World.getBlockTileEntity(par2, par3, par4 + 1));
         }
 
         if (par1World.isRemote)
@@ -488,22 +465,19 @@ public class BlockChest extends BlockContainer
         }
     }
 
-    /**
-     * Returns the TileEntity used by this block.
-     */
-    public TileEntity getBlockEntity()
+    public TileEntity func_56351_a(World par1World)
     {
         return new TileEntityChest();
     }
 
     private static boolean func_50009_h(World par0World, int par1, int par2, int par3)
     {
-        for (Iterator iterator = par0World.getEntitiesWithinAABB(net.minecraft.src.EntityOcelot.class, AxisAlignedBB.getBoundingBoxFromPool(par1, par2 + 1, par3, par1 + 1, par2 + 2, par3 + 1)).iterator(); iterator.hasNext();)
+        for (Iterator iterator = par0World.getEntitiesWithinAABB(net.minecraft.src.EntityOcelot.class, AxisAlignedBB.func_58089_a().func_58067_a(par1, par2 + 1, par3, par1 + 1, par2 + 2, par3 + 1)).iterator(); iterator.hasNext();)
         {
-            Entity entity = (Entity)iterator.next();
-            EntityOcelot entityocelot = (EntityOcelot)entity;
+            EntityOcelot entityocelot = (EntityOcelot)iterator.next();
+            EntityOcelot entityocelot1 = (EntityOcelot)entityocelot;
 
-            if (entityocelot.isSitting())
+            if (entityocelot1.isSitting())
             {
                 return true;
             }

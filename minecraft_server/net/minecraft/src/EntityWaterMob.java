@@ -15,22 +15,6 @@ public abstract class EntityWaterMob extends EntityCreature implements IAnimals
     }
 
     /**
-     * (abstract) Protected helper method to write subclass entity data to NBT.
-     */
-    public void writeEntityToNBT(NBTTagCompound par1NBTTagCompound)
-    {
-        super.writeEntityToNBT(par1NBTTagCompound);
-    }
-
-    /**
-     * (abstract) Protected helper method to read subclass entity data from NBT.
-     */
-    public void readEntityFromNBT(NBTTagCompound par1NBTTagCompound)
-    {
-        super.readEntityFromNBT(par1NBTTagCompound);
-    }
-
-    /**
      * Checks if the entity's current position is a valid location to spawn this entity.
      */
     public boolean getCanSpawnHere()

@@ -115,10 +115,7 @@ public class DataWatcher
         par1DataOutputStream.writeByte(127);
     }
 
-    /**
-     * retrieves all objects that have changed
-     */
-    public ArrayList getChangedObjects()
+    public List func_55234_b()
     {
         ArrayList arraylist = null;
 

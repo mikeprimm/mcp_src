@@ -1,23 +1,21 @@
 package net.minecraft.src;
 
-import java.util.List;
-
 public class WorldInfo
 {
     /** Holds the seed of the currently world. */
     private long randomSeed;
     private WorldType terrainType;
 
-    /** The spawn zone position (X) */
+    /** The spawn zone position X coordinate. */
     private int spawnX;
 
-    /** The spawn zone position (Y) */
+    /** The spawn zone position Y coordinate. */
     private int spawnY;
 
-    /** The spawn zone position (Z) */
+    /** The spawn zone position Z coordinate. */
     private int spawnZ;
 
-    /** The world time (in ticks) */
+    /** The current world time in ticks, ranging from 0 to 23999. */
     private long worldTime;
 
     /** The last time the player was in this world. */
@@ -34,31 +32,37 @@ public class WorldInfo
     /** Introduced in beta 1.3, is the save version for future control. */
     private int saveVersion;
 
-    /** hold the boolean if its raining or not */
+    /** True if it's raining, false otherwise. */
     private boolean raining;
 
-    /** holds the time of the rain */
+    /** Number of ticks until next rain. */
     private int rainTime;
 
     /** Is thunderbolts failing now? */
     private boolean thundering;
 
-    /** hold the during of the thunder */
+    /** Number of ticks untils next thunderbolt. */
     private int thunderTime;
+    private EnumGameType field_56517_q;
 
-    /** Indicates the type of the game. 0 for survival, 1 for creative. */
-    private int gameType;
-
-    /** Are map structures going to be generated? (e.g. strongholds) */
+    /**
+     * Whether the map features (e.g. strongholds) generation is enabled or disabled.
+     */
     private boolean mapFeaturesEnabled;
 
     /** Hardcore mode flag */
     private boolean hardcore;
+    private boolean field_55311_t;
+    private boolean field_56516_u;
+
+    protected WorldInfo()
+    {
+        terrainType = WorldType.DEFAULT;
+    }
 
     public WorldInfo(NBTTagCompound par1NBTTagCompound)
     {
         terrainType = WorldType.DEFAULT;
-        hardcore = false;
         randomSeed = par1NBTTagCompound.getLong("RandomSeed");
 
         if (par1NBTTagCompound.hasKey("generatorName"))
@@ -83,7 +87,7 @@ public class WorldInfo
             }
         }
 
-        gameType = par1NBTTagCompound.getInteger("GameType");
+        field_56517_q = EnumGameType.func_56604_a(par1NBTTagCompound.getInteger("GameType"));
 
         if (par1NBTTagCompound.hasKey("MapFeatures"))
         {
@@ -108,6 +112,24 @@ public class WorldInfo
         thundering = par1NBTTagCompound.getBoolean("thundering");
         hardcore = par1NBTTagCompound.getBoolean("hardcore");
 
+        if (par1NBTTagCompound.hasKey("initialized"))
+        {
+            field_56516_u = par1NBTTagCompound.getBoolean("initialized");
+        }
+        else
+        {
+            field_56516_u = true;
+        }
+
+        if (par1NBTTagCompound.hasKey("allowCommands"))
+        {
+            field_55311_t = par1NBTTagCompound.getBoolean("allowCommands");
+        }
+        else
+        {
+            field_55311_t = field_56517_q == EnumGameType.CREATIVE;
+        }
+
         if (par1NBTTagCompound.hasKey("Player"))
         {
             playerTag = par1NBTTagCompound.getCompoundTag("Player");
@@ -118,22 +140,22 @@ public class WorldInfo
     public WorldInfo(WorldSettings par1WorldSettings, String par2Str)
     {
         terrainType = WorldType.DEFAULT;
-        hardcore = false;
         randomSeed = par1WorldSettings.getSeed();
-        gameType = par1WorldSettings.getGameType();
+        field_56517_q = par1WorldSettings.func_56525_d();
         mapFeaturesEnabled = par1WorldSettings.isMapFeaturesEnabled();
         levelName = par2Str;
         hardcore = par1WorldSettings.getHardcoreEnabled();
         terrainType = par1WorldSettings.getTerrainType();
+        field_55311_t = par1WorldSettings.func_55209_h();
+        field_56516_u = false;
     }
 
     public WorldInfo(WorldInfo par1WorldInfo)
     {
         terrainType = WorldType.DEFAULT;
-        hardcore = false;
         randomSeed = par1WorldInfo.randomSeed;
         terrainType = par1WorldInfo.terrainType;
-        gameType = par1WorldInfo.gameType;
+        field_56517_q = par1WorldInfo.field_56517_q;
         mapFeaturesEnabled = par1WorldInfo.mapFeaturesEnabled;
         spawnX = par1WorldInfo.spawnX;
         spawnY = par1WorldInfo.spawnY;
@@ -150,6 +172,8 @@ public class WorldInfo
         thunderTime = par1WorldInfo.thunderTime;
         thundering = par1WorldInfo.thundering;
         hardcore = par1WorldInfo.hardcore;
+        field_55311_t = par1WorldInfo.field_55311_t;
+        field_56516_u = par1WorldInfo.field_56516_u;
     }
 
     /**
@@ -162,27 +186,10 @@ public class WorldInfo
         return nbttagcompound;
     }
 
-    /**
-     * stores the current level's dat to an nbt tag for future saving in level.dat
-     */
-    public NBTTagCompound getNBTTagCompoundWithPlayers(List par1List)
+    public NBTTagCompound func_56514_a(NBTTagCompound par1NBTTagCompound)
     {
         NBTTagCompound nbttagcompound = new NBTTagCompound();
-        EntityPlayer entityplayer = null;
-        NBTTagCompound nbttagcompound1 = null;
-
-        if (par1List.size() > 0)
-        {
-            entityplayer = (EntityPlayer)par1List.get(0);
-        }
-
-        if (entityplayer != null)
-        {
-            nbttagcompound1 = new NBTTagCompound();
-            entityplayer.writeToNBT(nbttagcompound1);
-        }
-
-        updateTagCompound(nbttagcompound, nbttagcompound1);
+        updateTagCompound(nbttagcompound, par1NBTTagCompound);
         return nbttagcompound;
     }
 
@@ -191,7 +198,7 @@ public class WorldInfo
         par1NBTTagCompound.setLong("RandomSeed", randomSeed);
         par1NBTTagCompound.setString("generatorName", terrainType.func_48449_a());
         par1NBTTagCompound.setInteger("generatorVersion", terrainType.getGeneratorVersion());
-        par1NBTTagCompound.setInteger("GameType", gameType);
+        par1NBTTagCompound.setInteger("GameType", field_56517_q.func_56607_a());
         par1NBTTagCompound.setBoolean("MapFeatures", mapFeaturesEnabled);
         par1NBTTagCompound.setInteger("SpawnX", spawnX);
         par1NBTTagCompound.setInteger("SpawnY", spawnY);
@@ -206,6 +213,8 @@ public class WorldInfo
         par1NBTTagCompound.setInteger("thunderTime", thunderTime);
         par1NBTTagCompound.setBoolean("thundering", thundering);
         par1NBTTagCompound.setBoolean("hardcore", hardcore);
+        par1NBTTagCompound.setBoolean("allowCommands", field_55311_t);
+        par1NBTTagCompound.setBoolean("initialized", field_56516_u);
 
         if (par2NBTTagCompound != null)
         {
@@ -253,6 +262,11 @@ public class WorldInfo
         return worldTime;
     }
 
+    public NBTTagCompound func_56509_g()
+    {
+        return playerTag;
+    }
+
     public int getDimension()
     {
         return dimension;
@@ -267,13 +281,18 @@ public class WorldInfo
     }
 
     /**
-     * Sets the spawn (zone) position
+     * Sets the spawn zone position. Args: x, y, z
      */
     public void setSpawnPosition(int par1, int par2, int par3)
     {
         spawnX = par1;
         spawnY = par2;
         spawnZ = par3;
+    }
+
+    public String func_55310_h()
+    {
+        return levelName;
     }
 
     public void setWorldName(String par1Str)
@@ -298,7 +317,7 @@ public class WorldInfo
     }
 
     /**
-     * gets if it's thundering or not
+     * Returns true if it is thundering, false otherwise.
      */
     public boolean isThundering()
     {
@@ -306,7 +325,7 @@ public class WorldInfo
     }
 
     /**
-     * sets if it's thundering or not
+     * Sets whether it is thundering or not.
      */
     public void setThundering(boolean par1)
     {
@@ -314,7 +333,7 @@ public class WorldInfo
     }
 
     /**
-     * gets the during of the thunder
+     * Returns the number of ticks until next thunderbolt.
      */
     public int getThunderTime()
     {
@@ -322,7 +341,7 @@ public class WorldInfo
     }
 
     /**
-     * sets the during of the Thunder
+     * Defines the number of ticks until next thunderbolt.
      */
     public void setThunderTime(int par1)
     {
@@ -330,7 +349,7 @@ public class WorldInfo
     }
 
     /**
-     * returns whether it's raining
+     * Returns true if it is raining, false otherwise.
      */
     public boolean isRaining()
     {
@@ -338,7 +357,7 @@ public class WorldInfo
     }
 
     /**
-     * sets whether it's raining
+     * Sets whether it is raining or not.
      */
     public void setRaining(boolean par1)
     {
@@ -346,7 +365,7 @@ public class WorldInfo
     }
 
     /**
-     * gets the rainTime
+     * Return the number of ticks until rain.
      */
     public int getRainTime()
     {
@@ -354,35 +373,29 @@ public class WorldInfo
     }
 
     /**
-     * sets the rainTime
+     * Sets the number of ticks until rain.
      */
     public void setRainTime(int par1)
     {
         rainTime = par1;
     }
 
-    /**
-     * Get the game type, 0 for survival, 1 for creative.
-     */
-    public int getGameType()
+    public EnumGameType func_56510_o()
     {
-        return gameType;
+        return field_56517_q;
     }
 
     /**
-     * Get whether the map features generation is enabled or disabled.
+     * Get whether the map features (e.g. strongholds) generation is enabled or disabled.
      */
     public boolean isMapFeaturesEnabled()
     {
         return mapFeaturesEnabled;
     }
 
-    /**
-     * Set the game type, <=0 for survival, >0 for creative.
-     */
-    public void setGameType(int par1)
+    public void func_56512_a(EnumGameType par1EnumGameType)
     {
-        gameType = par1;
+        field_56517_q = par1EnumGameType;
     }
 
     /**
@@ -401,5 +414,20 @@ public class WorldInfo
     public void setTerrainType(WorldType par1WorldType)
     {
         terrainType = par1WorldType;
+    }
+
+    public boolean func_56515_s()
+    {
+        return field_55311_t;
+    }
+
+    public boolean func_56513_t()
+    {
+        return field_56516_u;
+    }
+
+    public void func_56511_c(boolean par1)
+    {
+        field_56516_u = par1;
     }
 }

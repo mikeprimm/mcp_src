@@ -7,6 +7,7 @@ public class BlockGlowStone extends Block
     public BlockGlowStone(int par1, int par2, Material par3Material)
     {
         super(par1, par2, par3Material);
+        func_56326_a(CreativeTabs.field_56387_b);
     }
 
     /**

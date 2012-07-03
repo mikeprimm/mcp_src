@@ -129,7 +129,7 @@ public abstract class EntityLiving extends Entity
 
     /** The active target the Task system uses for tracking */
     private EntityLiving attackTarget;
-    private EntitySenses field_48343_m;
+    private EntitySenses senses;
     private float field_48340_n;
     private ChunkCoordinates homePosition;
 
@@ -174,10 +174,10 @@ public abstract class EntityLiving extends Entity
     /** Number of ticks since last jump */
     private int jumpTicks;
 
-    /** this entities current target */
+    /** This entity's current target. */
     private Entity currentTarget;
 
-    /** how long to keep a specific target entity */
+    /** How long to keep a specific target entity */
     protected int numTicksToChaseTarget;
 
     public EntityLiving(World par1World)
@@ -232,7 +232,7 @@ public abstract class EntityLiving extends Entity
         jumpHelper = new EntityJumpHelper(this);
         bodyHelper = new EntityBodyHelper(this);
         navigator = new PathNavigate(this, par1World, 16F);
-        field_48343_m = new EntitySenses(this);
+        senses = new EntitySenses(this);
         field_9096_ay = (float)(Math.random() + 1.0D) * 0.01F;
         setPosition(posX, posY, posZ);
         field_9098_aw = (float)Math.random() * 12398F;
@@ -261,9 +261,12 @@ public abstract class EntityLiving extends Entity
         return navigator;
     }
 
-    public EntitySenses func_48318_al()
+    /**
+     * returns the EntitySenses Object for the EntityLiving
+     */
+    public EntitySenses getEntitySenses()
     {
-        return field_48343_m;
+        return senses;
     }
 
     public Random getRNG()
@@ -407,7 +410,7 @@ public abstract class EntityLiving extends Entity
      */
     public boolean canEntityBeSeen(Entity par1Entity)
     {
-        return worldObj.rayTraceBlocks(Vec3D.createVector(posX, posY + (double)getEyeHeight(), posZ), Vec3D.createVector(par1Entity.posX, par1Entity.posY + (double)par1Entity.getEyeHeight(), par1Entity.posZ)) == null;
+        return worldObj.rayTraceBlocks(Vec3.func_58052_a().func_58076_a(posX, posY + (double)getEyeHeight(), posZ), Vec3.func_58052_a().func_58076_a(par1Entity.posX, par1Entity.posY + (double)par1Entity.getEyeHeight(), par1Entity.posZ)) == null;
     }
 
     /**
@@ -469,7 +472,7 @@ public abstract class EntityLiving extends Entity
 
         if (isEntityAlive() && isEntityInsideOpaqueBlock())
         {
-            if (!attackEntityFrom(DamageSource.inWall, 1));
+            attackEntityFrom(DamageSource.inWall, 1);
         }
 
         if (isImmuneToFire() || worldObj.isRemote)
@@ -583,7 +586,6 @@ public abstract class EntityLiving extends Entity
                 }
             }
 
-            onEntityDeath();
             setDead();
 
             for (int j = 0; j < 20; j++)
@@ -694,7 +696,7 @@ public abstract class EntityLiving extends Entity
             f3 = 0.0F;
         }
 
-        field_9123_aC = field_9123_aC + (f3 - field_9123_aC) * 0.3F;
+        field_9123_aC += (f3 - field_9123_aC) * 0.3F;
 
         if (isAIEnabled())
         {
@@ -757,14 +759,6 @@ public abstract class EntityLiving extends Entity
         for (; rotationYawHead - prevRotationYawHead >= 180F; prevRotationYawHead += 360F) { }
 
         field_9122_aD += f2;
-    }
-
-    /**
-     * Sets the width and height of the entity. Args: width, height
-     */
-    protected void setSize(float par1, float par2)
-    {
-        super.setSize(par1, par2);
     }
 
     /**
@@ -879,7 +873,11 @@ public abstract class EntityLiving extends Entity
         if (flag)
         {
             worldObj.setEntityState(this, (byte)2);
-            setBeenAttacked();
+
+            if (par1DamageSource != DamageSource.drown && par1DamageSource != DamageSource.field_58044_m)
+            {
+                setBeenAttacked();
+            }
 
             if (entity != null)
             {
@@ -1159,7 +1157,7 @@ public abstract class EntityLiving extends Entity
      */
     public void moveEntityWithHeading(float par1, float par2)
     {
-        if (isInWater())
+        if (isInWater() && (!(this instanceof EntityPlayer) || !((EntityPlayer)this).capabilities.isFlying))
         {
             double d = posY;
             moveFlying(par1, par2, isAIEnabled() ? 0.04F : 0.02F);
@@ -1174,7 +1172,7 @@ public abstract class EntityLiving extends Entity
                 motionY = 0.30000001192092896D;
             }
         }
-        else if (handleLavaMovement())
+        else if (handleLavaMovement() && (!(this instanceof EntityPlayer) || !((EntityPlayer)this).capabilities.isFlying))
         {
             double d1 = posY;
             moveFlying(par1, par2, 0.02F);
@@ -1431,25 +1429,21 @@ public abstract class EntityLiving extends Entity
             newPosRotationIncrements--;
             setPosition(d, d1, d2);
             setRotation(rotationYaw, rotationPitch);
-            List list1 = worldObj.getCollidingBoundingBoxes(this, boundingBox.contract(0.03125D, 0.0D, 0.03125D));
+        }
 
-            if (list1.size() > 0)
-            {
-                double d4 = 0.0D;
+        if (Math.abs(motionX) < 0.0050000000000000001D)
+        {
+            motionX = 0.0D;
+        }
 
-                for (int j = 0; j < list1.size(); j++)
-                {
-                    AxisAlignedBB axisalignedbb = (AxisAlignedBB)list1.get(j);
+        if (Math.abs(motionY) < 0.0050000000000000001D)
+        {
+            motionY = 0.0D;
+        }
 
-                    if (axisalignedbb.maxY > d4)
-                    {
-                        d4 = axisalignedbb.maxY;
-                    }
-                }
-
-                d1 += d4 - boundingBox.minY;
-                setPosition(d, d1, d2);
-            }
+        if (Math.abs(motionZ) < 0.0050000000000000001D)
+        {
+            motionZ = 0.0D;
         }
 
         Profiler.startSection("ai");
@@ -1484,11 +1478,7 @@ public abstract class EntityLiving extends Entity
 
         if (isJumping)
         {
-            if (flag)
-            {
-                motionY += 0.039999999105930328D;
-            }
-            else if (flag1)
+            if (flag || flag1)
             {
                 motionY += 0.039999999105930328D;
             }
@@ -1511,18 +1501,30 @@ public abstract class EntityLiving extends Entity
         moveEntityWithHeading(moveStrafing, moveForward);
         landMovementFactor = f;
         Profiler.startSection("push");
-        List list = worldObj.getEntitiesWithinAABBExcludingEntity(this, boundingBox.expand(0.20000000298023224D, 0.0D, 0.20000000298023224D));
 
-        if (list != null && list.size() > 0)
+        if (!worldObj.isRemote)
         {
-            for (int i = 0; i < list.size(); i++)
-            {
-                Entity entity = (Entity)list.get(i);
+            List list = worldObj.getEntitiesWithinAABBExcludingEntity(this, boundingBox.expand(0.20000000298023224D, 0.0D, 0.20000000298023224D));
 
-                if (entity.canBePushed())
+            if (list != null && !list.isEmpty())
+            {
+                Iterator iterator = list.iterator();
+
+                do
                 {
-                    entity.applyEntityCollision(this);
+                    if (!iterator.hasNext())
+                    {
+                        break;
+                    }
+
+                    Entity entity = (Entity)iterator.next();
+
+                    if (entity.canBePushed())
+                    {
+                        entity.applyEntityCollision(this);
+                    }
                 }
+                while (true);
             }
         }
 
@@ -1559,7 +1561,7 @@ public abstract class EntityLiving extends Entity
     }
 
     /**
-     * causes this entity to jump (or at least move upwards)
+     * Causes this entity to do an upwards motion (jumping).
      */
     protected void jump()
     {
@@ -1625,7 +1627,7 @@ public abstract class EntityLiving extends Entity
         despawnEntity();
         Profiler.endSection();
         Profiler.startSection("sensing");
-        field_48343_m.clearSensingCache();
+        senses.clearSensingCache();
         Profiler.endSection();
         Profiler.startSection("targetSelector");
         targetTasks.onUpdateTasks();
@@ -1715,7 +1717,7 @@ public abstract class EntityLiving extends Entity
     }
 
     /**
-     * changes pitch and yaw so that the entity calling the function is facing the entity provided as an argumen
+     * Changes pitch and yaw so that the entity calling the function is facing the entity provided as an argument.
      */
     public void faceEntity(Entity par1Entity, float par2, float par3)
     {
@@ -1765,18 +1767,11 @@ public abstract class EntityLiving extends Entity
     }
 
     /**
-     * Called when the entity vanishes after dies by damage (or other method that put health below or at zero).
-     */
-    public void onEntityDeath()
-    {
-    }
-
-    /**
      * Checks if the entity's current position is a valid location to spawn this entity.
      */
     public boolean getCanSpawnHere()
     {
-        return worldObj.checkIfAABBIsClear(boundingBox) && worldObj.getCollidingBoundingBoxes(this, boundingBox).size() == 0 && !worldObj.isAnyLiquid(boundingBox);
+        return worldObj.checkIfAABBIsClear(boundingBox) && worldObj.getCollidingBoundingBoxes(this, boundingBox).isEmpty() && !worldObj.isAnyLiquid(boundingBox);
     }
 
     /**
@@ -1790,7 +1785,7 @@ public abstract class EntityLiving extends Entity
     /**
      * returns a (normalized) vector of where this entity is looking
      */
-    public Vec3D getLookVec()
+    public Vec3 getLookVec()
     {
         return getLook(1.0F);
     }
@@ -1798,7 +1793,7 @@ public abstract class EntityLiving extends Entity
     /**
      * interpolated look vector
      */
-    public Vec3D getLook(float par1)
+    public Vec3 getLook(float par1)
     {
         if (par1 == 1.0F)
         {
@@ -1806,7 +1801,7 @@ public abstract class EntityLiving extends Entity
             float f2 = MathHelper.sin(-rotationYaw * 0.01745329F - (float)Math.PI);
             float f4 = -MathHelper.cos(-rotationPitch * 0.01745329F);
             float f6 = MathHelper.sin(-rotationPitch * 0.01745329F);
-            return Vec3D.createVector(f2 * f4, f6, f * f4);
+            return Vec3.func_58052_a().func_58076_a(f2 * f4, f6, f * f4);
         }
         else
         {
@@ -1816,7 +1811,7 @@ public abstract class EntityLiving extends Entity
             float f7 = MathHelper.sin(-f3 * 0.01745329F - (float)Math.PI);
             float f8 = -MathHelper.cos(-f1 * 0.01745329F);
             float f9 = MathHelper.sin(-f1 * 0.01745329F);
-            return Vec3D.createVector(f7 * f8, f9, f5 * f8);
+            return Vec3.func_58052_a().func_58076_a(f7 * f8, f9, f5 * f8);
         }
     }
 
@@ -1862,14 +1857,14 @@ public abstract class EntityLiving extends Entity
         {
             if (!worldObj.isRemote)
             {
-                if (!activePotionsMap.isEmpty())
+                if (activePotionsMap.isEmpty())
                 {
-                    int i = PotionHelper.func_40553_a(activePotionsMap.values());
-                    dataWatcher.updateObject(8, Integer.valueOf(i));
+                    dataWatcher.updateObject(8, Integer.valueOf(0));
                 }
                 else
                 {
-                    dataWatcher.updateObject(8, Integer.valueOf(0));
+                    int i = PotionHelper.func_40553_a(activePotionsMap.values());
+                    dataWatcher.updateObject(8, Integer.valueOf(i));
                 }
             }
 
@@ -1992,7 +1987,7 @@ public abstract class EntityLiving extends Entity
     }
 
     /**
-     * This method return a value to be applied directly to entity speed, this factor is less than 1 when a slowdown
+     * This method returns a value to be applied directly to entity speed, this factor is less than 1 when a slowdown
      * potion effect is applied, more than 1 when a haste potion effect is applied and 2 for fleeing entities.
      */
     protected float getSpeedModifier()
@@ -2045,14 +2040,14 @@ public abstract class EntityLiving extends Entity
 
         for (int i = 0; i < 5; i++)
         {
-            Vec3D vec3d = Vec3D.createVector(((double)rand.nextFloat() - 0.5D) * 0.10000000000000001D, Math.random() * 0.10000000000000001D + 0.10000000000000001D, 0.0D);
-            vec3d.rotateAroundX((-rotationPitch * (float)Math.PI) / 180F);
-            vec3d.rotateAroundY((-rotationYaw * (float)Math.PI) / 180F);
-            Vec3D vec3d1 = Vec3D.createVector(((double)rand.nextFloat() - 0.5D) * 0.29999999999999999D, (double)(-rand.nextFloat()) * 0.59999999999999998D - 0.29999999999999999D, 0.59999999999999998D);
-            vec3d1.rotateAroundX((-rotationPitch * (float)Math.PI) / 180F);
-            vec3d1.rotateAroundY((-rotationYaw * (float)Math.PI) / 180F);
-            vec3d1 = vec3d1.addVector(posX, posY + (double)getEyeHeight(), posZ);
-            worldObj.spawnParticle((new StringBuilder()).append("iconcrack_").append(par1ItemStack.getItem().shiftedIndex).toString(), vec3d1.xCoord, vec3d1.yCoord, vec3d1.zCoord, vec3d.xCoord, vec3d.yCoord + 0.050000000000000003D, vec3d.zCoord);
+            Vec3 vec3 = Vec3.func_58052_a().func_58076_a(((double)rand.nextFloat() - 0.5D) * 0.10000000000000001D, Math.random() * 0.10000000000000001D + 0.10000000000000001D, 0.0D);
+            vec3.rotateAroundX((-rotationPitch * (float)Math.PI) / 180F);
+            vec3.rotateAroundY((-rotationYaw * (float)Math.PI) / 180F);
+            Vec3 vec3_1 = Vec3.func_58052_a().func_58076_a(((double)rand.nextFloat() - 0.5D) * 0.29999999999999999D, (double)(-rand.nextFloat()) * 0.59999999999999998D - 0.29999999999999999D, 0.59999999999999998D);
+            vec3_1.rotateAroundX((-rotationPitch * (float)Math.PI) / 180F);
+            vec3_1.rotateAroundY((-rotationYaw * (float)Math.PI) / 180F);
+            vec3_1 = vec3_1.addVector(posX, posY + (double)getEyeHeight(), posZ);
+            worldObj.spawnParticle((new StringBuilder()).append("iconcrack_").append(par1ItemStack.getItem().shiftedIndex).toString(), vec3_1.xCoord, vec3_1.yCoord, vec3_1.zCoord, vec3.xCoord, vec3.yCoord + 0.050000000000000003D, vec3.zCoord);
         }
     }
 }

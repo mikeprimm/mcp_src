@@ -13,6 +13,8 @@ public class RecipesIngots
                     }, new Object[] {
                         Block.blockSteel, new ItemStack(Item.ingotIron, 9)
                     }, new Object[] {
+                        Block.field_56336_ax, new ItemStack(Item.field_56457_n, 9)
+                    }, new Object[] {
                         Block.blockDiamond, new ItemStack(Item.diamond, 9)
                     }, new Object[] {
                         Block.blockLapis, new ItemStack(Item.dyePowder, 9, 4)
@@ -21,14 +23,18 @@ public class RecipesIngots
     }
 
     /**
-     * Adds ingot recipes to the CraftingManager.
+     * Adds the ingot recipes to the CraftingManager.
      */
     public void addRecipes(CraftingManager par1CraftingManager)
     {
-        for (int i = 0; i < recipeItems.length; i++)
+        Object aobj[][] = recipeItems;
+        int i = aobj.length;
+
+        for (int j = 0; j < i; j++)
         {
-            Block block = (Block)recipeItems[i][0];
-            ItemStack itemstack = (ItemStack)recipeItems[i][1];
+            Object aobj1[] = aobj[j];
+            Block block = (Block)aobj1[0];
+            ItemStack itemstack = (ItemStack)aobj1[1];
             par1CraftingManager.addRecipe(new ItemStack(block), new Object[]
                     {
                         "###", "###", "###", '#', itemstack

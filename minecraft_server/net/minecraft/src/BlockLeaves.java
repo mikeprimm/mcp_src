@@ -9,6 +9,10 @@ public class BlockLeaves extends BlockLeavesBase
      * switch the displayed version between fancy and fast graphics (fast is this index + 1).
      */
     private int baseIndexInPNG;
+    public static final String field_56354_b[] =
+    {
+        "oak", "spruce", "birch", "jungle"
+    };
     int adjacentTreeBlocks[];
 
     protected BlockLeaves(int par1, int par2)
@@ -16,12 +20,10 @@ public class BlockLeaves extends BlockLeavesBase
         super(par1, par2, Material.leaves, false);
         baseIndexInPNG = par2;
         setTickRandomly(true);
+        func_56326_a(CreativeTabs.field_56388_c);
     }
 
-    /**
-     * Called whenever the block is removed.
-     */
-    public void onBlockRemoval(World par1World, int par2, int par3, int par4)
+    public void func_56322_a(World par1World, int par2, int par3, int par4, int par5, int par6)
     {
         int i = 1;
         int j = i + 1;
@@ -262,13 +264,5 @@ public class BlockLeaves extends BlockLeavesBase
         {
             return blockIndexInTexture;
         }
-    }
-
-    /**
-     * Called whenever an entity is walking on top of this block. Args: world, x, y, z, entity
-     */
-    public void onEntityWalking(World par1World, int par2, int par3, int par4, Entity par5Entity)
-    {
-        super.onEntityWalking(par1World, par2, par3, par4, par5Entity);
     }
 }
